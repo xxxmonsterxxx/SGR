@@ -13,18 +13,36 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="WindowManager">
+      <UniqueIdentifier>{c46e802d-27e3-4b59-8784-6b6127ba3ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PhysicalDeviceManager">
+      <UniqueIdentifier>{20fda507-f61b-4408-ab1a-c87a39dd22e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="WindowManager.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>WindowManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicalDeviceManager.h">
+      <Filter>PhysicalDeviceManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>WindowManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SGR.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicalDeviceManager.cpp">
+      <Filter>PhysicalDeviceManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

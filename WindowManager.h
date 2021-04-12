@@ -2,9 +2,6 @@
 
 #include "utils.h"
 
-#include "GLFW/glfw3.h"
-#include "string"
-
 class SGR;
 
 class WindowManager {

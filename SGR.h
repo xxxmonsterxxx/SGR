@@ -5,25 +5,28 @@
 
 #include "utils.h"
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <cstdint>
-#include <string>
-
 #include "WindowManager.h"
+#include "PhysicalDeviceManager.h"
 
 class SGR {
 private:
 
 	bool manualWindow;
-	WindowManager windowManager;
 	GLFWwindow* window;
-	
 	bool sgrRunning;
 
+	std::string applicationName;
+	uint8_t appVersionMajor;
+	uint8_t appVersionMinor;
+
+	WindowManager windowManager;
+	VkInstance vulkanInstance;
+	PhysicalDeviceManager physDeviceManager;
+
+	sgrErrCode initVulkanInstance();
+
 public:
-	SGR();
+	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
 	~SGR();
 
 	bool isSGRRunning();
@@ -49,4 +52,6 @@ public:
 	 * \return 
 	 */
 	sgrErrCode initSGRWindow(GLFWwindow* newWindow, const char* windowName);
+
+	sgrErrCode setPhysicalDeviceRequirements();
 };

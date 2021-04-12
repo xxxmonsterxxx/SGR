@@ -30,6 +30,9 @@
     <ClInclude Include="PhysicalDeviceManager.h">
       <Filter>PhysicalDeviceManager</Filter>
     </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

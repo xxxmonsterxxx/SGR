@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="PhysicalDeviceManager.h" />
     <ClInclude Include="SGR.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>

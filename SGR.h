@@ -3,36 +3,23 @@
 // Simple Graphic Renderer (SGR) based on Vulkan library and GLFW.
 // Mikhail Polestchuk, 2021, april.
 
+#include "utils.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <cstdint>
 #include <string>
 
-enum sgrErrCode
-{
-	sgrOK,
-	sgrBadPointer
-};
+#include "WindowManager.h"
 
 class SGR {
 private:
-	// default size of renderer's window
-	uint32_t windowWidth;
-	uint32_t windowHeight;
-	std::string windowName;
 
 	bool manualWindow;
-	GLFWwindow* window; // render window. Now we have only one window to graphic render, but in future it could be some.
-
-	/**
-	 * Init SGR Window automatically.
-	 * \param windowHeight
-	 * \param windowWidth
-	 * \param windowName
-	 */
-	void initSGRWindow();
-
+	WindowManager windowManager;
+	GLFWwindow* window;
+	
 	bool sgrRunning;
 
 public:

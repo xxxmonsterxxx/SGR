@@ -18,21 +18,44 @@ sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
     }
 
     physicalDevices.resize(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    printf("\nFinded devices:");
+    for (auto device : devices) {
+        VkPhysicalDeviceProperties deviceProp;
+        vkGetPhysicalDeviceProperties(device, &deviceProp);
+        printf("\n%s", deviceProp.deviceName);
+        sgrPhysicalDevice newDeviceWithProp;
+        newDeviceWithProp.first = device;
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        newDeviceWithProp.second.resize(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, newDeviceWithProp.second.data());
+
+        physicalDevices.push_back(newDeviceWithProp);
+    }
 
     return sgrOK;
 }
 
-std::vector<VkPhysicalDevice> PhysicalDeviceManager::getPhysDevInstances()
+sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues, sgrPhysicalDevice& device)
 {
-    return physicalDevices;
+    for (auto physDev : physicalDevices) {
+        uint8_t supportedQueues = 0;
+        for (uint8_t i = 0; i < physDev.second.size(); i++) {
+            for (auto reqQueue : requiredQueues) {
+                if (physDev.second[i].queueFlags & reqQueue)
+                    supportedQueues++;
+            }
+        }
+        if (supportedQueues == requiredQueues.size()) {
+            device = physDev;
+            return sgrOK;
+        } else {
+            supportedQueues = 0;
+        }
+    }
+    return sgrGPUNotFound;
 }
 
-sgrErrCode PhysicalDeviceManager::setRenderPhysicalDevice(VkPhysicalDevice device)
-{
-    if (std::find(physicalDevices.begin(), physicalDevices.end(), device) == physicalDevices.end())
-        return sgrGPUNotFound;
-
-    physicalDevice = device;
-    return sgrOK;
-}

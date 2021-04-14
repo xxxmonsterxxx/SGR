@@ -11,6 +11,8 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	applicationName = appName;
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
+	physicalDevice.first = VK_NULL_HANDLE;
+	requiredFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
 }
 
 SGR::~SGR()
@@ -31,8 +33,13 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitVulkan != sgrOK)
 		return resultInitVulkan;
 
-	if (physDeviceManager.init(vulkanInstance) != sgrOK)
-		return sgrInitPhysicalDeviceManagerError;
+	sgrErrCode resultInitPhysicalDeviceManager = physDeviceManager.init(vulkanInstance);
+	if (resultInitPhysicalDeviceManager != sgrOK)
+		return resultInitPhysicalDeviceManager;
+
+	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredFamilies, physicalDevice);
+	if (resultGetPhysicalDeviceRequired != sgrOK)
+		return resultGetPhysicalDeviceRequired;
 
 	sgrRunning = true;
 
@@ -102,5 +109,25 @@ sgrErrCode SGR::initVulkanInstance()
 		return sgrInitVulkanError;
 	}
 
+	return sgrOK;
+}
+
+std::vector<sgrPhysicalDevice> SGR::getAllPhysDevInstances()
+{
+	return physDeviceManager.physicalDevices;
+}
+
+void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
+{
+	requiredFamilies = reqFam;
+}
+
+sgrErrCode SGR::setRenderPhysicalDevice(sgrPhysicalDevice device)
+{
+	if (std::find(physDeviceManager.physicalDevices.begin(),
+				  physDeviceManager.physicalDevices.end(), device) == physDeviceManager.physicalDevices.end())
+		return sgrGPUNotFound;
+
+	physicalDevice = device;
 	return sgrOK;
 }

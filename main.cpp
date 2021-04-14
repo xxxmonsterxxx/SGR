@@ -13,7 +13,7 @@ int main()
 		sgr_object1.drawFrame();
 	}
 
-	sgrErrCode resultSGRDestroy;
+	sgrErrCode resultSGRDestroy = sgrOK;
 	resultSGRDestroy = sgr_object1.destroy();
-	return resultSGRDestroy;
+	return (int)resultSGRDestroy;
 }

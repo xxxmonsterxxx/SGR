@@ -6,16 +6,14 @@ class SGR;
 
 class PhysicalDeviceManager {
 private:
-	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-	std::vector<VkPhysicalDevice> physicalDevices;
+	std::vector<sgrPhysicalDevice> physicalDevices;
 
 	sgrErrCode init(VkInstance instance);
+
+	sgrErrCode getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues, sgrPhysicalDevice& device);
 
 	friend class SGR;
 public:
 	PhysicalDeviceManager();
 	~PhysicalDeviceManager();
-
-	std::vector<VkPhysicalDevice> getPhysDevInstances();
-	sgrErrCode setRenderPhysicalDevice(VkPhysicalDevice device);
 };

@@ -10,9 +10,6 @@
 
 class SGR {
 private:
-
-	bool manualWindow;
-	GLFWwindow* window;
 	bool sgrRunning;
 
 	std::string applicationName;
@@ -20,14 +17,20 @@ private:
 	uint8_t appVersionMinor;
 
 	WindowManager windowManager;
+	bool manualWindow;
+	GLFWwindow* window;
+
 	VkInstance vulkanInstance;
+
 	PhysicalDeviceManager physDeviceManager;
+	std::vector<VkQueueFlagBits> requiredFamilies;
+	sgrPhysicalDevice physicalDevice;
 
 	sgrErrCode initVulkanInstance();
 
 public:
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
-	~SGR();
+	~SGR(); 
 
 	bool isSGRRunning();
 	sgrErrCode drawFrame();
@@ -53,5 +56,8 @@ public:
 	 */
 	sgrErrCode initSGRWindow(GLFWwindow* newWindow, const char* windowName);
 
-	sgrErrCode setPhysicalDeviceRequirements();
+	std::vector<sgrPhysicalDevice> getAllPhysDevInstances();
+	sgrErrCode setRenderPhysicalDevice(sgrPhysicalDevice device);
+
+	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 };

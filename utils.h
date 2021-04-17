@@ -16,7 +16,8 @@ enum sgrErrCode
 	sgrInitWindowError,
 	sgrGPUNotFound,
 	sgrInitPhysicalDeviceManagerError,
-	sgrInitVulkanError
+	sgrInitVulkanError,
+	sgrInitSurfaceError
 };
 
 class sgrPhysicalDevice : public std::pair<VkPhysicalDevice, std::vector<VkQueueFamilyProperties>> {

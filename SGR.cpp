@@ -37,6 +37,9 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitPhysicalDeviceManager != sgrOK)
 		return resultInitPhysicalDeviceManager;
 
+	if (glfwCreateWindowSurface(vulkanInstance, window, nullptr, &surface) != VK_SUCCESS)
+		return sgrInitSurfaceError;
+
 	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredFamilies, physicalDevice);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;

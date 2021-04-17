@@ -21,6 +21,7 @@ private:
 	GLFWwindow* window;
 
 	VkInstance vulkanInstance;
+	VkSurfaceKHR surface;
 
 	PhysicalDeviceManager physDeviceManager;
 	std::vector<VkQueueFlagBits> requiredFamilies;

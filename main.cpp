@@ -5,15 +5,15 @@ int main()
 {
 	SGR sgr_object1;
 	
-	if (sgr_object1.init() != sgrOK) {
-		throw std::runtime_error("failed to create SGR object");
+	sgrErrCode resultSGRInit = sgr_object1.init();
+	if (resultSGRInit != sgrOK) {
+		return resultSGRInit;
 	}
 
 	while (sgr_object1.isSGRRunning()) {
 		sgr_object1.drawFrame();
 	}
 
-	sgrErrCode resultSGRDestroy = sgrOK;
-	resultSGRDestroy = sgr_object1.destroy();
-	return (int)resultSGRDestroy;
+	sgrErrCode resultSGRDestroy = sgr_object1.destroy();
+	return resultSGRDestroy;
 }

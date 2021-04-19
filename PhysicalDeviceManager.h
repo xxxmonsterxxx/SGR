@@ -9,24 +9,11 @@ struct SgrPhysicalDevice {
 	VkPhysicalDevice physDevice;
 	std::vector<VkQueueFamilyProperties> queueFamilies;
 	std::vector<VkExtensionProperties> extensions;
+	VkPhysicalDeviceFeatures deviceFeatures{};
 
 	bool operator==(const SgrPhysicalDevice& comp) const
 	{
 		if (this->physDevice == comp.physDevice) {
-			if (this->queueFamilies.size() != comp.queueFamilies.size())
-				return false;
-			if (this->extensions.size() != comp.extensions.size())
-				return false;
-
-			for (uint8_t i = 0; i < this->queueFamilies.size(); i++) {
-				if (this->queueFamilies[i].queueFlags != comp.queueFamilies[i].queueFlags)
-					return false;
-			}
-
-			for (uint8_t i = 0; i < this->extensions.size(); i++) {
-				if (!strcmp(extensions[i].extensionName, comp.extensions[i].extensionName))
-					return false;
-			}
 			return true;
 		}
 		return false;

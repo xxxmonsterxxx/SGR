@@ -19,6 +19,9 @@
     <Filter Include="PhysicalDeviceManager">
       <UniqueIdentifier>{20fda507-f61b-4408-ab1a-c87a39dd22e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SwapChainManager">
+      <UniqueIdentifier>{88c57b64-66b5-4640-9f98-05b304597533}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -33,6 +36,9 @@
     <ClInclude Include="utils.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="SwapChainManager.h">
+      <Filter>SwapChainManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="PhysicalDeviceManager.cpp">
       <Filter>PhysicalDeviceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChainManager.cpp">
+      <Filter>SwapChainManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

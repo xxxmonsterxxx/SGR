@@ -11,8 +11,11 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	applicationName = appName;
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
-	physicalDevice.first = VK_NULL_HANDLE;
+	physicalDevice.physDevice = VK_NULL_HANDLE;
 	requiredFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
+	requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	withSwapChain = true;
+	swapChainManager = SwapChainManager::get();
 }
 
 SGR::~SGR()
@@ -37,10 +40,11 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitPhysicalDeviceManager != sgrOK)
 		return resultInitPhysicalDeviceManager;
 
-	if (glfwCreateWindowSurface(vulkanInstance, window, nullptr, &surface) != VK_SUCCESS)
-		return sgrInitSurfaceError;
+	sgrErrCode resultInitSurface = swapChainManager->initSurface(vulkanInstance, window);
+	if (resultInitSurface != sgrOK)
+		return resultInitSurface;
 
-	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredFamilies, physicalDevice);
+	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredFamilies, requiredExtensions, physicalDevice);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;
 
@@ -115,7 +119,7 @@ sgrErrCode SGR::initVulkanInstance()
 	return sgrOK;
 }
 
-std::vector<sgrPhysicalDevice> SGR::getAllPhysDevInstances()
+std::vector<SgrPhysicalDevice> SGR::getAllPhysDevInstances()
 {
 	return physDeviceManager.physicalDevices;
 }
@@ -125,12 +129,12 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 	requiredFamilies = reqFam;
 }
 
-sgrErrCode SGR::setRenderPhysicalDevice(sgrPhysicalDevice device)
+sgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 {
 	if (std::find(physDeviceManager.physicalDevices.begin(),
-				  physDeviceManager.physicalDevices.end(), device) == physDeviceManager.physicalDevices.end())
+				  physDeviceManager.physicalDevices.end(), sgrDevice) == physDeviceManager.physicalDevices.end())
 		return sgrGPUNotFound;
 
-	physicalDevice = device;
+	physicalDevice = sgrDevice;
 	return sgrOK;
 }

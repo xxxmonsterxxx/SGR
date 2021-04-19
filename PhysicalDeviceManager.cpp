@@ -2,6 +2,7 @@
 
 PhysicalDeviceManager::PhysicalDeviceManager()
 {
+    swapChainManager = SwapChainManager::get();
 }
 
 PhysicalDeviceManager::~PhysicalDeviceManager()
@@ -26,12 +27,18 @@ sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
         VkPhysicalDeviceProperties deviceProp;
         vkGetPhysicalDeviceProperties(device, &deviceProp);
         printf("\n%s", deviceProp.deviceName);
-        sgrPhysicalDevice newDeviceWithProp;
-        newDeviceWithProp.first = device;
+        SgrPhysicalDevice newDeviceWithProp;
+        newDeviceWithProp.physDevice = device;
+
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-        newDeviceWithProp.second.resize(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, newDeviceWithProp.second.data());
+        newDeviceWithProp.queueFamilies.resize(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, newDeviceWithProp.queueFamilies.data());
+
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+        newDeviceWithProp.extensions.resize(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, newDeviceWithProp.extensions.data());
 
         physicalDevices.push_back(newDeviceWithProp);
     }
@@ -39,21 +46,70 @@ sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
     return sgrOK;
 }
 
-sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues, sgrPhysicalDevice& device)
+bool PhysicalDeviceManager::isSupportRequiredQueues(SgrPhysicalDevice device, std::vector<VkQueueFlagBits> requiredQueues)
 {
-    for (auto physDev : physicalDevices) {
-        uint8_t supportedQueues = 0;
-        for (uint8_t i = 0; i < physDev.second.size(); i++) {
-            for (auto reqQueue : requiredQueues) {
-                if (physDev.second[i].queueFlags & reqQueue)
-                    supportedQueues++;
+    uint8_t supportedQueues = 0;
+    for (auto reqQueue : requiredQueues) {
+        for (auto queueProp : device.queueFamilies) {
+            if (queueProp.queueFlags & reqQueue) {
+                supportedQueues++;
+                break;
             }
         }
-        if (supportedQueues == requiredQueues.size()) {
-            device = physDev;
-            return sgrOK;
-        } else {
-            supportedQueues = 0;
+    }
+
+    if (supportedQueues == requiredQueues.size()) {
+        return true;
+    }
+
+    return false;
+}
+
+bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device, std::vector<std::string> requiredExtensions)
+{
+    uint8_t supportedExtensions = 0;
+    for (auto reqExt : requiredExtensions) {
+        for (uint8_t i = 0; i < device.extensions.size(); i++) {
+            if (strcmp(device.extensions[i].extensionName, reqExt.c_str())) {
+                supportedExtensions++;
+                break;
+            }
+        }
+    }
+
+    if (supportedExtensions == requiredExtensions.size())
+        return true;
+
+    return false;
+}
+
+bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice)
+{
+    SgrSwapChainDetails deviceSwapChainDetails = swapChainManager->querySwapChainDetails(sgrDevice.physDevice);
+
+    if (!deviceSwapChainDetails.formats.empty() && !deviceSwapChainDetails.presentModes.empty())
+        return true;
+
+    return false;
+}
+
+sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+                                                            std::vector<std::string> requiredExtensions,
+                                                            SgrPhysicalDevice& device,
+                                                            bool withSwapChain)
+{
+    for (auto physDev : physicalDevices) {
+        if (isSupportRequiredQueues(physDev, requiredQueues)) {
+            if (isSupportRequiredExtentions(physDev, requiredExtensions)) {
+                if (isSupportAnySwapChainMode(physDev)) {
+                    device = physDev;
+                    return sgrOK;
+                }
+            }
+            if (!withSwapChain) {
+                device = physDev;
+                return sgrOK;
+            }
         }
     }
     return sgrGPUNotFound;

@@ -7,6 +7,7 @@
 
 #include "WindowManager.h"
 #include "PhysicalDeviceManager.h"
+#include "SwapChainManager.h"
 
 class SGR {
 private:
@@ -21,11 +22,14 @@ private:
 	GLFWwindow* window;
 
 	VkInstance vulkanInstance;
-	VkSurfaceKHR surface;
 
 	PhysicalDeviceManager physDeviceManager;
 	std::vector<VkQueueFlagBits> requiredFamilies;
-	sgrPhysicalDevice physicalDevice;
+	std::vector<std::string> requiredExtensions;
+	bool withSwapChain;
+	SgrPhysicalDevice physicalDevice;
+
+	SwapChainManager* swapChainManager;
 
 	sgrErrCode initVulkanInstance();
 
@@ -57,8 +61,8 @@ public:
 	 */
 	sgrErrCode initSGRWindow(GLFWwindow* newWindow, const char* windowName);
 
-	std::vector<sgrPhysicalDevice> getAllPhysDevInstances();
-	sgrErrCode setRenderPhysicalDevice(sgrPhysicalDevice device);
+	std::vector<SgrPhysicalDevice> getAllPhysDevInstances();
+	sgrErrCode setRenderPhysicalDevice(SgrPhysicalDevice device);
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 };

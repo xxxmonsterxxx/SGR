@@ -4,6 +4,12 @@
 
 class SGR;
 
+struct SgrSwapChainDetails {
+	VkSurfaceCapabilitiesKHR capabilities;
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+};
+
 class SwapChainManager {
 public:
 	static SwapChainManager* get();

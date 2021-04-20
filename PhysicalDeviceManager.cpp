@@ -18,11 +18,11 @@ sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
         return sgrGPUNotFound;
     }
 
-    physicalDevices.resize(deviceCount);
-    std::vector<VkPhysicalDevice> devices(deviceCount);
+    std::vector<VkPhysicalDevice> devices;
+    devices.resize(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    printf("\nFinded devices:");
+    printf("\nFinded %d devices:",deviceCount);
     for (auto device : devices) {
         VkPhysicalDeviceProperties deviceProp;
         vkGetPhysicalDeviceProperties(device, &deviceProp);
@@ -46,21 +46,30 @@ sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
     return sgrOK;
 }
 
-bool PhysicalDeviceManager::isSupportRequiredQueues(SgrPhysicalDevice device, std::vector<VkQueueFlagBits> requiredQueues)
+bool PhysicalDeviceManager::isSupportRequiredQueuesAndSurface(SgrPhysicalDevice& device, std::vector<VkQueueFlagBits> requiredQueues, VkSurfaceKHR* surface)
 {
     uint8_t supportedQueues = 0;
+    VkBool32 surfaceSupport = false;
+    uint8_t queueIndex = 0;
     for (auto reqQueue : requiredQueues) {
         for (auto queueProp : device.queueFamilies) {
             if (queueProp.queueFlags & reqQueue) {
                 supportedQueues++;
-                break;
+                if (!device.fixedGraphicsQueue.has_value() && surface != nullptr && reqQueue == VK_QUEUE_GRAPHICS_BIT) // if we need to check surface we should to save graphics queue index
+                    device.fixedGraphicsQueue = queueIndex;
             }
+            if (surface != nullptr && !device.fixedPresentQueue.has_value()) {
+                vkGetPhysicalDeviceSurfaceSupportKHR(device.physDevice, queueIndex, *surface, &surfaceSupport);
+                if (surfaceSupport)
+                    device.fixedPresentQueue = queueIndex;
+            }
+            if ((queueProp.queueFlags & reqQueue) && device.fixedPresentQueue.has_value())
+                break;
         }
     }
 
-    if (supportedQueues == requiredQueues.size()) {
+    if (supportedQueues == requiredQueues.size() && device.fixedPresentQueue.has_value())
         return true;
-    }
 
     return false;
 }
@@ -86,7 +95,6 @@ bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device
 bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice)
 {
     SgrSwapChainDetails deviceSwapChainDetails = swapChainManager->querySwapChainDetails(sgrDevice.physDevice);
-
     if (!deviceSwapChainDetails.formats.empty() && !deviceSwapChainDetails.presentModes.empty())
         return true;
 
@@ -95,21 +103,30 @@ bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevic
 
 sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions,
-                                                            SgrPhysicalDevice& device,
-                                                            bool withSwapChain)
+                                                            SgrPhysicalDevice& device)
 {
     for (auto physDev : physicalDevices) {
-        if (isSupportRequiredQueues(physDev, requiredQueues)) {
-            if (isSupportRequiredExtentions(physDev, requiredExtensions)) {
-                if (isSupportAnySwapChainMode(physDev)) {
-                    device = physDev;
-                    return sgrOK;
-                }
-            }
-            if (!withSwapChain) {
+        if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues) && 
+            isSupportRequiredExtentions(physDev, requiredExtensions) && 
+            isSupportAnySwapChainMode(physDev)) {
                 device = physDev;
                 return sgrOK;
-            }
+        }
+    }
+    return sgrGPUNotFound;
+}
+
+sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+                                                            std::vector<std::string> requiredExtensions,
+                                                            VkSurfaceKHR surface,
+                                                            SgrPhysicalDevice& device)
+{
+    for (auto physDev : physicalDevices) {
+        if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues, &surface) &&
+            isSupportRequiredExtentions(physDev, requiredExtensions) &&
+            isSupportAnySwapChainMode(physDev)) {
+                device = physDev;
+                return sgrOK;
         }
     }
     return sgrGPUNotFound;

@@ -8,6 +8,7 @@
 #include "WindowManager.h"
 #include "PhysicalDeviceManager.h"
 #include "SwapChainManager.h"
+#include "LogicalDeviceManager.h"
 
 class SGR {
 private:
@@ -24,10 +25,12 @@ private:
 	VkInstance vulkanInstance;
 
 	PhysicalDeviceManager physDeviceManager;
-	std::vector<VkQueueFlagBits> requiredFamilies;
+	std::vector<VkQueueFlagBits> requiredQueueFamilies;
 	std::vector<std::string> requiredExtensions;
 	bool withSwapChain;
 	SgrPhysicalDevice physicalDevice;
+
+	LogicalDeviceManager logicalDeviceManager;
 
 	SwapChainManager* swapChainManager;
 

@@ -22,6 +22,9 @@
     <Filter Include="SwapChainManager">
       <UniqueIdentifier>{88c57b64-66b5-4640-9f98-05b304597533}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LogicalDeviceManager">
+      <UniqueIdentifier>{7f605bcc-390c-4a5a-8ec4-14a41f83993a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -39,6 +42,9 @@
     <ClInclude Include="SwapChainManager.h">
       <Filter>SwapChainManager</Filter>
     </ClInclude>
+    <ClInclude Include="LogicalDeviceManager.h">
+      <Filter>LogicalDeviceManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="SwapChainManager.cpp">
       <Filter>SwapChainManager</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalDeviceManager.cpp">
+      <Filter>LogicalDeviceManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

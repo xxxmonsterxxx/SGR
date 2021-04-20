@@ -6,8 +6,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-
+#include <optional>
 #include <utility>
+#include <set>
 
 enum sgrErrCode
 {
@@ -17,5 +18,6 @@ enum sgrErrCode
 	sgrGPUNotFound,
 	sgrInitPhysicalDeviceManagerError,
 	sgrInitVulkanError,
-	sgrInitSurfaceError
+	sgrInitSurfaceError,
+	sgrInitLogicalDeviceError
 };

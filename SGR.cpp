@@ -12,7 +12,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
 	physicalDevice.physDevice = VK_NULL_HANDLE;
-	requiredFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
+	requiredQueueFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
 	requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	withSwapChain = true;
 	swapChainManager = SwapChainManager::get();
@@ -44,9 +44,13 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitSurface != sgrOK)
 		return resultInitSurface;
 
-	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredFamilies, requiredExtensions, physicalDevice);
+	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface, physicalDevice);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;
+
+	sgrErrCode resultInitLogicalDevice = logicalDeviceManager.initLogicalDevice(physicalDevice);
+	if (resultInitLogicalDevice != sgrOK)
+		return resultInitLogicalDevice;
 
 	sgrRunning = true;
 
@@ -126,7 +130,7 @@ std::vector<SgrPhysicalDevice> SGR::getAllPhysDevInstances()
 
 void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 {
-	requiredFamilies = reqFam;
+	requiredQueueFamilies = reqFam;
 }
 
 sgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)

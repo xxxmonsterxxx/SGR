@@ -32,6 +32,7 @@ private:
 	VkPresentModeKHR presentMode;
 
 	sgrErrCode initSurface(VkInstance instance, GLFWwindow* window);
+	sgrErrCode createImageViews();
 	void setupSwapChainProperties();
 
 	VkSwapchainKHR swapChain;

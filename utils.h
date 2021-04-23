@@ -21,5 +21,6 @@ enum sgrErrCode
 	sgrInitVulkanError,
 	sgrInitSurfaceError,
 	sgrInitLogicalDeviceError,
-	sgrIninSwapChainError
+	sgrInitSwapChainError,
+	sgrInitImageViews
 };

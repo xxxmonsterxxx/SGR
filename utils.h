@@ -9,6 +9,7 @@
 #include <optional>
 #include <utility>
 #include <set>
+#include <algorithm>
 
 enum sgrErrCode
 {
@@ -19,5 +20,6 @@ enum sgrErrCode
 	sgrInitPhysicalDeviceManagerError,
 	sgrInitVulkanError,
 	sgrInitSurfaceError,
-	sgrInitLogicalDeviceError
+	sgrInitLogicalDeviceError,
+	sgrIninSwapChainError
 };

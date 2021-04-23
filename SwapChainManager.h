@@ -16,7 +16,8 @@ public:
 	static void destroy();
 
 	SgrSwapChainDetails querySwapChainDetails(VkPhysicalDevice device);
-	void setSwapChainDeviceProperties(VkPhysicalDevice device);
+	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
+	sgrErrCode initSwapChain();
 
 private:
 	SwapChainManager();
@@ -27,10 +28,20 @@ private:
 	static SwapChainManager* instance;
 
 	VkSurfaceKHR surface;
+	VkSurfaceFormatKHR surfaceFormat;
+	VkPresentModeKHR presentMode;
 
 	sgrErrCode initSurface(VkInstance instance, GLFWwindow* window);
+	void setupSwapChainProperties();
 
-	SgrSwapChainDetails swapChainProps;
+	VkSwapchainKHR swapChain;
+	SgrSwapChainDetails capabilities;
+	uint32_t imageCount;
+	std::vector<VkImage> images;
+	VkFormat imageFormat;
+	VkExtent2D extent;
+	std::vector<VkImageView> imageViews;
+	std::vector<VkFramebuffer> framebuffers;
 
 	friend class SGR;
 };

@@ -11,10 +11,13 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	applicationName = appName;
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
-	physicalDevice.physDevice = VK_NULL_HANDLE;
 	requiredQueueFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
 	requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	withSwapChain = true;
+
+	windowManager = WindowManager::get();
+	physicalDeviceManager = PhysicalDeviceManager::get();
+	logicalDeviceManager = LogicalDeviceManager::get();
 	swapChainManager = SwapChainManager::get();
 }
 
@@ -25,10 +28,10 @@ SGR::~SGR()
 sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *windowName)
 {
 	if (!manualWindow) {
-		windowManager.init(windowWidth, windowHeight, windowName);
+		windowManager->init(windowWidth, windowHeight, windowName);
 	}
 
-	window = windowManager.window;
+	window = windowManager->window;
 	if (window == nullptr)
 		return sgrInitWindowError;
 
@@ -36,7 +39,7 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitVulkan != sgrOK)
 		return resultInitVulkan;
 
-	sgrErrCode resultInitPhysicalDeviceManager = physDeviceManager.init(vulkanInstance);
+	sgrErrCode resultInitPhysicalDeviceManager = physicalDeviceManager->init(vulkanInstance);
 	if (resultInitPhysicalDeviceManager != sgrOK)
 		return resultInitPhysicalDeviceManager;
 
@@ -44,13 +47,17 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitSurface != sgrOK)
 		return resultInitSurface;
 
-	sgrErrCode resultGetPhysicalDeviceRequired = physDeviceManager.getPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface, physicalDevice);
+	sgrErrCode resultGetPhysicalDeviceRequired = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;
 
-	sgrErrCode resultInitLogicalDevice = logicalDeviceManager.initLogicalDevice(physicalDevice);
+	sgrErrCode resultInitLogicalDevice = logicalDeviceManager->initLogicalDevice();
 	if (resultInitLogicalDevice != sgrOK)
 		return resultInitLogicalDevice;
+
+	sgrErrCode resultInitSwapChain = swapChainManager->initSwapChain();
+	if (resultInitSwapChain != sgrOK)
+		return resultInitSwapChain;
 
 	sgrRunning = true;
 
@@ -59,7 +66,7 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 sgrErrCode SGR::destroy()
 {
-	windowManager.destroy();
+	windowManager->destroy();
 	glfwTerminate();
 
 	return sgrOK;
@@ -67,10 +74,11 @@ sgrErrCode SGR::destroy()
 
 sgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 {
-	sgrErrCode resultCreateWindow = windowManager.init(newWindow, windowName);
+	sgrErrCode resultCreateWindow = windowManager->init(newWindow, windowName);
 
 	if (resultCreateWindow == sgrOK) {
 		manualWindow = true;
+		window = windowManager->window;
 		return resultCreateWindow;
 	}
 	
@@ -125,7 +133,7 @@ sgrErrCode SGR::initVulkanInstance()
 
 std::vector<SgrPhysicalDevice> SGR::getAllPhysDevInstances()
 {
-	return physDeviceManager.physicalDevices;
+	return physicalDeviceManager->physicalDevices;
 }
 
 void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
@@ -135,10 +143,10 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 
 sgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 {
-	if (std::find(physDeviceManager.physicalDevices.begin(),
-				  physDeviceManager.physicalDevices.end(), sgrDevice) == physDeviceManager.physicalDevices.end())
+	if (std::find(physicalDeviceManager->physicalDevices.begin(),
+		physicalDeviceManager->physicalDevices.end(), sgrDevice) == physicalDeviceManager->physicalDevices.end())
 		return sgrGPUNotFound;
 
-	physicalDevice = sgrDevice;
+	physicalDeviceManager->pickedPhysicalDevice = sgrDevice;
 	return sgrOK;
 }

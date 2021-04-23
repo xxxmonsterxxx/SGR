@@ -18,19 +18,18 @@ private:
 	uint8_t appVersionMajor;
 	uint8_t appVersionMinor;
 
-	WindowManager windowManager;
+	WindowManager* windowManager;
 	bool manualWindow;
 	GLFWwindow* window;
 
 	VkInstance vulkanInstance;
 
-	PhysicalDeviceManager physDeviceManager;
 	std::vector<VkQueueFlagBits> requiredQueueFamilies;
 	std::vector<std::string> requiredExtensions;
 	bool withSwapChain;
-	SgrPhysicalDevice physicalDevice;
+	PhysicalDeviceManager* physicalDeviceManager;
 
-	LogicalDeviceManager logicalDeviceManager;
+	LogicalDeviceManager* logicalDeviceManager;
 
 	SwapChainManager* swapChainManager;
 

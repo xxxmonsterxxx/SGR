@@ -1,16 +1,26 @@
 #include "PhysicalDeviceManager.h"
 
-PhysicalDeviceManager::PhysicalDeviceManager()
-{
-    swapChainManager = SwapChainManager::get();
-}
+PhysicalDeviceManager* PhysicalDeviceManager::instance = nullptr;
 
-PhysicalDeviceManager::~PhysicalDeviceManager()
+PhysicalDeviceManager::PhysicalDeviceManager() { ; }
+PhysicalDeviceManager::~PhysicalDeviceManager() { ; }
+
+PhysicalDeviceManager* PhysicalDeviceManager::get()
 {
+    if (instance == nullptr) {
+        instance = new PhysicalDeviceManager();
+        return instance;
+    }
+    else {
+        return instance;
+    }
 }
 
 sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
 {
+    swapChainManager = SwapChainManager::get();
+    pickedPhysicalDevice.physDevice = VK_NULL_HANDLE;
+
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -101,34 +111,43 @@ bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevic
     return false;
 }
 
-sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
-                                                            std::vector<std::string> requiredExtensions,
-                                                            SgrPhysicalDevice& device)
+sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+                                                            std::vector<std::string> requiredExtensions)
 {
     for (auto physDev : physicalDevices) {
         if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues) && 
             isSupportRequiredExtentions(physDev, requiredExtensions) && 
             isSupportAnySwapChainMode(physDev)) {
-                device = physDev;
+                pickedPhysicalDevice = physDev;
                 return sgrOK;
         }
     }
     return sgrGPUNotFound;
 }
 
-sgrErrCode PhysicalDeviceManager::getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions,
-                                                            VkSurfaceKHR surface,
-                                                            SgrPhysicalDevice& device)
+                                                            VkSurfaceKHR surface)
 {
     for (auto physDev : physicalDevices) {
         if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues, &surface) &&
             isSupportRequiredExtentions(physDev, requiredExtensions) &&
             isSupportAnySwapChainMode(physDev)) {
-                device = physDev;
+                pickedPhysicalDevice = physDev;
+                swapChainManager->setSwapChainDeviceCapabilities(pickedPhysicalDevice.physDevice);
+                enabledExtensions = requiredExtensions;
                 return sgrOK;
         }
     }
     return sgrGPUNotFound;
 }
 
+SgrPhysicalDevice PhysicalDeviceManager::getPickedPhysicalDevice()
+{
+    return pickedPhysicalDevice;
+}
+
+std::vector<std::string>* PhysicalDeviceManager::getEnabledExtensions()
+{
+    return &enabledExtensions;
+}

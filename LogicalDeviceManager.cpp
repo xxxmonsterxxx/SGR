@@ -1,16 +1,32 @@
 #include "LogicalDeviceManager.h"
+#include "PhysicalDeviceManager.h"
 
-LogicalDeviceManager::LogicalDeviceManager()
+LogicalDeviceManager* LogicalDeviceManager::instance;
+
+LogicalDeviceManager::LogicalDeviceManager() { ; }
+LogicalDeviceManager::~LogicalDeviceManager() { ; }
+
+LogicalDeviceManager* LogicalDeviceManager::get()
 {
+    if (instance == nullptr) {
+        instance = new LogicalDeviceManager();
+        return instance;
+    }
+    else {
+        return instance;
+    }
 }
 
-LogicalDeviceManager::~LogicalDeviceManager()
+VkDevice LogicalDeviceManager::getLogicalDevice()
 {
+    return logicalDevice;
 }
 
-sgrErrCode LogicalDeviceManager::initLogicalDevice(SgrPhysicalDevice sgrDevice)
+sgrErrCode LogicalDeviceManager::initLogicalDevice()
 {
     // we need to create graphics and present queues
+    PhysicalDeviceManager* physDeviceManager = PhysicalDeviceManager::get();
+    SgrPhysicalDevice sgrDevice = physDeviceManager->getPickedPhysicalDevice();
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     float queuePriority = 1.0f;
     std::set<uint8_t> uniquePhysicalDeviceQueueFamilies = { sgrDevice.fixedGraphicsQueue.value(),sgrDevice.fixedPresentQueue.value() };
@@ -28,11 +44,15 @@ sgrErrCode LogicalDeviceManager::initLogicalDevice(SgrPhysicalDevice sgrDevice)
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &sgrDevice.deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(sgrDevice.extensions.size());
-    std::vector<const char*> supportedExtensionNames;
-    for (auto extensionProp : sgrDevice.extensions)
-        supportedExtensionNames.push_back(extensionProp.extensionName);
-    createInfo.ppEnabledExtensionNames = supportedExtensionNames.data();
+
+    std::vector<const char*> enabledExtensions;
+    uint32_t enabledExtensionsCount = physDeviceManager->getEnabledExtensions()->size();
+    for (uint8_t i = 0; i < enabledExtensionsCount; i++) {
+        enabledExtensions.push_back(physDeviceManager->getEnabledExtensions()->at(i).c_str());
+    }
+
+    createInfo.enabledExtensionCount = enabledExtensionsCount;
+    createInfo.ppEnabledExtensionNames = enabledExtensions.data();
     createInfo.enabledLayerCount = 0;
 
     if (vkCreateDevice(sgrDevice.physDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)

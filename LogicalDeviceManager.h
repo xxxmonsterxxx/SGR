@@ -9,13 +9,22 @@ class LogicalDeviceManager {
 	friend class SGR;
 
 public:
+
+	static LogicalDeviceManager* get();
+	VkDevice getLogicalDevice();
+	
+private:
 	LogicalDeviceManager();
 	~LogicalDeviceManager();
-private:
+	LogicalDeviceManager(const LogicalDeviceManager&) = delete;
+	LogicalDeviceManager& operator=(const LogicalDeviceManager&) = delete;
+
+	static LogicalDeviceManager* instance;
+
 	VkDevice logicalDevice;
 
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
 
-	sgrErrCode initLogicalDevice(SgrPhysicalDevice sgrDevice);
+	sgrErrCode initLogicalDevice();
 };

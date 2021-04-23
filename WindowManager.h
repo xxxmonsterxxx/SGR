@@ -3,6 +3,7 @@
 #include "utils.h"
 
 class SGR;
+class SwapChainManager;
 
 class WindowManager {
 
@@ -36,8 +37,16 @@ private:
 	void destroy();
 
 	friend class SGR;
-public:
+	friend class SwapChainManager;
+
 	WindowManager();
 	~WindowManager();
+	WindowManager(const WindowManager&) = delete;
+	WindowManager& operator=(const WindowManager&) = delete;
+
+	static WindowManager* instance;
+public:
+
+	static WindowManager* get();
 
 };

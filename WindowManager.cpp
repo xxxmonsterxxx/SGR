@@ -1,19 +1,27 @@
 #include "WindowManager.h"
 
-WindowManager::WindowManager()
-{
-	windowWidth = 800;
-	windowHeight = 600;
-	windowName = "SGR";
-}
+WindowManager* WindowManager::instance = nullptr;
 
-WindowManager::~WindowManager()
-{
+WindowManager::WindowManager() { ; }
+WindowManager::~WindowManager() { ; }
 
+WindowManager* WindowManager::get()
+{
+	if (instance == nullptr) {
+		instance = new WindowManager();
+		return instance;
+	}
+	else {
+		return instance;
+	}
 }
 
 sgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName)
 {
+	windowWidth = 800;
+	windowHeight = 600;
+	windowName = "SGR";
+
 	if (windowWidth != 0)
 		this->windowWidth = windowWidth;
 	if (windowHeight != 0)

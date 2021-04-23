@@ -24,9 +24,14 @@ struct SgrPhysicalDevice {
 
 class PhysicalDeviceManager {
 private:
+	static PhysicalDeviceManager* instance;
+
 	SwapChainManager* swapChainManager;
 
 	std::vector<SgrPhysicalDevice> physicalDevices;
+
+	std::vector<std::string> enabledExtensions;
+	SgrPhysicalDevice pickedPhysicalDevice;
 
 	sgrErrCode init(VkInstance instance);
 
@@ -35,17 +40,23 @@ private:
 	bool isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice);
 
 	
-	sgrErrCode getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
-		std::vector<std::string> requiredExtensions,
-		SgrPhysicalDevice& sgrDevice);
+	sgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+		std::vector<std::string> requiredExtensions);
 
-	sgrErrCode getPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+	sgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
 										 std::vector<std::string> requiredExtensions,
-										 VkSurfaceKHR surface,
-										 SgrPhysicalDevice& sgrDevice);
+										 VkSurfaceKHR surface);
 
 	friend class SGR;
-public:
+
 	PhysicalDeviceManager();
 	~PhysicalDeviceManager();
+	PhysicalDeviceManager(const PhysicalDeviceManager&) = delete;
+	PhysicalDeviceManager& operator=(const PhysicalDeviceManager&) = delete;
+public:
+	
+	static PhysicalDeviceManager* get();
+
+	SgrPhysicalDevice getPickedPhysicalDevice();
+	std::vector<std::string>* getEnabledExtensions();
 };

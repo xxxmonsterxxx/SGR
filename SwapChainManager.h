@@ -3,6 +3,7 @@
 #include "utils.h"
 
 class SGR;
+class PhysicalDeviceManager;
 
 struct SgrSwapChainDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -16,8 +17,8 @@ public:
 	static void destroy();
 
 	SgrSwapChainDetails querySwapChainDetails(VkPhysicalDevice device);
-	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
-	sgrErrCode initSwapChain();
+	VkExtent2D getExtent();
+	VkFormat getImageFormat();
 
 private:
 	SwapChainManager();
@@ -26,6 +27,9 @@ private:
 	SwapChainManager& operator=(const SwapChainManager&) = delete;
 
 	static SwapChainManager* instance;
+
+	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
+	sgrErrCode initSwapChain();
 
 	VkSurfaceKHR surface;
 	VkSurfaceFormatKHR surfaceFormat;
@@ -45,4 +49,5 @@ private:
 	std::vector<VkFramebuffer> framebuffers;
 
 	friend class SGR;
+	friend class PhysicalDeviceManager;
 };

@@ -155,18 +155,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />
+    <ClInclude Include="PipelineManager.h" />
+    <ClInclude Include="RenderPassManager.h" />
     <ClInclude Include="SGR.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SwapChainManager.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicalDeviceManager.cpp" />
+    <ClCompile Include="PipelineManager.cpp" />
+    <ClCompile Include="RenderPassManager.cpp" />
     <ClCompile Include="SGR.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>

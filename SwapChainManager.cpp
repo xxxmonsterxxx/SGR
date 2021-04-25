@@ -187,3 +187,13 @@ sgrErrCode SwapChainManager::initSurface(VkInstance instance, GLFWwindow* window
 	}
 	return sgrOK;
 }
+
+VkExtent2D SwapChainManager::getExtent()
+{
+    return extent;
+}
+
+VkFormat SwapChainManager::getImageFormat()
+{
+    return imageFormat;
+}

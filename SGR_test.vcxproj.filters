@@ -25,6 +25,18 @@
     <Filter Include="LogicalDeviceManager">
       <UniqueIdentifier>{7f605bcc-390c-4a5a-8ec4-14a41f83993a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FileManager">
+      <UniqueIdentifier>{338f58d3-4d70-4348-a308-c75eddc9a43d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderManager">
+      <UniqueIdentifier>{b9c4b0a0-1719-4fd8-96a1-4538cb7aa44d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PipelineManager">
+      <UniqueIdentifier>{083de579-1455-4cf6-8413-24795ef284ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderPassManager">
+      <UniqueIdentifier>{5690d22d-9a62-4f89-a4a9-3291269b3e17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -45,6 +57,18 @@
     <ClInclude Include="LogicalDeviceManager.h">
       <Filter>LogicalDeviceManager</Filter>
     </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>FileManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>ShaderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PipelineManager.h">
+      <Filter>PipelineManager</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPassManager.h">
+      <Filter>RenderPassManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -64,6 +88,18 @@
     </ClCompile>
     <ClCompile Include="LogicalDeviceManager.cpp">
       <Filter>LogicalDeviceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>FileManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PipelineManager.cpp">
+      <Filter>PipelineManager</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPassManager.cpp">
+      <Filter>RenderPassManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

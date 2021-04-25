@@ -10,6 +10,7 @@
 #include <utility>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 enum sgrErrCode
 {
@@ -22,5 +23,8 @@ enum sgrErrCode
 	sgrInitSurfaceError,
 	sgrInitLogicalDeviceError,
 	sgrInitSwapChainError,
-	sgrInitImageViews
+	sgrInitImageViews,
+	sgrInitPipelineLayoutError,
+	sgrInitPipelineError,
+	sgrInitRenderPassError
 };

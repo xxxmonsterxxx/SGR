@@ -19,6 +19,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	physicalDeviceManager = PhysicalDeviceManager::get();
 	logicalDeviceManager = LogicalDeviceManager::get();
 	swapChainManager = SwapChainManager::get();
+	pipelineManager = PipelineManager::get();
 }
 
 SGR::~SGR()
@@ -58,6 +59,10 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	sgrErrCode resultInitSwapChain = swapChainManager->initSwapChain();
 	if (resultInitSwapChain != sgrOK)
 		return resultInitSwapChain;
+
+	sgrErrCode resultInitPipeline = pipelineManager->init();
+	if (resultInitPipeline != sgrOK)
+		return resultInitPipeline;
 
 	sgrRunning = true;
 

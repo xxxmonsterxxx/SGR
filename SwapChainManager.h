@@ -48,6 +48,9 @@ private:
 	std::vector<VkImageView> imageViews;
 	std::vector<VkFramebuffer> framebuffers;
 
+	sgrErrCode initFrameBuffers();
+
+
 	friend class SGR;
 	friend class PhysicalDeviceManager;
 };

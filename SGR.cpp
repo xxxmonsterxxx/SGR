@@ -15,6 +15,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	withSwapChain = true;
 
+	// right sequence of initialization
 	windowManager = WindowManager::get();
 	physicalDeviceManager = PhysicalDeviceManager::get();
 	logicalDeviceManager = LogicalDeviceManager::get();
@@ -63,6 +64,10 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	sgrErrCode resultInitPipeline = pipelineManager->init();
 	if (resultInitPipeline != sgrOK)
 		return resultInitPipeline;
+
+	sgrErrCode resultInitFrameBuffers = swapChainManager->initFrameBuffers();
+	if (resultInitFrameBuffers != sgrOK)
+		return resultInitFrameBuffers;
 
 	sgrRunning = true;
 

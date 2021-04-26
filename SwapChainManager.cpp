@@ -1,6 +1,7 @@
 #include "SwapChainManager.h"
 #include "WindowManager.h"
 #include "PhysicalDeviceManager.h"
+#include "RenderPassManager.h"
 #include "LogicalDeviceManager.h"
 
 SwapChainManager* SwapChainManager::instance = nullptr;
@@ -104,6 +105,8 @@ void SwapChainManager::setupSwapChainProperties()
     }
 }
 sgrErrCode SwapChainManager::createImageViews() {
+    VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
+
     imageViews.resize(images.size());
 
     for (size_t i = 0; i < images.size(); i++) {
@@ -122,7 +125,6 @@ sgrErrCode SwapChainManager::createImageViews() {
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
         if (vkCreateImageView(logicalDevice, &createInfo, nullptr, &imageViews[i]) != VK_SUCCESS)
             return sgrInitImageViews;
     }
@@ -196,4 +198,31 @@ VkExtent2D SwapChainManager::getExtent()
 VkFormat SwapChainManager::getImageFormat()
 {
     return imageFormat;
+}
+
+sgrErrCode SwapChainManager::initFrameBuffers()
+{
+    VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
+
+    framebuffers.resize(imageViews.size());
+
+    for (size_t i = 0; i < imageViews.size(); i++) {
+        VkImageView attachments[] = {
+            imageViews[i]
+        };
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = RenderPassManager::get()->renderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = extent.width;
+        framebufferInfo.height = extent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &framebuffers[i]) != VK_SUCCESS)
+            return sgrInitFrameBuffersError;
+    }
+
+    return sgrOK;
 }

@@ -3,6 +3,7 @@
 #include "utils.h"
 
 class PipelineManager;
+class SwapChainManager;
 
 class RenderPassManager {
 private:
@@ -18,6 +19,7 @@ private:
 	VkRenderPass renderPass;
 
 	friend class PipelineManager;
+	friend class SwapChainManager;
 
 public:
 	static RenderPassManager* get();

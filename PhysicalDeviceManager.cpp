@@ -2,7 +2,11 @@
 
 PhysicalDeviceManager* PhysicalDeviceManager::instance = nullptr;
 
-PhysicalDeviceManager::PhysicalDeviceManager() { ; }
+PhysicalDeviceManager::PhysicalDeviceManager() 
+{
+    pickedPhysicalDevice.physDevice = VK_NULL_HANDLE;
+}
+
 PhysicalDeviceManager::~PhysicalDeviceManager() { ; }
 
 PhysicalDeviceManager* PhysicalDeviceManager::get()
@@ -19,7 +23,6 @@ PhysicalDeviceManager* PhysicalDeviceManager::get()
 sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
 {
     swapChainManager = SwapChainManager::get();
-    pickedPhysicalDevice.physDevice = VK_NULL_HANDLE;
 
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);

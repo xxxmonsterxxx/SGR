@@ -21,6 +21,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	logicalDeviceManager = LogicalDeviceManager::get();
 	swapChainManager = SwapChainManager::get();
 	pipelineManager = PipelineManager::get();
+	commandManager = CommandManager::get();
 }
 
 SGR::~SGR()
@@ -68,6 +69,10 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	sgrErrCode resultInitFrameBuffers = swapChainManager->initFrameBuffers();
 	if (resultInitFrameBuffers != sgrOK)
 		return resultInitFrameBuffers;
+
+	sgrErrCode resultInitCommandBuffers = commandManager->initCommandBuffers();
+	if (resultInitCommandBuffers != sgrOK)
+		return resultInitCommandBuffers;
 
 	sgrRunning = true;
 

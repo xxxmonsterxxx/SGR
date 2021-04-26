@@ -10,6 +10,7 @@
 #include "SwapChainManager.h"
 #include "LogicalDeviceManager.h"
 #include "PipelineManager.h"
+#include "CommandManager.h"
 
 class SGR {
 private:
@@ -35,6 +36,8 @@ private:
 	SwapChainManager* swapChainManager;
 
 	PipelineManager* pipelineManager;
+
+	CommandManager* commandManager;
 
 	sgrErrCode initVulkanInstance();
 

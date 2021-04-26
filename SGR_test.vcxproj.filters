@@ -37,6 +37,9 @@
     <Filter Include="RenderPassManager">
       <UniqueIdentifier>{5690d22d-9a62-4f89-a4a9-3291269b3e17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CommandManager">
+      <UniqueIdentifier>{c03e55df-9b6f-4a8f-947a-8f3e25285b75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -69,6 +72,9 @@
     <ClInclude Include="RenderPassManager.h">
       <Filter>RenderPassManager</Filter>
     </ClInclude>
+    <ClInclude Include="CommandManager.h">
+      <Filter>CommandManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -100,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="RenderPassManager.cpp">
       <Filter>RenderPassManager</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandManager.cpp">
+      <Filter>CommandManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

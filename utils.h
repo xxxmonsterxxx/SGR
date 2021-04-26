@@ -27,5 +27,8 @@ enum sgrErrCode
 	sgrInitPipelineLayoutError,
 	sgrInitPipelineError,
 	sgrInitRenderPassError,
-	sgrInitFrameBuffersError
+	sgrInitFrameBuffersError,
+	sgrInitCommandPoolError,
+	sgrInitCommandBuffersError,
+	beginCommandBufferError
 };

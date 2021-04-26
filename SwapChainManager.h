@@ -4,6 +4,7 @@
 
 class SGR;
 class PhysicalDeviceManager;
+class CommandManager;
 
 struct SgrSwapChainDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -53,4 +54,5 @@ private:
 
 	friend class SGR;
 	friend class PhysicalDeviceManager;
+	friend class CommandManager;
 };

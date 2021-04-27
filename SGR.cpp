@@ -102,6 +102,9 @@ sgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 
 sgrErrCode SGR::drawFrame()
 {
+	if (!commandManager->buffersEnded)
+		commandManager->endInitCommandBuffers();
+
 	return sgrOK;
 }
 
@@ -154,6 +157,12 @@ std::vector<SgrPhysicalDevice> SGR::getAllPhysDevInstances()
 void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 {
 	requiredQueueFamilies = reqFam;
+}
+
+sgrErrCode SGR::drawSimpleTestObject()
+{
+	commandManager->draw(0, 3, 1, 0, 0);
+	return sgrOK;
 }
 
 sgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)

@@ -3,6 +3,7 @@
 #include "utils.h"
 
 class SGR;
+class CommandManager;
 
 class PipelineManager {
 private:
@@ -19,6 +20,7 @@ private:
 	VkPipeline pipeline;
 
 	friend class SGR;
+	friend class CommandManager;
 
 public:
 	static PipelineManager* get();

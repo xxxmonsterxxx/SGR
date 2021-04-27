@@ -4,6 +4,7 @@
 
 class PipelineManager;
 class SwapChainManager;
+class CommandManager;
 
 class RenderPassManager {
 private:
@@ -20,6 +21,7 @@ private:
 
 	friend class PipelineManager;
 	friend class SwapChainManager;
+	friend class CommandManager;
 
 public:
 	static RenderPassManager* get();

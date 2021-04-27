@@ -73,4 +73,6 @@ public:
 	sgrErrCode setRenderPhysicalDevice(SgrPhysicalDevice device);
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
+
+	sgrErrCode drawSimpleTestObject();
 };

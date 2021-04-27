@@ -31,5 +31,7 @@ enum sgrErrCode
 	sgrInitCommandPoolError,
 	sgrInitCommandBuffersError,
 	sgrBeginCommandBufferError,
-	sgrEndCommandBufferError
+	sgrEndCommandBufferError,
+	sgrInitSemaphoresError,
+	sgrQueueSubmitFailed
 };

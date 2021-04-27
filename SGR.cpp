@@ -74,6 +74,10 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitCommandBuffers != sgrOK)
 		return resultInitCommandBuffers;
 
+	sgrErrCode resultInitSemaphores = initSemaphores();
+	if (resultInitSemaphores != sgrOK)
+		return resultInitSemaphores;
+
 	sgrRunning = true;
 
 	return sgrOK;
@@ -105,6 +109,42 @@ sgrErrCode SGR::drawFrame()
 	if (!commandManager->buffersEnded)
 		commandManager->endInitCommandBuffers();
 
+	uint32_t imageIndex;
+	VkDevice device = logicalDeviceManager->logicalDevice;
+	VkSwapchainKHR swapChain = swapChainManager->swapChain;
+	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandManager->commandBuffers[imageIndex];
+
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(logicalDeviceManager->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+		return sgrQueueSubmitFailed;
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { swapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = nullptr; // Optional
+
+	vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
+
 	return sgrOK;
 }
 
@@ -116,6 +156,23 @@ bool SGR::isSGRRunning()
 		sgrRunning = false;
 
 	return sgrRunning;
+}
+
+sgrErrCode SGR::initSemaphores()
+{
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	if (vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
+		vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
+		return sgrInitSemaphoresError;
+	}
+
+	return sgrOK;
 }
 
 sgrErrCode SGR::initVulkanInstance()
@@ -161,7 +218,7 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 
 sgrErrCode SGR::drawSimpleTestObject()
 {
-	commandManager->draw(0, 3, 1, 0, 0);
+	commandManager->draw(3, 1, 0, 0);
 	return sgrOK;
 }
 

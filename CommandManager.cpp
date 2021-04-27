@@ -66,7 +66,7 @@ sgrErrCode CommandManager::initCommandBuffers()
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = SwapChainManager::get()->extent;
 
-        VkClearValue clearColor = { 230.0f, 230.0f, 250.0f, 1.0f };
+        VkClearValue clearColor = { 0.823f, 0.3058f, 0.8392f, 1.0f };
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
@@ -78,9 +78,10 @@ sgrErrCode CommandManager::initCommandBuffers()
     return sgrOK;
 }
 
-void CommandManager::draw(uint32_t commandBufferIndex, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+void CommandManager::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    vkCmdDraw(commandBuffers[commandBufferIndex], vertexCount, instanceCount, firstVertex, firstInstance);
+    for (size_t i = 0; i < commandBuffers.size(); i++)
+        vkCmdDraw(commandBuffers[i], vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 sgrErrCode CommandManager::endInitCommandBuffers()

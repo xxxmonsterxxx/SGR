@@ -39,6 +39,11 @@ private:
 
 	CommandManager* commandManager;
 
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+
+	sgrErrCode initSemaphores();
+
 	sgrErrCode initVulkanInstance();
 
 public:

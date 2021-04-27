@@ -10,7 +10,7 @@ int main()
 		return resultSGRInit;
 	}
 
-	sgr_object1.drawSimpleTestObject();
+	sgr_object1.addToFrameSimpleTestObject();
 
 	while (sgr_object1.isSGRRunning()) {
 		sgr_object1.drawFrame();

@@ -79,5 +79,5 @@ public:
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
-	sgrErrCode drawSimpleTestObject();
+	sgrErrCode addToFrameSimpleTestObject();
 };

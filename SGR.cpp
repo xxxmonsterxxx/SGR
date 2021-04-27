@@ -163,10 +163,6 @@ sgrErrCode SGR::initSemaphores()
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	VkFenceCreateInfo fenceInfo{};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
 	if (vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
 		vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
 		return sgrInitSemaphoresError;
@@ -216,7 +212,7 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 	requiredQueueFamilies = reqFam;
 }
 
-sgrErrCode SGR::drawSimpleTestObject()
+sgrErrCode SGR::addToFrameSimpleTestObject()
 {
 	commandManager->draw(3, 1, 0, 0);
 	return sgrOK;

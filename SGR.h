@@ -39,10 +39,15 @@ private:
 
 	CommandManager* commandManager;
 
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
+	const uint8_t maxFrameInFlight = 2;
+	uint8_t currentFrame;
 
-	sgrErrCode initSemaphores();
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	std::vector<VkFence> imagesInFlight;
+
+	sgrErrCode initSyncObjects();
 
 	sgrErrCode initVulkanInstance();
 

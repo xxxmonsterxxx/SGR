@@ -32,6 +32,6 @@ enum sgrErrCode
 	sgrInitCommandBuffersError,
 	sgrBeginCommandBufferError,
 	sgrEndCommandBufferError,
-	sgrInitSemaphoresError,
+	sgrInitSyncObjectsError,
 	sgrQueueSubmitFailed
 };

@@ -22,6 +22,8 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	swapChainManager = SwapChainManager::get();
 	pipelineManager = PipelineManager::get();
 	commandManager = CommandManager::get();
+
+	currentFrame = 0;
 }
 
 SGR::~SGR()
@@ -74,7 +76,7 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitCommandBuffers != sgrOK)
 		return resultInitCommandBuffers;
 
-	sgrErrCode resultInitSemaphores = initSemaphores();
+	sgrErrCode resultInitSemaphores = initSyncObjects();
 	if (resultInitSemaphores != sgrOK)
 		return resultInitSemaphores;
 
@@ -85,6 +87,7 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 sgrErrCode SGR::destroy()
 {
+	vkDeviceWaitIdle(logicalDeviceManager->logicalDevice);
 	windowManager->destroy();
 	glfwTerminate();
 
@@ -109,15 +112,23 @@ sgrErrCode SGR::drawFrame()
 	if (!commandManager->buffersEnded)
 		commandManager->endInitCommandBuffers();
 
+	vkWaitForFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
 	uint32_t imageIndex;
 	VkDevice device = logicalDeviceManager->logicalDevice;
 	VkSwapchainKHR swapChain = swapChainManager->swapChain;
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	}
+	// Mark the image as now being in use by this frame
+	imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
@@ -125,11 +136,13 @@ sgrErrCode SGR::drawFrame()
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandManager->commandBuffers[imageIndex];
 
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(logicalDeviceManager->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+	vkResetFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame]);
+
+	if (vkQueueSubmit(logicalDeviceManager->graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
 		return sgrQueueSubmitFailed;
 
 	VkPresentInfoKHR presentInfo{};
@@ -145,6 +158,10 @@ sgrErrCode SGR::drawFrame()
 
 	vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
 
+	vkQueueWaitIdle(logicalDeviceManager->presentQueue);
+
+	currentFrame = (currentFrame + 1) % maxFrameInFlight;
+
 	return sgrOK;
 }
 
@@ -158,14 +175,26 @@ bool SGR::isSGRRunning()
 	return sgrRunning;
 }
 
-sgrErrCode SGR::initSemaphores()
+sgrErrCode SGR::initSyncObjects()
 {
+	imageAvailableSemaphores.resize(maxFrameInFlight);
+	renderFinishedSemaphores.resize(maxFrameInFlight);
+	inFlightFences.resize(maxFrameInFlight);
+	imagesInFlight.resize(swapChainManager->imageCount, VK_NULL_HANDLE);
+
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	if (vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
-		vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS) {
-		return sgrInitSemaphoresError;
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < maxFrameInFlight; i++) {
+		if (vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(logicalDeviceManager->logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(logicalDeviceManager->logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+			return sgrInitSyncObjectsError;
+		}
 	}
 
 	return sgrOK;

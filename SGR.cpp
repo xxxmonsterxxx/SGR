@@ -112,6 +112,9 @@ sgrErrCode SGR::drawFrame()
 	if (!commandManager->buffersEnded)
 		commandManager->endInitCommandBuffers();
 
+	if (windowManager->windowMinimized)
+		glfwWaitEvents();
+
 	vkWaitForFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
@@ -178,7 +181,6 @@ sgrErrCode SGR::drawFrame()
 	}
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
-	printf("\nimg %d", imageIndex);
 
 	return sgrOK;
 }
@@ -186,7 +188,6 @@ sgrErrCode SGR::drawFrame()
 bool SGR::isSGRRunning()
 {
 	glfwPollEvents();
-	printf("\nTEST123");
 
 	if (glfwWindowShouldClose(window))
 		sgrRunning = false;

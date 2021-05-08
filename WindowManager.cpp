@@ -3,8 +3,12 @@
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-	app->windowResized = true;
-	printf("\nimg %d %d", width,height);
+	if (width == 0 || height == 0)
+		app->windowMinimized = true;
+	else {
+		app->windowResized = true;
+		app->windowMinimized = false;
+	}
 }
 
 WindowManager* WindowManager::instance = nullptr;

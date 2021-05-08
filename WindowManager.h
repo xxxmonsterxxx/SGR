@@ -49,5 +49,5 @@ public:
 
 	static WindowManager* get();
 	bool windowResized = false;
-
+	bool windowMinimized = false;
 };

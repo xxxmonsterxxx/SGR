@@ -3,6 +3,7 @@
 #include "SwapChainManager.h"
 #include "RenderPassManager.h"
 #include "PipelineManager.h"
+#include "PhysicalDeviceManager.h"
 
 CommandManager* CommandManager::instance = nullptr;
 
@@ -33,9 +34,11 @@ sgrErrCode CommandManager::initCommandPool()
 
 sgrErrCode CommandManager::initCommandBuffers()
 {
-    sgrErrCode resultInitCommandPool = initCommandPool();
-    if (resultInitCommandPool != sgrOK)
-        return resultInitCommandPool;
+    if (commandPool == VK_NULL_HANDLE) {
+        sgrErrCode resultInitCommandPool = initCommandPool();
+        if (resultInitCommandPool != sgrOK)
+            return resultInitCommandPool;
+    }
 
     SwapChainManager* swpChMan = SwapChainManager::get();
 
@@ -75,17 +78,22 @@ sgrErrCode CommandManager::initCommandBuffers()
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineManager::get()->pipeline);
     }
 
+    buffersEnded = false;
     return sgrOK;
 }
 
 void CommandManager::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    for (size_t i = 0; i < commandBuffers.size(); i++)
-        vkCmdDraw(commandBuffers[i], vertexCount, instanceCount, firstVertex, firstInstance);
+    DrawCommand* newDrawCmd = new DrawCommand(vertexCount, instanceCount, firstVertex, firstVertex);
+    commands.push_back((Command*)newDrawCmd);
 }
 
 sgrErrCode CommandManager::endInitCommandBuffers()
 {
+    sgrErrCode resultExecuteCommands = executeCommands();
+    if (resultExecuteCommands != sgrOK)
+        return resultExecuteCommands;
+
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -95,5 +103,19 @@ sgrErrCode CommandManager::endInitCommandBuffers()
     }
 
     buffersEnded = true;
+    return sgrOK;
+}
+
+sgrErrCode CommandManager::executeCommands()
+{
+    for (size_t i = 0; i < commandBuffers.size(); i++) {
+        for (size_t j = 0; j < commands.size(); j++) {
+            sgrErrCode resultCmd = commands[j]->execute(&commandBuffers[i]);
+            if (resultCmd != sgrOK) {
+                return resultCmd;
+            }           
+        }
+    }
+
     return sgrOK;
 }

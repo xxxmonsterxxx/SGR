@@ -33,5 +33,12 @@ enum sgrErrCode
 	sgrBeginCommandBufferError,
 	sgrEndCommandBufferError,
 	sgrInitSyncObjectsError,
-	sgrQueueSubmitFailed
+	sgrQueueSubmitFailed,
+	sgrFailedToAcquireImage,
+	sgrFailedPresentImage,
+	sgrReinitSwapChainError,
+	sgrReinitRenderPassError,
+	sgrReinitPipelineError,
+	sgrReinitFrameBuffersError,
+	sgrReinitCommandBuffersError
 };

@@ -1,5 +1,12 @@
 #include "WindowManager.h"
 
+
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+	app->windowResized = true;
+	printf("\nimg %d %d", width,height);
+}
+
 WindowManager* WindowManager::instance = nullptr;
 
 WindowManager::WindowManager() { ; }
@@ -31,8 +38,11 @@ sgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	window = glfwCreateWindow(this->windowWidth, this->windowHeight, this->windowName.c_str(), nullptr, nullptr);
+	glfwSetWindowUserPointer(window, this);
+	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+
 	if (window == nullptr)
 		return sgrInitWindowError;
 

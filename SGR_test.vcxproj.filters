@@ -75,6 +75,12 @@
     <ClInclude Include="CommandManager.h">
       <Filter>CommandManager</Filter>
     </ClInclude>
+    <ClInclude Include="Command.h">
+      <Filter>CommandManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawCommand.h">
+      <Filter>CommandManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

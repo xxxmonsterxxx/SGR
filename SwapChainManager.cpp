@@ -3,6 +3,8 @@
 #include "PhysicalDeviceManager.h"
 #include "RenderPassManager.h"
 #include "LogicalDeviceManager.h"
+#include "CommandManager.h"
+#include "PipelineManager.h"
 
 SwapChainManager* SwapChainManager::instance = nullptr;
 
@@ -56,6 +58,8 @@ void SwapChainManager::setSwapChainDeviceCapabilities(VkPhysicalDevice device)
 
 void SwapChainManager::setupSwapChainProperties()
 {
+    setSwapChainDeviceCapabilities(PhysicalDeviceManager::instance->pickedPhysicalDevice.physDevice);
+
     // choose surface color space format
     bool propertyChoosed = false;
     for (const auto& availableFormat : capabilities.formats) {
@@ -178,6 +182,50 @@ sgrErrCode SwapChainManager::initSwapChain()
     sgrErrCode resultInitImageViews = createImageViews();
     if (resultInitImageViews != sgrOK)
         return resultInitImageViews;
+
+    return sgrOK;
+}
+
+sgrErrCode SwapChainManager::cleanOldSwapChain()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    for (size_t i = 0; i < framebuffers.size(); i++) {
+        vkDestroyFramebuffer(device, framebuffers[i], nullptr);
+    }
+
+    vkFreeCommandBuffers(device, CommandManager::instance->commandPool, static_cast<uint32_t>(CommandManager::instance->commandBuffers.size()), CommandManager::instance->commandBuffers.data());
+
+    vkDestroyPipeline(device, PipelineManager::instance->pipeline, nullptr);
+    vkDestroyPipelineLayout(device, PipelineManager::instance->pipelineLayout, nullptr);
+    vkDestroyRenderPass(device, RenderPassManager::instance->renderPass, nullptr);
+
+    for (size_t i = 0; i < imageViews.size(); i++) {
+        vkDestroyImageView(device, imageViews[i], nullptr);
+    }
+
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
+    return sgrOK;
+}
+
+sgrErrCode SwapChainManager::reinitSwapChain()
+{
+    vkDeviceWaitIdle(LogicalDeviceManager::instance->logicalDevice);
+
+    sgrErrCode resultCleanOldSwapChain = cleanOldSwapChain();
+    if (resultCleanOldSwapChain != sgrOK)
+        return resultCleanOldSwapChain;
+
+    if (initSwapChain() != sgrOK)
+        return sgrReinitSwapChainError;
+
+    if (PipelineManager::instance->init() != sgrOK)
+        return sgrReinitPipelineError;
+
+    if (initFrameBuffers() != sgrOK)
+        return sgrReinitFrameBuffersError;
+
+    if (CommandManager::instance->initCommandBuffers() != sgrOK)
+        return sgrReinitCommandBuffersError;
 
     return sgrOK;
 }

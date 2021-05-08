@@ -1,9 +1,9 @@
 #pragma once
 
 #include "utils.h"
-#include "SwapChainManager.h"
 
 class SGR;
+class SwapChainManager;
 
 struct SgrPhysicalDevice {
 	VkPhysicalDevice physDevice;
@@ -24,9 +24,10 @@ struct SgrPhysicalDevice {
 
 class PhysicalDeviceManager {
 private:
-	static PhysicalDeviceManager* instance;
+	friend class SGR;
+	friend class SwapChainManager;
 
-	SwapChainManager* swapChainManager;
+	static PhysicalDeviceManager* instance;
 
 	std::vector<SgrPhysicalDevice> physicalDevices;
 
@@ -46,8 +47,6 @@ private:
 	sgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
 										 std::vector<std::string> requiredExtensions,
 										 VkSurfaceKHR surface);
-
-	friend class SGR;
 
 	PhysicalDeviceManager();
 	~PhysicalDeviceManager();

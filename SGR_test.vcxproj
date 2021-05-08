@@ -155,7 +155,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Command.h" />
     <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />

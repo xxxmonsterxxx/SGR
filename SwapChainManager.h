@@ -31,6 +31,8 @@ private:
 
 	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
 	sgrErrCode initSwapChain();
+	sgrErrCode cleanOldSwapChain();
+	sgrErrCode reinitSwapChain();
 
 	VkSurfaceKHR surface;
 	VkSurfaceFormatKHR surfaceFormat;

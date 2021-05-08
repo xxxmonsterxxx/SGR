@@ -117,7 +117,18 @@ sgrErrCode SGR::drawFrame()
 	uint32_t imageIndex;
 	VkDevice device = logicalDeviceManager->logicalDevice;
 	VkSwapchainKHR swapChain = swapChainManager->swapChain;
-	vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		sgrErrCode reinitSwapChain = swapChainManager->reinitSwapChain();
+		if (reinitSwapChain != sgrOK) {
+			return reinitSwapChain;
+		}
+		imagesInFlight.resize(swapChainManager->imageCount, VK_NULL_HANDLE);
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		return sgrFailedToAcquireImage;
+	}
 
 	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -156,11 +167,18 @@ sgrErrCode SGR::drawFrame()
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
+	result = vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
 
-	vkQueueWaitIdle(logicalDeviceManager->presentQueue);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->windowResized) {
+		windowManager->windowResized = false;
+		swapChainManager->reinitSwapChain();
+	}
+	else if (result != VK_SUCCESS) {
+		return sgrFailedPresentImage;
+	}
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
+	printf("\nimg %d", imageIndex);
 
 	return sgrOK;
 }
@@ -168,6 +186,7 @@ sgrErrCode SGR::drawFrame()
 bool SGR::isSGRRunning()
 {
 	glfwPollEvents();
+	printf("\nTEST123");
 
 	if (glfwWindowShouldClose(window))
 		sgrRunning = false;

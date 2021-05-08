@@ -1,12 +1,13 @@
 #pragma once
 
 #include "utils.h"
-#include "PhysicalDeviceManager.h"
 
 class SGR;
+class SwapChainManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
+	friend class SwapChainManager;
 
 public:
 

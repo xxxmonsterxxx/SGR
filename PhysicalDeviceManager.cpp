@@ -1,4 +1,5 @@
 #include "PhysicalDeviceManager.h"
+#include "SwapChainManager.h"
 
 PhysicalDeviceManager* PhysicalDeviceManager::instance = nullptr;
 
@@ -22,8 +23,6 @@ PhysicalDeviceManager* PhysicalDeviceManager::get()
 
 sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
 {
-    swapChainManager = SwapChainManager::get();
-
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -107,7 +106,7 @@ bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device
 
 bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice)
 {
-    SgrSwapChainDetails deviceSwapChainDetails = swapChainManager->querySwapChainDetails(sgrDevice.physDevice);
+    SgrSwapChainDetails deviceSwapChainDetails = SwapChainManager::instance->querySwapChainDetails(sgrDevice.physDevice);
     if (!deviceSwapChainDetails.formats.empty() && !deviceSwapChainDetails.presentModes.empty())
         return true;
 
@@ -137,7 +136,6 @@ sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
             isSupportRequiredExtentions(physDev, requiredExtensions) &&
             isSupportAnySwapChainMode(physDev)) {
                 pickedPhysicalDevice = physDev;
-                swapChainManager->setSwapChainDeviceCapabilities(pickedPhysicalDevice.physDevice);
                 enabledExtensions = requiredExtensions;
                 return sgrOK;
         }

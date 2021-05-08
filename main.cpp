@@ -13,7 +13,9 @@ int main()
 	sgr_object1.addToFrameSimpleTestObject();
 
 	while (sgr_object1.isSGRRunning()) {
-		sgr_object1.drawFrame();
+		sgrErrCode resultDrawFrame = sgr_object1.drawFrame();
+		if (resultDrawFrame != sgrOK)
+			return resultDrawFrame;
 	}
 
 	sgrErrCode resultSGRDestroy = sgr_object1.destroy();

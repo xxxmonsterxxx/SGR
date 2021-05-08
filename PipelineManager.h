@@ -4,9 +4,14 @@
 
 class SGR;
 class CommandManager;
+class SwapChainManager;
 
 class PipelineManager {
 private:
+	friend class SGR;
+	friend class CommandManager;
+	friend class SwapChainManager;
+
 	PipelineManager();
 	~PipelineManager();
 	PipelineManager(const PipelineManager&) = delete;
@@ -18,9 +23,6 @@ private:
 
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
-
-	friend class SGR;
-	friend class CommandManager;
 
 public:
 	static PipelineManager* get();

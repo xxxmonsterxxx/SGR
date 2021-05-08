@@ -48,5 +48,6 @@ private:
 public:
 
 	static WindowManager* get();
+	bool windowResized = false;
 
 };

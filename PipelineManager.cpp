@@ -6,7 +6,27 @@
 
 PipelineManager* PipelineManager::instance = nullptr;
 
-PipelineManager::PipelineManager() { ; }
+PipelineManager::PipelineManager()
+{
+    vertexBindingDescription.binding = 0;
+    vertexBindingDescription.stride = sizeof(Sgr2DVertex);
+    vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    VkVertexInputAttributeDescription positionDescr;
+    positionDescr.binding = 0;
+    positionDescr.location = 0;
+    positionDescr.format = VK_FORMAT_R32G32_SFLOAT;
+    positionDescr.offset = offsetof(Sgr2DVertex, position);
+
+    VkVertexInputAttributeDescription colorDescr;
+    colorDescr.binding = 0;
+    colorDescr.location = 1;
+    colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+    colorDescr.offset = offsetof(Sgr2DVertex, color);
+
+    vertexAttributeDescriptions.push_back(positionDescr);
+    vertexAttributeDescriptions.push_back(colorDescr);
+}
 PipelineManager::~PipelineManager() { ; }
 
 PipelineManager* PipelineManager::get()
@@ -19,7 +39,7 @@ PipelineManager* PipelineManager::get()
 		return instance;
 }
 
-sgrErrCode PipelineManager::init()
+SgrErrCode PipelineManager::init()
 {
     auto* shadMan = ShaderManager::get();
     shadMan->initShaders();
@@ -40,8 +60,10 @@ sgrErrCode PipelineManager::init()
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = &vertexBindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -118,7 +140,7 @@ sgrErrCode PipelineManager::init()
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = pipelineLayout;
 
-    sgrErrCode resultInitRenderPass = RenderPassManager::get()->init();
+    SgrErrCode resultInitRenderPass = RenderPassManager::get()->init();
     if (resultInitRenderPass != sgrOK)
         return resultInitRenderPass;
 

@@ -23,7 +23,7 @@ private:
 	 * \param windowName
 	 * \return 
 	 */
-	sgrErrCode init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName);
+	SgrErrCode init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName);
 
 	/**
 	 * Init Window manually. There will be possibility to init own special window from outside.
@@ -32,7 +32,7 @@ private:
 	 * \param windowName
 	 * \return
 	 */
-	sgrErrCode init(GLFWwindow* newWindow, const char* windowName);
+	SgrErrCode init(GLFWwindow* newWindow, const char* windowName);
 
 	void destroy();
 

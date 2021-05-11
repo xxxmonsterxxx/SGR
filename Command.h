@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils.h"
+
 class CommandManager;
 
 class Command {
@@ -9,10 +11,13 @@ protected:
 
 	enum CommandType {
 		NONE,
-		DRAW
+		DRAW,
+		BIND_VERTEX_BUFFER,
+		BIND_INDEX_BUFFER,
+		DRAW_INDEXED
 	};
 
-	virtual sgrErrCode execute(VkCommandBuffer* cmdBuffer) = 0;
+	virtual SgrErrCode execute(VkCommandBuffer* cmdBuffer) = 0;
 
 	CommandType type = CommandType::NONE;
 };

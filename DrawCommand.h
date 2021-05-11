@@ -1,9 +1,8 @@
 #pragma once
-#include "utils.h"
 
 #include "Command.h"
 
-class DrawCommand : private Command {
+class DrawCommand : Command {
 public:
 	DrawCommand(uint32_t _vertexCount, uint32_t _instanceCount, uint32_t _firstVertex, uint32_t _firstInstance) :
 		vertexCount(_vertexCount),
@@ -19,7 +18,7 @@ public:
 	uint32_t firstVertex;
 	uint32_t firstInstance;
 
-	sgrErrCode execute(VkCommandBuffer* cmdBuffer) override {
+	SgrErrCode execute(VkCommandBuffer* cmdBuffer) override {
 		vkCmdDraw(*cmdBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 		return sgrOK;
 	}

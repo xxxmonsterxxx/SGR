@@ -2,6 +2,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <cstdint>
 #include <string>
@@ -11,8 +12,14 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
+#include <array>
 
-enum sgrErrCode
+struct Sgr2DVertex {
+	glm::vec2 position;
+	glm::vec3 color;
+};
+
+enum SgrErrCode
 {
 	sgrOK,
 	sgrBadPointer,
@@ -40,5 +47,8 @@ enum sgrErrCode
 	sgrReinitRenderPassError,
 	sgrReinitPipelineError,
 	sgrReinitFrameBuffersError,
-	sgrReinitCommandBuffersError
+	sgrReinitCommandBuffersError,
+	sgrCreateVkBufferError,
+	sgrAllocateMemoryError,
+	sgrIncorrectPointer
 };

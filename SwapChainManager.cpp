@@ -108,7 +108,7 @@ void SwapChainManager::setupSwapChainProperties()
         imageCount = caps.maxImageCount;
     }
 }
-sgrErrCode SwapChainManager::createImageViews() {
+SgrErrCode SwapChainManager::createImageViews() {
     VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
 
     imageViews.resize(images.size());
@@ -137,7 +137,7 @@ sgrErrCode SwapChainManager::createImageViews() {
 }
 
 
-sgrErrCode SwapChainManager::initSwapChain()
+SgrErrCode SwapChainManager::initSwapChain()
 {
     setupSwapChainProperties();
 
@@ -179,14 +179,14 @@ sgrErrCode SwapChainManager::initSwapChain()
 
     imageFormat = surfaceFormat.format;
 
-    sgrErrCode resultInitImageViews = createImageViews();
+    SgrErrCode resultInitImageViews = createImageViews();
     if (resultInitImageViews != sgrOK)
         return resultInitImageViews;
 
     return sgrOK;
 }
 
-sgrErrCode SwapChainManager::cleanOldSwapChain()
+SgrErrCode SwapChainManager::cleanOldSwapChain()
 {
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
     for (size_t i = 0; i < framebuffers.size(); i++) {
@@ -207,11 +207,11 @@ sgrErrCode SwapChainManager::cleanOldSwapChain()
     return sgrOK;
 }
 
-sgrErrCode SwapChainManager::reinitSwapChain()
+SgrErrCode SwapChainManager::reinitSwapChain()
 {
     vkDeviceWaitIdle(LogicalDeviceManager::instance->logicalDevice);
 
-    sgrErrCode resultCleanOldSwapChain = cleanOldSwapChain();
+    SgrErrCode resultCleanOldSwapChain = cleanOldSwapChain();
     if (resultCleanOldSwapChain != sgrOK)
         return resultCleanOldSwapChain;
 
@@ -230,7 +230,7 @@ sgrErrCode SwapChainManager::reinitSwapChain()
     return sgrOK;
 }
 
-sgrErrCode SwapChainManager::initSurface(VkInstance instance, GLFWwindow* window)
+SgrErrCode SwapChainManager::initSurface(VkInstance instance, GLFWwindow* window)
 {
 	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 		return sgrInitSurfaceError;
@@ -248,7 +248,7 @@ VkFormat SwapChainManager::getImageFormat()
     return imageFormat;
 }
 
-sgrErrCode SwapChainManager::initFrameBuffers()
+SgrErrCode SwapChainManager::initFrameBuffers()
 {
     VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
 

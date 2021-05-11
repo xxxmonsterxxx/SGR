@@ -4,10 +4,12 @@
 
 class SGR;
 class SwapChainManager;
+class MemoryManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
 	friend class SwapChainManager;
+	friend class MemoryManager;
 
 public:
 
@@ -27,5 +29,5 @@ private:
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
 
-	sgrErrCode initLogicalDevice();
+	SgrErrCode initLogicalDevice();
 };

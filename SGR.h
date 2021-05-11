@@ -11,6 +11,7 @@
 #include "LogicalDeviceManager.h"
 #include "PipelineManager.h"
 #include "CommandManager.h"
+#include "MemoryManager.h"
 
 class SGR {
 private:
@@ -39,6 +40,8 @@ private:
 
 	CommandManager* commandManager;
 
+	MemoryManager* memoryManager;
+
 	const uint8_t maxFrameInFlight = 2;
 	uint8_t currentFrame;
 
@@ -47,16 +50,19 @@ private:
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
-	sgrErrCode initSyncObjects();
+	std::vector<Sgr2DVertex> vertices;
+	std::vector<uint16_t> indices;
 
-	sgrErrCode initVulkanInstance();
+	SgrErrCode initSyncObjects();
+
+	SgrErrCode initVulkanInstance();
 
 public:
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
 	~SGR(); 
 
 	bool isSGRRunning();
-	sgrErrCode drawFrame();
+	SgrErrCode drawFrame();
 
 	/**
 	 * Init SGR and create window automatically or with arguments.
@@ -66,9 +72,9 @@ public:
 	 * \param windowName
 	 * \return 
 	 */
-	sgrErrCode init(uint32_t windowWidth = 0, uint32_t windowHeight = 0, const char *windowName = "");
+	SgrErrCode init(uint32_t windowWidth = 0, uint32_t windowHeight = 0, const char *windowName = "");
 
-	sgrErrCode destroy();
+	SgrErrCode destroy();
 
 	/**
 	 * Init SGR Window manually. There will be possibility to init own special window from outside.
@@ -77,12 +83,15 @@ public:
 	 * \param windowName
 	 * \return 
 	 */
-	sgrErrCode initSGRWindow(GLFWwindow* newWindow, const char* windowName);
+	SgrErrCode initSGRWindow(GLFWwindow* newWindow, const char* windowName);
 
 	std::vector<SgrPhysicalDevice> getAllPhysDevInstances();
-	sgrErrCode setRenderPhysicalDevice(SgrPhysicalDevice device);
+	SgrErrCode setRenderPhysicalDevice(SgrPhysicalDevice device);
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
-	sgrErrCode addToFrameSimpleTestObject();
+	void setVertexBindingDescription(VkVertexInputBindingDescription description);
+	void setVertexAttributeDescription(std::array<VkVertexInputAttributeDescription, 2> description);
+
+	SgrErrCode addToFrameSimpleTestObject();
 };

@@ -30,16 +30,16 @@ private:
 	static SwapChainManager* instance;
 
 	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
-	sgrErrCode initSwapChain();
-	sgrErrCode cleanOldSwapChain();
-	sgrErrCode reinitSwapChain();
+	SgrErrCode initSwapChain();
+	SgrErrCode cleanOldSwapChain();
+	SgrErrCode reinitSwapChain();
 
 	VkSurfaceKHR surface;
 	VkSurfaceFormatKHR surfaceFormat;
 	VkPresentModeKHR presentMode;
 
-	sgrErrCode initSurface(VkInstance instance, GLFWwindow* window);
-	sgrErrCode createImageViews();
+	SgrErrCode initSurface(VkInstance instance, GLFWwindow* window);
+	SgrErrCode createImageViews();
 	void setupSwapChainProperties();
 
 	VkSwapchainKHR swapChain;
@@ -51,7 +51,7 @@ private:
 	std::vector<VkImageView> imageViews;
 	std::vector<VkFramebuffer> framebuffers;
 
-	sgrErrCode initFrameBuffers();
+	SgrErrCode initFrameBuffers();
 
 
 	friend class SGR;

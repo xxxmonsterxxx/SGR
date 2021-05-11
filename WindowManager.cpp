@@ -27,7 +27,7 @@ WindowManager* WindowManager::get()
 	}
 }
 
-sgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName)
+SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName)
 {
 	windowWidth = 800;
 	windowHeight = 600;
@@ -53,7 +53,7 @@ sgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 	return sgrOK;
 }
 
-sgrErrCode WindowManager::init(GLFWwindow* newWindow, const char* windowName)
+SgrErrCode WindowManager::init(GLFWwindow* newWindow, const char* windowName)
 {
 	if (newWindow == nullptr) {
 		return sgrBadPointer;

@@ -17,7 +17,7 @@ RenderPassManager* RenderPassManager::get()
 		return instance;
 }
 
-sgrErrCode RenderPassManager::init()
+SgrErrCode RenderPassManager::init()
 {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = SwapChainManager::get()->getImageFormat();

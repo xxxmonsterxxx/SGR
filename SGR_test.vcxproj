@@ -155,11 +155,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BindVertexCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandManager.h" />
     <ClInclude Include="DrawCommand.h" />
+    <ClInclude Include="DrawIndexedCommand.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
+    <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />
     <ClInclude Include="PipelineManager.h" />
     <ClInclude Include="RenderPassManager.h" />
@@ -170,10 +173,12 @@
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BindIndexCommand.h" />
     <ClCompile Include="CommandManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="PhysicalDeviceManager.cpp" />
     <ClCompile Include="PipelineManager.cpp" />
     <ClCompile Include="RenderPassManager.cpp" />

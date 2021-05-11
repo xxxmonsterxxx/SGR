@@ -22,6 +22,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	swapChainManager = SwapChainManager::get();
 	pipelineManager = PipelineManager::get();
 	commandManager = CommandManager::get();
+	memoryManager = MemoryManager::get();
 
 	currentFrame = 0;
 }
@@ -30,7 +31,7 @@ SGR::~SGR()
 {
 }
 
-sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *windowName)
+SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *windowName)
 {
 	if (!manualWindow) {
 		windowManager->init(windowWidth, windowHeight, windowName);
@@ -40,43 +41,43 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (window == nullptr)
 		return sgrInitWindowError;
 
-	sgrErrCode resultInitVulkan = initVulkanInstance();
+	SgrErrCode resultInitVulkan = initVulkanInstance();
 	if (resultInitVulkan != sgrOK)
 		return resultInitVulkan;
 
-	sgrErrCode resultInitPhysicalDeviceManager = physicalDeviceManager->init(vulkanInstance);
+	SgrErrCode resultInitPhysicalDeviceManager = physicalDeviceManager->init(vulkanInstance);
 	if (resultInitPhysicalDeviceManager != sgrOK)
 		return resultInitPhysicalDeviceManager;
 
-	sgrErrCode resultInitSurface = swapChainManager->initSurface(vulkanInstance, window);
+	SgrErrCode resultInitSurface = swapChainManager->initSurface(vulkanInstance, window);
 	if (resultInitSurface != sgrOK)
 		return resultInitSurface;
 
-	sgrErrCode resultGetPhysicalDeviceRequired = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface);
+	SgrErrCode resultGetPhysicalDeviceRequired = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;
 
-	sgrErrCode resultInitLogicalDevice = logicalDeviceManager->initLogicalDevice();
+	SgrErrCode resultInitLogicalDevice = logicalDeviceManager->initLogicalDevice();
 	if (resultInitLogicalDevice != sgrOK)
 		return resultInitLogicalDevice;
 
-	sgrErrCode resultInitSwapChain = swapChainManager->initSwapChain();
+	SgrErrCode resultInitSwapChain = swapChainManager->initSwapChain();
 	if (resultInitSwapChain != sgrOK)
 		return resultInitSwapChain;
 
-	sgrErrCode resultInitPipeline = pipelineManager->init();
+	SgrErrCode resultInitPipeline = pipelineManager->init();
 	if (resultInitPipeline != sgrOK)
 		return resultInitPipeline;
 
-	sgrErrCode resultInitFrameBuffers = swapChainManager->initFrameBuffers();
+	SgrErrCode resultInitFrameBuffers = swapChainManager->initFrameBuffers();
 	if (resultInitFrameBuffers != sgrOK)
 		return resultInitFrameBuffers;
 
-	sgrErrCode resultInitCommandBuffers = commandManager->initCommandBuffers();
+	SgrErrCode resultInitCommandBuffers = commandManager->initCommandBuffers();
 	if (resultInitCommandBuffers != sgrOK)
 		return resultInitCommandBuffers;
 
-	sgrErrCode resultInitSemaphores = initSyncObjects();
+	SgrErrCode resultInitSemaphores = initSyncObjects();
 	if (resultInitSemaphores != sgrOK)
 		return resultInitSemaphores;
 
@@ -85,7 +86,7 @@ sgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	return sgrOK;
 }
 
-sgrErrCode SGR::destroy()
+SgrErrCode SGR::destroy()
 {
 	vkDeviceWaitIdle(logicalDeviceManager->logicalDevice);
 	windowManager->destroy();
@@ -94,9 +95,9 @@ sgrErrCode SGR::destroy()
 	return sgrOK;
 }
 
-sgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
+SgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 {
-	sgrErrCode resultCreateWindow = windowManager->init(newWindow, windowName);
+	SgrErrCode resultCreateWindow = windowManager->init(newWindow, windowName);
 
 	if (resultCreateWindow == sgrOK) {
 		manualWindow = true;
@@ -107,7 +108,7 @@ sgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 	return resultCreateWindow;
 }
 
-sgrErrCode SGR::drawFrame()
+SgrErrCode SGR::drawFrame()
 {
 	if (!commandManager->buffersEnded)
 		commandManager->endInitCommandBuffers();
@@ -123,7 +124,7 @@ sgrErrCode SGR::drawFrame()
 	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		sgrErrCode reinitSwapChain = swapChainManager->reinitSwapChain();
+		SgrErrCode reinitSwapChain = swapChainManager->reinitSwapChain();
 		if (reinitSwapChain != sgrOK) {
 			return reinitSwapChain;
 		}
@@ -156,7 +157,8 @@ sgrErrCode SGR::drawFrame()
 
 	vkResetFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame]);
 
-	if (vkQueueSubmit(logicalDeviceManager->graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
+	result = vkQueueSubmit(logicalDeviceManager->graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]);
+	if (result != VK_SUCCESS)
 		return sgrQueueSubmitFailed;
 
 	VkPresentInfoKHR presentInfo{};
@@ -195,7 +197,7 @@ bool SGR::isSGRRunning()
 	return sgrRunning;
 }
 
-sgrErrCode SGR::initSyncObjects()
+SgrErrCode SGR::initSyncObjects()
 {
 	imageAvailableSemaphores.resize(maxFrameInFlight);
 	renderFinishedSemaphores.resize(maxFrameInFlight);
@@ -220,7 +222,7 @@ sgrErrCode SGR::initSyncObjects()
 	return sgrOK;
 }
 
-sgrErrCode SGR::initVulkanInstance()
+SgrErrCode SGR::initVulkanInstance()
 {
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -261,13 +263,37 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 	requiredQueueFamilies = reqFam;
 }
 
-sgrErrCode SGR::addToFrameSimpleTestObject()
+SgrErrCode SGR::addToFrameSimpleTestObject()
 {
-	commandManager->draw(3, 1, 0, 0);
+	indices = { 0, 1, 2, 2, 3, 0 };
+	vertices = {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+
+	SgrBuffer* vertexBuffer = nullptr;
+	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
+	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(vertexBuffer, size, vertices.data());
+	if (resultAllocateMemoryBuffer != sgrOK)
+		return resultAllocateMemoryBuffer;
+
+	std::vector<VkBuffer> vertexBuffers;
+	vertexBuffers.push_back((*vertexBuffer).vkBuffer);
+	commandManager->bindVertexBuffer(vertexBuffers);
+
+	SgrBuffer* indexBuffer = nullptr;
+	size = sizeof(indices[0]) * indices.size();
+	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(indexBuffer, size, indices.data());
+	commandManager->bindIndexBuffer((*indexBuffer).vkBuffer);
+
+	commandManager->drawIndexed(6, 1, 0, 0, 0);
+
 	return sgrOK;
 }
 
-sgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
+SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 {
 	if (std::find(physicalDeviceManager->physicalDevices.begin(),
 		physicalDeviceManager->physicalDevices.end(), sgrDevice) == physicalDeviceManager->physicalDevices.end())

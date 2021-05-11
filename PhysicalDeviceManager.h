@@ -4,6 +4,7 @@
 
 class SGR;
 class SwapChainManager;
+class MemoryManager;
 
 struct SgrPhysicalDevice {
 	VkPhysicalDevice physDevice;
@@ -26,6 +27,7 @@ class PhysicalDeviceManager {
 private:
 	friend class SGR;
 	friend class SwapChainManager;
+	friend class MemoryManager;
 
 	static PhysicalDeviceManager* instance;
 
@@ -34,17 +36,17 @@ private:
 	std::vector<std::string> enabledExtensions;
 	SgrPhysicalDevice pickedPhysicalDevice;
 
-	sgrErrCode init(VkInstance instance);
+	SgrErrCode init(VkInstance instance);
 
 	bool isSupportRequiredQueuesAndSurface(SgrPhysicalDevice& sgrDevice, std::vector<VkQueueFlagBits> requiredQueues, VkSurfaceKHR* surface = nullptr);
 	bool isSupportRequiredExtentions(SgrPhysicalDevice sgrDevice, std::vector<std::string> requiredExtensions);
 	bool isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice);
 
 	
-	sgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+	SgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
 		std::vector<std::string> requiredExtensions);
 
-	sgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+	SgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
 										 std::vector<std::string> requiredExtensions,
 										 VkSurfaceKHR surface);
 

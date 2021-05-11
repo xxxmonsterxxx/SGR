@@ -4,6 +4,10 @@
 #include "RenderPassManager.h"
 #include "PipelineManager.h"
 #include "PhysicalDeviceManager.h"
+#include "DrawCommand.h"
+#include "BindVertexCommand.h"
+#include "BindIndexCommand.h"
+#include "DrawIndexedCommand.h"
 
 CommandManager* CommandManager::instance = nullptr;
 
@@ -20,7 +24,7 @@ CommandManager* CommandManager::get()
         return instance;
 }
 
-sgrErrCode CommandManager::initCommandPool()
+SgrErrCode CommandManager::initCommandPool()
 {
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -32,10 +36,10 @@ sgrErrCode CommandManager::initCommandPool()
     return sgrOK;
 }
 
-sgrErrCode CommandManager::initCommandBuffers()
+SgrErrCode CommandManager::initCommandBuffers()
 {
     if (commandPool == VK_NULL_HANDLE) {
-        sgrErrCode resultInitCommandPool = initCommandPool();
+        SgrErrCode resultInitCommandPool = initCommandPool();
         if (resultInitCommandPool != sgrOK)
             return resultInitCommandPool;
     }
@@ -88,9 +92,27 @@ void CommandManager::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t
     commands.push_back((Command*)newDrawCmd);
 }
 
-sgrErrCode CommandManager::endInitCommandBuffers()
+void CommandManager::bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets)
 {
-    sgrErrCode resultExecuteCommands = executeCommands();
+    BindVertexCommand* newBindVertexCmd = new BindVertexCommand(vertexBuffers, offsets);
+    commands.push_back((Command*)newBindVertexCmd);
+}
+
+void CommandManager::bindIndexBuffer(VkBuffer indexBuffer)
+{
+    BindIndexCommand* newBindIndexCmd = new BindIndexCommand(indexBuffer);
+    commands.push_back((Command*)newBindIndexCmd);
+}
+
+void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance)
+{
+    DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, verteOffset, firstInstance);
+    commands.push_back((Command*)newDrawIndexedCmd);
+}
+
+SgrErrCode CommandManager::endInitCommandBuffers()
+{
+    SgrErrCode resultExecuteCommands = executeCommands();
     if (resultExecuteCommands != sgrOK)
         return resultExecuteCommands;
 
@@ -106,11 +128,11 @@ sgrErrCode CommandManager::endInitCommandBuffers()
     return sgrOK;
 }
 
-sgrErrCode CommandManager::executeCommands()
+SgrErrCode CommandManager::executeCommands()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         for (size_t j = 0; j < commands.size(); j++) {
-            sgrErrCode resultCmd = commands[j]->execute(&commandBuffers[i]);
+            SgrErrCode resultCmd = commands[j]->execute(&commandBuffers[i]);
             if (resultCmd != sgrOK) {
                 return resultCmd;
             }           

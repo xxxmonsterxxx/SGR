@@ -19,10 +19,13 @@ private:
 
 	static PipelineManager* instance;
 
-	sgrErrCode init();
+	SgrErrCode init();
 
 	VkPipelineLayout pipelineLayout;
 	VkPipeline pipeline;
+
+	VkVertexInputBindingDescription vertexBindingDescription;
+	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 
 public:
 	static PipelineManager* get();

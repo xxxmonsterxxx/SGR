@@ -21,7 +21,7 @@ PhysicalDeviceManager* PhysicalDeviceManager::get()
     }
 }
 
-sgrErrCode PhysicalDeviceManager::init(VkInstance instance)
+SgrErrCode PhysicalDeviceManager::init(VkInstance instance)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -113,7 +113,7 @@ bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevic
     return false;
 }
 
-sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions)
 {
     for (auto physDev : physicalDevices) {
@@ -127,7 +127,7 @@ sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
     return sgrGPUNotFound;
 }
 
-sgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
+SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions,
                                                             VkSurfaceKHR surface)
 {

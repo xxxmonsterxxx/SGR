@@ -15,7 +15,7 @@ private:
 
 	static RenderPassManager* instance;
 
-	sgrErrCode init();
+	SgrErrCode init();
 
 	VkRenderPass renderPass;
 

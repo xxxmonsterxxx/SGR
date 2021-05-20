@@ -43,6 +43,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="DescriptorManager">
+      <UniqueIdentifier>{d26cb81f-3ebc-48ee-9d4e-dc064d541cc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -93,6 +96,12 @@
     <ClInclude Include="DrawIndexedCommand.h">
       <Filter>CommandManager</Filter>
     </ClInclude>
+    <ClInclude Include="BindDescriptorSetCommand.h">
+      <Filter>CommandManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorManager.h">
+      <Filter>DescriptorManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -134,5 +143,19 @@
     <ClCompile Include="BindIndexCommand.h">
       <Filter>CommandManager</Filter>
     </ClCompile>
+    <ClCompile Include="DescriporManager.cpp">
+      <Filter>DescriptorManager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SGRShaders\shader.frag">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="SGRShaders\shader.vert">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="SGRShaders\compile.bat">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

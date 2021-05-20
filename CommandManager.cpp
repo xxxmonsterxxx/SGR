@@ -8,6 +8,7 @@
 #include "BindVertexCommand.h"
 #include "BindIndexCommand.h"
 #include "DrawIndexedCommand.h"
+#include "BindDescriptorSetCommand.h"
 
 CommandManager* CommandManager::instance = nullptr;
 
@@ -57,6 +58,8 @@ SgrErrCode CommandManager::initCommandBuffers()
     if (vkAllocateCommandBuffers(LogicalDeviceManager::get()->getLogicalDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
         return sgrInitCommandBuffersError;
 
+    commands.resize(commandBuffers.size());
+
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -86,28 +89,45 @@ SgrErrCode CommandManager::initCommandBuffers()
     return sgrOK;
 }
 
-void CommandManager::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+void CommandManager::addCmdToBuffer(int16_t bufferIndex, Command* newCmd)
+{
+    if (bufferIndex == -1) {
+        for (size_t i = 0; i < commandBuffers.size(); i++)
+            commands[i].push_back(newCmd);
+    }
+    else {
+        commands[bufferIndex].push_back(newCmd);
+    }
+}
+
+void CommandManager::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance, int16_t cmdBufferIndex)
 {
     DrawCommand* newDrawCmd = new DrawCommand(vertexCount, instanceCount, firstVertex, firstVertex);
-    commands.push_back((Command*)newDrawCmd);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newDrawCmd);
 }
 
-void CommandManager::bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets)
+void CommandManager::bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets, int16_t cmdBufferIndex)
 {
     BindVertexCommand* newBindVertexCmd = new BindVertexCommand(vertexBuffers, offsets);
-    commands.push_back((Command*)newBindVertexCmd);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newBindVertexCmd);
 }
 
-void CommandManager::bindIndexBuffer(VkBuffer indexBuffer)
+void CommandManager::bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferIndex)
 {
     BindIndexCommand* newBindIndexCmd = new BindIndexCommand(indexBuffer);
-    commands.push_back((Command*)newBindIndexCmd);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newBindIndexCmd);
 }
 
-void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance)
+void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance, int16_t cmdBufferIndex)
 {
     DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, verteOffset, firstInstance);
-    commands.push_back((Command*)newDrawIndexedCmd);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newDrawIndexedCmd);
+}
+
+void CommandManager::bindDescriptorSet(uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets)
+{
+    BindDescriptorSetCommand* newBindDescriptorSetCmd = new BindDescriptorSetCommand(descriptorSet, firstSet, descriptorSetCount, dynamicOffsets);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newBindDescriptorSetCmd);
 }
 
 SgrErrCode CommandManager::endInitCommandBuffers()
@@ -131,8 +151,8 @@ SgrErrCode CommandManager::endInitCommandBuffers()
 SgrErrCode CommandManager::executeCommands()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
-        for (size_t j = 0; j < commands.size(); j++) {
-            SgrErrCode resultCmd = commands[j]->execute(&commandBuffers[i]);
+        for (size_t j = 0; j < commands[i].size(); j++) {
+            SgrErrCode resultCmd = commands[i][j]->execute(&commandBuffers[i]);
             if (resultCmd != sgrOK) {
                 return resultCmd;
             }           

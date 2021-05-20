@@ -10,7 +10,9 @@ int main()
 		return resultSGRInit;
 	}
 
-	sgr_object1.addToFrameSimpleTestObject();
+	SgrErrCode resultInitDraw = sgr_object1.addToFrameSimpleTestObject();
+	if (resultInitDraw != sgrOK)
+		return resultInitDraw;
 
 	while (sgr_object1.isSGRRunning()) {
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();

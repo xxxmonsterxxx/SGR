@@ -32,10 +32,12 @@ private:
 	SgrErrCode endInitCommandBuffers();
 	bool buffersEnded = false;
 
-	std::vector<Command*> commands;
+	std::vector<std::vector<Command*>> commands; // for each command buffer we have commands set
 	SgrErrCode executeCommands();
-	void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
-	void bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets = nullptr);
-	void bindIndexBuffer(VkBuffer indexBuffer);
-	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance);
+	void addCmdToBuffer(int16_t bufferIndex, Command* newCmd);
+	void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance, int16_t cmdBufferIndex = -1);
+	void bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets = nullptr, int16_t cmdBufferIndex = -1);
+	void bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferIndex = -1);
+	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance, int16_t cmdBufferIndex = -1);
+	void bindDescriptorSet(uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets = std::vector<uint32_t>{});
 };

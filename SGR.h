@@ -12,6 +12,7 @@
 #include "PipelineManager.h"
 #include "CommandManager.h"
 #include "MemoryManager.h"
+#include "DescriptorManager.h"
 
 class SGR {
 private:
@@ -31,19 +32,16 @@ private:
 	std::vector<std::string> requiredExtensions;
 	bool withSwapChain;
 	PhysicalDeviceManager* physicalDeviceManager;
-
 	LogicalDeviceManager* logicalDeviceManager;
-
 	SwapChainManager* swapChainManager;
-
 	PipelineManager* pipelineManager;
-
 	CommandManager* commandManager;
-
 	MemoryManager* memoryManager;
+	DescriptorManager* descriptorManager;
 
-	const uint8_t maxFrameInFlight = 2;
+	uint8_t maxFrameInFlight;
 	uint8_t currentFrame;
+	SgrTime_t lastDrawTime;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -52,6 +50,8 @@ private:
 
 	std::vector<Sgr2DVertex> vertices;
 	std::vector<uint16_t> indices;
+	std::vector<SgrBuffer*> uniformBuffers;
+	UniformBufferObject ubo;
 
 	SgrErrCode initSyncObjects();
 
@@ -63,6 +63,7 @@ public:
 
 	bool isSGRRunning();
 	SgrErrCode drawFrame();
+	void updateUniFormBuffer();
 
 	/**
 	 * Init SGR and create window automatically or with arguments.

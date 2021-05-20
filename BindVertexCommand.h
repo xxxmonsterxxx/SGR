@@ -15,7 +15,7 @@ public:
 		else {
 			offsets = _offsets;
 		}
-		type = Command::CommandType::BIND_VERTEX_BUFFER;
+		type = CommandType::BIND_VERTEX_BUFFER;
 	}
 
 private:

@@ -14,9 +14,24 @@
 #include <fstream>
 #include <array>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
+
+using SgrTime = std::chrono::high_resolution_clock;
+using SgrTime_t = std::chrono::steady_clock::time_point;
+
 struct Sgr2DVertex {
 	glm::vec2 position;
 	glm::vec3 color;
+};
+
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
 };
 
 enum SgrErrCode
@@ -50,5 +65,9 @@ enum SgrErrCode
 	sgrReinitCommandBuffersError,
 	sgrCreateVkBufferError,
 	sgrAllocateMemoryError,
-	sgrIncorrectPointer
+	sgrIncorrectPointer,
+	sgrInitDefaultUBODescriptorSetLayoutError,
+	sgrInitDefaultUBODescriptorPoolError,
+	sgrInitDescriptorSetsError,
+	sgrWrongDescrAndUBOSize
 };

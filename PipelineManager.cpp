@@ -3,6 +3,7 @@
 #include "SwapChainManager.h"
 #include "LogicalDeviceManager.h"
 #include "RenderPassManager.h"
+#include "DescriptorManager.h"
 
 PipelineManager* PipelineManager::instance = nullptr;
 
@@ -124,7 +125,11 @@ SgrErrCode PipelineManager::init()
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
+    // ????? do wee need specify all similar layouts or only one
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &DescriptorManager::instance->defaultUBODescriptorSetLayouts[0];
+
+    VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
     if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
         return sgrInitPipelineLayoutError;
 

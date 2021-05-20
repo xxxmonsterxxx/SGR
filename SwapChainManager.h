@@ -5,6 +5,7 @@
 class SGR;
 class PhysicalDeviceManager;
 class CommandManager;
+class DescriptorManager;
 
 struct SgrSwapChainDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -13,6 +14,11 @@ struct SgrSwapChainDetails {
 };
 
 class SwapChainManager {
+	friend class SGR;
+	friend class PhysicalDeviceManager;
+	friend class CommandManager;
+	friend class DescriptorManager;
+
 public:
 	static SwapChainManager* get();
 	static void destroy();
@@ -52,9 +58,4 @@ private:
 	std::vector<VkFramebuffer> framebuffers;
 
 	SgrErrCode initFrameBuffers();
-
-
-	friend class SGR;
-	friend class PhysicalDeviceManager;
-	friend class CommandManager;
 };

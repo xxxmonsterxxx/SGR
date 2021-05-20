@@ -8,7 +8,7 @@ public:
 	BindIndexCommand(VkBuffer _indexBuffer) :
 		indexBuffer(_indexBuffer)
 	{
-		type = Command::CommandType::BIND_INDEX_BUFFER;
+		type = CommandType::BIND_INDEX_BUFFER;
 	}
 
 private:

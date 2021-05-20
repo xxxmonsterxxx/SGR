@@ -155,9 +155,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BindDescriptorSetCommand.h" />
     <ClInclude Include="BindVertexCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="DescriptorManager.h" />
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="DrawIndexedCommand.h" />
     <ClInclude Include="FileManager.h" />
@@ -175,6 +177,7 @@
   <ItemGroup>
     <ClCompile Include="BindIndexCommand.h" />
     <ClCompile Include="CommandManager.cpp" />
+    <ClCompile Include="DescriporManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
@@ -186,6 +189,11 @@
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="WindowManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SGRShaders\compile.bat" />
+    <None Include="SGRShaders\shader.frag" />
+    <None Include="SGRShaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

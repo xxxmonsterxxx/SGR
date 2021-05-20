@@ -23,6 +23,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	pipelineManager = PipelineManager::get();
 	commandManager = CommandManager::get();
 	memoryManager = MemoryManager::get();
+	descriptorManager = DescriptorManager::get();
 
 	currentFrame = 0;
 }
@@ -65,6 +66,12 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitSwapChain != sgrOK)
 		return resultInitSwapChain;
 
+	maxFrameInFlight = swapChainManager->imageCount;
+
+	SgrErrCode resultInitDefaultDescriptorSetLayouts = descriptorManager->initDefaultUBODescriptorSetLayouts();
+	if (resultInitDefaultDescriptorSetLayouts != sgrOK)
+		return resultInitDefaultDescriptorSetLayouts;
+
 	SgrErrCode resultInitPipeline = pipelineManager->init();
 	if (resultInitPipeline != sgrOK)
 		return resultInitPipeline;
@@ -82,6 +89,10 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 		return resultInitSemaphores;
 
 	sgrRunning = true;
+	lastDrawTime = SgrTime::now();
+	ubo.model = glm::mat4(1.0f);
+	ubo.view = glm::mat4(1.0f);
+	ubo.proj = glm::mat4(1.0f);
 
 	return sgrOK;
 }
@@ -108,6 +119,24 @@ SgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 	return resultCreateWindow;
 }
 
+
+void SGR::updateUniFormBuffer()
+{
+	SgrTime_t currentTime = SgrTime::now();
+	float delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastDrawTime).count();
+
+	ubo.model = glm::rotate(ubo.model, delta_time * glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+
+	lastDrawTime = SgrTime::now();
+
+	VkDevice device = logicalDeviceManager->logicalDevice;
+	void* data;
+	vkMapMemory(device, uniformBuffers[currentFrame]->bufferMemory, 0, sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(device, uniformBuffers[currentFrame]->bufferMemory);
+}
+
+
 SgrErrCode SGR::drawFrame()
 {
 	if (!commandManager->buffersEnded)
@@ -133,6 +162,8 @@ SgrErrCode SGR::drawFrame()
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		return sgrFailedToAcquireImage;
 	}
+
+	updateUniFormBuffer();
 
 	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -288,7 +319,25 @@ SgrErrCode SGR::addToFrameSimpleTestObject()
 	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(indexBuffer, size, indices.data());
 	commandManager->bindIndexBuffer((*indexBuffer).vkBuffer);
 
-	commandManager->drawIndexed(6, 1, 0, 0, 0);
+	uniformBuffers.resize(swapChainManager->imageCount, nullptr);
+	std::vector<VkBuffer*> uniformVkBuffers;
+	size = sizeof(UniformBufferObject);
+	for (size_t i = 0; i < uniformBuffers.size(); i++) {
+		resultAllocateMemoryBuffer = memoryManager->createUniformBuffer(uniformBuffers[i], size);
+		if (resultAllocateMemoryBuffer != sgrOK)
+			return resultAllocateMemoryBuffer;
+		uniformVkBuffers.push_back(&uniformBuffers[i]->vkBuffer);
+	}
+	std::vector<VkDescriptorSet> descriptorsSetUBO;
+	descriptorsSetUBO.resize(uniformBuffers.size());
+	SgrErrCode resultInitUBODescriptors = descriptorManager->initAndBindBufferUBODescriptors(descriptorsSetUBO, uniformVkBuffers);
+	if (resultInitUBODescriptors != sgrOK)
+		return resultInitUBODescriptors;
+
+	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
+		commandManager->bindDescriptorSet(i, descriptorsSetUBO[i], 0, 1);
+
+	commandManager->drawIndexed(indices.size(), 1, 0, 0, 0);
 
 	return sgrOK;
 }

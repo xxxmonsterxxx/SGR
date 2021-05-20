@@ -5,11 +5,15 @@
 class SGR;
 class SwapChainManager;
 class MemoryManager;
+class PipelineManager;
+class DescriptorManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
 	friend class SwapChainManager;
 	friend class MemoryManager;
+	friend class PipelineManager;
+	friend class DescriptorManager;
 
 public:
 

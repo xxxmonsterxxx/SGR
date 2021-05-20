@@ -27,6 +27,7 @@ class MemoryManager {
 
 	SgrErrCode createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* vertexData);
 	SgrErrCode createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* indexData);
+	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 
 	std::vector<SgrBuffer*> allocatedBuffers;
 

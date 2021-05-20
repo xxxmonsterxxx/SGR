@@ -11,7 +11,7 @@ public:
 		verteOffset(_verteOffset),
 		firstInstance(_firstInstance)
 	{
-		type = Command::CommandType::DRAW_INDEXED;
+		type = CommandType::DRAW_INDEXED;
 	}
 
 	uint32_t indexCount;

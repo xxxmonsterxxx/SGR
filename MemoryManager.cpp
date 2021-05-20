@@ -139,7 +139,9 @@ SgrErrCode MemoryManager::createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize si
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
-    createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
+    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
+    if (resultCreateBufferUsingStaging != sgrOK)
+        return resultCreateBufferUsingStaging;
     allocatedBuffers.push_back(buffer);
     return sgrOK;
 }
@@ -148,7 +150,20 @@ SgrErrCode MemoryManager::createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize siz
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
-    createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexData);
+    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexData);
+    if (resultCreateBufferUsingStaging != sgrOK)
+        return resultCreateBufferUsingStaging;
+    allocatedBuffers.push_back(buffer);
+    return sgrOK;
+}
+
+SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size)
+{
+    if (buffer != nullptr)
+        return sgrIncorrectPointer;
+    SgrErrCode resultCreateBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    if (resultCreateBuffer != sgrOK)
+        return resultCreateBuffer;
     allocatedBuffers.push_back(buffer);
     return sgrOK;
 }

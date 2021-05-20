@@ -5,12 +5,15 @@
 class SGR;
 class CommandManager;
 class SwapChainManager;
+class BindDescriptorSetCommand;
 
 class PipelineManager {
-private:
 	friend class SGR;
 	friend class CommandManager;
 	friend class SwapChainManager;
+	friend class BindDescriptorSetCommand;
+
+private:
 
 	PipelineManager();
 	~PipelineManager();

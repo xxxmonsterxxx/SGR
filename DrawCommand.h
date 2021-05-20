@@ -10,7 +10,7 @@ public:
 		firstVertex(_firstVertex),
 		firstInstance(_firstInstance)
 	{
-		type = Command::CommandType::DRAW;
+		type = CommandType::DRAW;
 	}
 
 	uint32_t vertexCount;

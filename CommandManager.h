@@ -7,6 +7,7 @@ class SGR;
 class RenderPassManager;
 class SwapChainManager;
 class MemoryManager;
+class TextureManager;
 
 class CommandManager {
 private:
@@ -14,6 +15,7 @@ private:
 	friend class RenderPassManager;
 	friend class SwapChainManager;
 	friend class MemoryManager;
+	friend class TextureManager;
 
 	CommandManager();
 	~CommandManager();
@@ -40,4 +42,7 @@ private:
 	void bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferIndex = -1);
 	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance, int16_t cmdBufferIndex = -1);
 	void bindDescriptorSet(uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets = std::vector<uint32_t>{});
+
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer cmdBuffer);
 };

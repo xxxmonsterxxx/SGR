@@ -113,14 +113,26 @@ bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevic
     return false;
 }
 
+bool PhysicalDeviceManager::isSupportSamplerAnisotropy(SgrPhysicalDevice sgrDevice)
+{
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(sgrDevice.physDevice, &supportedFeatures);
+    if (supportedFeatures.samplerAnisotropy)
+        return true;
+
+    return false;
+}
+
 SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions)
 {
     for (auto physDev : physicalDevices) {
         if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues) && 
             isSupportRequiredExtentions(physDev, requiredExtensions) && 
-            isSupportAnySwapChainMode(physDev)) {
+            isSupportAnySwapChainMode(physDev) &&
+            isSupportSamplerAnisotropy(physDev)) {
                 pickedPhysicalDevice = physDev;
+                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.physDevice, &pickedPhysicalDevice.props);
                 return sgrOK;
         }
     }
@@ -137,6 +149,7 @@ SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
             isSupportAnySwapChainMode(physDev)) {
                 pickedPhysicalDevice = physDev;
                 enabledExtensions = requiredExtensions;
+                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.physDevice, &pickedPhysicalDevice.props);
                 return sgrOK;
         }
     }

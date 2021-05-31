@@ -7,6 +7,8 @@ class SwapChainManager;
 class MemoryManager;
 class PipelineManager;
 class DescriptorManager;
+class CommandManager;
+class TextureManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
@@ -14,6 +16,8 @@ class LogicalDeviceManager {
 	friend class MemoryManager;
 	friend class PipelineManager;
 	friend class DescriptorManager;
+	friend class CommandManager;
+	friend class TextureManager;
 
 public:
 

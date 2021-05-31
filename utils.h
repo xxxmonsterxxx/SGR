@@ -26,6 +26,7 @@ using SgrTime_t = std::chrono::steady_clock::time_point;
 struct Sgr2DVertex {
 	glm::vec2 position;
 	glm::vec3 color;
+	glm::vec2 texCoord;
 };
 
 struct UniformBufferObject {
@@ -69,5 +70,12 @@ enum SgrErrCode
 	sgrInitDefaultUBODescriptorSetLayoutError,
 	sgrInitDefaultUBODescriptorPoolError,
 	sgrInitDescriptorSetsError,
-	sgrWrongDescrAndUBOSize
+	sgrWrongDescrAndUBOSize,
+	sgrLoadImageError,
+	sgrCreateImageError,
+	sgrNoSuitableMemoryFinded,
+	sgrUnsupportedLayoutTransition,
+	sgrCreateSamplerError,
+	sgrIncorrectDescriptorWritesSize,
+	sgrIncorrectNumberBuffersForDescriptors
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "SwapChainManager.h"
 
 class SGR;
 class PipelineManager;
@@ -15,15 +16,23 @@ private:
 	DescriptorManager(const DescriptorManager&) = delete;
 	DescriptorManager& operator=(const DescriptorManager&) = delete;
 
-	std::vector<VkDescriptorSetLayout> defaultUBODescriptorSetLayouts;
-	SgrErrCode initDefaultUBODescriptorSetLayouts();
+	VkDescriptorPool defaultDescriptorPool;
+	SgrErrCode initDefaultDescriptorPool();
 
-	VkDescriptorPool defaultUBODescriptorPool;
-	SgrErrCode initDefaultUBODescriptorPool();
+	std::vector<VkDescriptorSetLayout> defaultDescriptorSetLayouts;
+	SgrErrCode initDefaultDescriptorSetLayouts();
 
-	SgrErrCode initAndBindBufferUBODescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers,
+	SgrErrCode initAndBindDefaultDescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers, std::vector<SgrImage*> textureImages);
+
+	SgrErrCode initAndBindDescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers,
 								  VkDescriptorPool descriptorPool = VK_NULL_HANDLE,
 								  std::vector<VkDescriptorSetLayout> descriptorSetLayouts = std::vector<VkDescriptorSetLayout>{});
+
+	SgrErrCode bindDescriptors(std::vector<VkDescriptorSet> descriptorSets, std::vector<VkBuffer*> UBOBuffers,
+		VkDescriptorPool descriptorPool = VK_NULL_HANDLE,
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts = std::vector<VkDescriptorSetLayout>{});
+
+	SgrErrCode bindDescriptors(std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites);
 
 public:
 	static DescriptorManager* get();

@@ -1,8 +1,11 @@
 #pragma once
 
 #include "utils.h"
+#include "SwapChainManager.h"
 
 class SGR;
+class TextureManager;
+class SwapChainManager;
 
 struct SgrBuffer {
 	VkBuffer vkBuffer;
@@ -11,6 +14,8 @@ struct SgrBuffer {
 
 class MemoryManager {
 	friend class SGR;
+	friend class TextureManager;
+	friend class SwapChainManager;
 
 	MemoryManager();
 	~MemoryManager();
@@ -19,15 +24,18 @@ class MemoryManager {
 
 	static MemoryManager* instance;
 
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags props);
+	static SgrErrCode findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags props, uint32_t& findedProps);
 	SgrErrCode createBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+	SgrErrCode createStagingBufferWithData(SgrBuffer*& buffer, VkDeviceSize size, void* data);
 	SgrErrCode createBufferUsingStaging(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, void* data);
-	void	   destroyBuffer(SgrBuffer* buffer);
 	void	   copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	static void destroyBuffer(SgrBuffer* buffer);
 
 	SgrErrCode createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* vertexData);
 	SgrErrCode createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* indexData);
 	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
+
+	static void copyBufferToImage(SgrBuffer* buffer, SgrImage* image);
 
 	std::vector<SgrBuffer*> allocatedBuffers;
 

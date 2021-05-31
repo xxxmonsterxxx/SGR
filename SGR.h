@@ -13,6 +13,7 @@
 #include "CommandManager.h"
 #include "MemoryManager.h"
 #include "DescriptorManager.h"
+#include "TextureManager.h"
 
 class SGR {
 private:
@@ -38,6 +39,7 @@ private:
 	CommandManager* commandManager;
 	MemoryManager* memoryManager;
 	DescriptorManager* descriptorManager;
+	TextureManager* textureManager;
 
 	uint8_t maxFrameInFlight;
 	uint8_t currentFrame;
@@ -51,6 +53,7 @@ private:
 	std::vector<Sgr2DVertex> vertices;
 	std::vector<uint16_t> indices;
 	std::vector<SgrBuffer*> uniformBuffers;
+	std::vector<SgrImage*> textureImages;
 	UniformBufferObject ubo;
 
 	SgrErrCode initSyncObjects();

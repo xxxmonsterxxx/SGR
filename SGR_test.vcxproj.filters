@@ -46,6 +46,9 @@
     <Filter Include="DescriptorManager">
       <UniqueIdentifier>{d26cb81f-3ebc-48ee-9d4e-dc064d541cc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TextureManager">
+      <UniqueIdentifier>{8895b9b2-4543-4305-901d-7fdebccc9791}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SGR.h">
@@ -102,6 +105,9 @@
     <ClInclude Include="DescriptorManager.h">
       <Filter>DescriptorManager</Filter>
     </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>TextureManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -143,8 +149,11 @@
     <ClCompile Include="BindIndexCommand.h">
       <Filter>CommandManager</Filter>
     </ClCompile>
-    <ClCompile Include="DescriporManager.cpp">
+    <ClCompile Include="DescriptorManager.cpp">
       <Filter>DescriptorManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>TextureManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -157,5 +166,10 @@
     <None Include="SGRShaders\compile.bat">
       <Filter>Файлы ресурсов</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\test_texture.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -25,8 +25,15 @@ PipelineManager::PipelineManager()
     colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
     colorDescr.offset = offsetof(Sgr2DVertex, color);
 
+    VkVertexInputAttributeDescription textureDescr;
+    textureDescr.binding = 0;
+    textureDescr.location = 2;
+    textureDescr.format = VK_FORMAT_R32G32_SFLOAT;
+    textureDescr.offset = offsetof(Sgr2DVertex, texCoord);
+
     vertexAttributeDescriptions.push_back(positionDescr);
     vertexAttributeDescriptions.push_back(colorDescr);
+    vertexAttributeDescriptions.push_back(textureDescr);
 }
 PipelineManager::~PipelineManager() { ; }
 
@@ -127,7 +134,7 @@ SgrErrCode PipelineManager::init()
 
     // ????? do wee need specify all similar layouts or only one
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &DescriptorManager::instance->defaultUBODescriptorSetLayouts[0];
+    pipelineLayoutInfo.pSetLayouts = &DescriptorManager::instance->defaultDescriptorSetLayouts[0];
 
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
     if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)

@@ -19,18 +19,19 @@ MemoryManager* MemoryManager::get()
     }
 }
 
-uint32_t MemoryManager::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags props)
+SgrErrCode MemoryManager::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags props, uint32_t& findedProps)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(PhysicalDeviceManager::instance->pickedPhysicalDevice.physDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & props) == props) {
-            return i;
+            findedProps = i;
+            return sgrOK;
         }
     }
 
-    return uint32_t();
+    return sgrNoSuitableMemoryFinded;
 }
 
 SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
@@ -54,7 +55,13 @@ SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, Vk
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    uint32_t memoryFindedIndex = 0;
+    SgrErrCode resultSuitableMemoryIndex = findMemoryType(memRequirements.memoryTypeBits, properties, memoryFindedIndex);
+    if (resultSuitableMemoryIndex != sgrOK)
+        return resultSuitableMemoryIndex;
+
+    allocInfo.memoryTypeIndex = memoryFindedIndex;
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &newBuffer->bufferMemory) != VK_SUCCESS) {
         return sgrAllocateMemoryError;
@@ -67,18 +74,30 @@ SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, Vk
     return sgrOK;
 }
 
-SgrErrCode MemoryManager::createBufferUsingStaging(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, void* data)
+SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDeviceSize size, void* data)
 {
-    SgrBuffer* stagingBuffer = nullptr;
-    SgrErrCode resultInitStagingBuffer = createBuffer(stagingBuffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    if (buffer != nullptr)
+        return sgrIncorrectPointer;
+    SgrErrCode resultInitStagingBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     if (resultInitStagingBuffer != sgrOK)
         return resultInitStagingBuffer;
 
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
     void* tempDataPointer;
-    vkMapMemory(device, stagingBuffer->bufferMemory, 0, size, 0, &tempDataPointer);
+    vkMapMemory(device, buffer->bufferMemory, 0, size, 0, &tempDataPointer);
     memcpy(tempDataPointer, data, (size_t)size);
-    vkUnmapMemory(device, stagingBuffer->bufferMemory);
+    vkUnmapMemory(device, buffer->bufferMemory);
+
+    return sgrOK;
+}
+
+SgrErrCode MemoryManager::createBufferUsingStaging(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, void* data)
+{
+    SgrBuffer* stagingBuffer = nullptr;
+    SgrErrCode resultInitStagingBuffer = createStagingBufferWithData(stagingBuffer, size, data);
+    if (resultInitStagingBuffer != sgrOK)
+        return resultInitStagingBuffer;
 
     SgrErrCode resultInintVertexBuffer = createBuffer(buffer, size, usage, properties);
     if (resultInintVertexBuffer != sgrOK)
@@ -99,40 +118,13 @@ void MemoryManager::destroyBuffer(SgrBuffer* buffer)
 
 void MemoryManager::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
-    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
-    VkCommandPool commandPool = CommandManager::instance->commandPool;
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VkCommandBuffer commandBuffer = CommandManager::instance->beginSingleTimeCommands();
 
     VkBufferCopy copyRegion{};
     copyRegion.size = size;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-    vkEndCommandBuffer(commandBuffer);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    VkQueue graphicsQueue = LogicalDeviceManager::instance->graphicsQueue;
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
-
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    CommandManager::instance->endSingleTimeCommands(commandBuffer);
 }
 
 SgrErrCode MemoryManager::createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* vertexData)
@@ -166,4 +158,27 @@ SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize s
         return resultCreateBuffer;
     allocatedBuffers.push_back(buffer);
     return sgrOK;
+}
+
+void MemoryManager::copyBufferToImage(SgrBuffer* buffer, SgrImage* image) {
+    VkCommandBuffer commandBuffer = CommandManager::instance->beginSingleTimeCommands();
+
+    VkBufferImageCopy region{};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+    region.imageOffset = { 0, 0, 0 };
+    region.imageExtent = {
+        image->width,
+        image->height,
+        1
+    };
+
+    vkCmdCopyBufferToImage(commandBuffer, buffer->vkBuffer, image->vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+    CommandManager::instance->endSingleTimeCommands(commandBuffer);
 }

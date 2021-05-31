@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN32\include;D:\Libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN32\include;D:\Libs\glm;D:\Libs\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN32\include;D:\Libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN32\include;D:\Libs\glm;D:\Libs\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN64\include;D:\Libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN64\include;D:\Libs\glm;D:\Libs\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN64\include;D:\Libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libs\VulkanSDK\1.2.176.1\Include;D:\Libs\glfw-3.3.3.bin.WIN64\include;D:\Libs\glm;D:\Libs\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -163,6 +163,7 @@
     <ClInclude Include="DrawCommand.h" />
     <ClInclude Include="DrawIndexedCommand.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="PhysicalDeviceManager.h" />
@@ -177,8 +178,9 @@
   <ItemGroup>
     <ClCompile Include="BindIndexCommand.h" />
     <ClCompile Include="CommandManager.cpp" />
-    <ClCompile Include="DescriporManager.cpp" />
+    <ClCompile Include="DescriptorManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
@@ -194,6 +196,9 @@
     <None Include="SGRShaders\compile.bat" />
     <None Include="SGRShaders\shader.frag" />
     <None Include="SGRShaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\test_texture.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

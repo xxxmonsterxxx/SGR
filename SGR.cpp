@@ -24,6 +24,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	commandManager = CommandManager::get();
 	memoryManager = MemoryManager::get();
 	descriptorManager = DescriptorManager::get();
+	textureManager = TextureManager::get();
 
 	currentFrame = 0;
 }
@@ -68,7 +69,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 	maxFrameInFlight = swapChainManager->imageCount;
 
-	SgrErrCode resultInitDefaultDescriptorSetLayouts = descriptorManager->initDefaultUBODescriptorSetLayouts();
+	SgrErrCode resultInitDefaultDescriptorSetLayouts = descriptorManager->initDefaultDescriptorSetLayouts();
 	if (resultInitDefaultDescriptorSetLayouts != sgrOK)
 		return resultInitDefaultDescriptorSetLayouts;
 
@@ -298,10 +299,10 @@ SgrErrCode SGR::addToFrameSimpleTestObject()
 {
 	indices = { 0, 1, 2, 2, 3, 0 };
 	vertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 	};
 
 	SgrBuffer* vertexBuffer = nullptr;
@@ -328,14 +329,23 @@ SgrErrCode SGR::addToFrameSimpleTestObject()
 			return resultAllocateMemoryBuffer;
 		uniformVkBuffers.push_back(&uniformBuffers[i]->vkBuffer);
 	}
-	std::vector<VkDescriptorSet> descriptorsSetUBO;
-	descriptorsSetUBO.resize(uniformBuffers.size());
-	SgrErrCode resultInitUBODescriptors = descriptorManager->initAndBindBufferUBODescriptors(descriptorsSetUBO, uniformVkBuffers);
+	std::vector<VkDescriptorSet> descriptorsSets;
+	descriptorsSets.resize(uniformBuffers.size());
+
+	textureImages.resize(swapChainManager->imageCount, nullptr);
+	SgrErrCode resultCreateTextureImage = sgrOK;
+	for (size_t i = 0; i < textureImages.size(); i++) {
+		resultCreateTextureImage = textureManager->createTextureImage("Textures/test_texture.jpg", textureImages[i]);
+		if (resultCreateTextureImage != sgrOK)
+			return resultCreateTextureImage;
+	}
+
+	SgrErrCode resultInitUBODescriptors = descriptorManager->initAndBindDefaultDescriptors(descriptorsSets, uniformVkBuffers, textureImages);
 	if (resultInitUBODescriptors != sgrOK)
 		return resultInitUBODescriptors;
 
 	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(i, descriptorsSetUBO[i], 0, 1);
+		commandManager->bindDescriptorSet(i, descriptorsSets[i], 0, 1);
 
 	commandManager->drawIndexed(indices.size(), 1, 0, 0, 0);
 

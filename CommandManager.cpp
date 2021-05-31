@@ -31,7 +31,7 @@ SgrErrCode CommandManager::initCommandPool()
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = PhysicalDeviceManager::get()->getPickedPhysicalDevice().fixedGraphicsQueue.value();
 
-    if (vkCreateCommandPool(LogicalDeviceManager::get()->getLogicalDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+    if (vkCreateCommandPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         return sgrInitCommandPoolError;
 
     return sgrOK;
@@ -55,7 +55,7 @@ SgrErrCode CommandManager::initCommandBuffers()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(LogicalDeviceManager::get()->getLogicalDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
         return sgrInitCommandBuffersError;
 
     commands.resize(commandBuffers.size());
@@ -160,4 +160,40 @@ SgrErrCode CommandManager::executeCommands()
     }
 
     return sgrOK;
+}
+
+VkCommandBuffer CommandManager::beginSingleTimeCommands()
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+void CommandManager::endSingleTimeCommands(VkCommandBuffer cmdBuffer)
+{
+    vkEndCommandBuffer(cmdBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &cmdBuffer;
+
+    VkQueue graphicsQueue = LogicalDeviceManager::instance->graphicsQueue;
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, 1, &cmdBuffer);
 }

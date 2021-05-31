@@ -5,6 +5,7 @@
 class SGR;
 class SwapChainManager;
 class MemoryManager;
+class TextureManager;
 
 struct SgrPhysicalDevice {
 	VkPhysicalDevice physDevice;
@@ -13,6 +14,7 @@ struct SgrPhysicalDevice {
 	VkPhysicalDeviceFeatures deviceFeatures{};
 	std::optional<uint8_t> fixedGraphicsQueue; // fixed index of queue with graphics support
 	std::optional<uint8_t> fixedPresentQueue; // fixed index of queue with present support
+	VkPhysicalDeviceProperties props;
 
 	bool operator==(const SgrPhysicalDevice& comp) const
 	{
@@ -28,6 +30,7 @@ private:
 	friend class SGR;
 	friend class SwapChainManager;
 	friend class MemoryManager;
+	friend class TextureManager;
 
 	static PhysicalDeviceManager* instance;
 
@@ -41,6 +44,7 @@ private:
 	bool isSupportRequiredQueuesAndSurface(SgrPhysicalDevice& sgrDevice, std::vector<VkQueueFlagBits> requiredQueues, VkSurfaceKHR* surface = nullptr);
 	bool isSupportRequiredExtentions(SgrPhysicalDevice sgrDevice, std::vector<std::string> requiredExtensions);
 	bool isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice);
+	bool isSupportSamplerAnisotropy(SgrPhysicalDevice sgrDevice);
 
 	
 	SgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,

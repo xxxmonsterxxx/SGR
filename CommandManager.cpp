@@ -118,9 +118,9 @@ void CommandManager::bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferInde
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindIndexCmd);
 }
 
-void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance, int16_t cmdBufferIndex)
+void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance, int16_t cmdBufferIndex)
 {
-    DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, verteOffset, firstInstance);
+    DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     addCmdToBuffer(cmdBufferIndex, (Command*)newDrawIndexedCmd);
 }
 

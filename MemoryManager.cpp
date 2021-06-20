@@ -37,6 +37,7 @@ SgrErrCode MemoryManager::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFl
 SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
 {
     SgrBuffer* newBuffer = new SgrBuffer;
+    newBuffer->size = size;
 
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 

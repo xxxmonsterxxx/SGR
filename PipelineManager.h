@@ -2,6 +2,9 @@
 
 #include "utils.h"
 
+#include "ShaderManager.h"
+#include "DescriptorManager.h"
+
 class SGR;
 class CommandManager;
 class SwapChainManager;
@@ -14,22 +17,27 @@ class PipelineManager {
 	friend class BindDescriptorSetCommand;
 
 private:
-
 	PipelineManager();
 	~PipelineManager();
 	PipelineManager(const PipelineManager&) = delete;
 	PipelineManager operator=(PipelineManager&) = delete;
-
 	static PipelineManager* instance;
 
-	SgrErrCode init();
+	struct SgrPipeline {
+		std::string name;
+		VkPipelineLayout pipelineLayout;
+		VkPipeline pipeline;
+	};
 
-	VkPipelineLayout pipelineLayout;
-	VkPipeline pipeline;
+	std::vector<SgrPipeline> pipelines;
 
-	VkVertexInputBindingDescription vertexBindingDescription;
-	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
-
+	SgrErrCode createPipeline(  std::string name, VkRenderPass renderPass,
+								ShaderManager::SgrShader objectShaders, 
+								DescriptorManager::SgrDescriptorInfo descriptorInfo);
+	SgrErrCode destroyPipeline(std::string name);
+	SgrErrCode destroyAllPipelines();
+	SgrErrCode reinitAllPipelines();
+	SgrPipeline getPipelineByName(std::string name);
 public:
 	static PipelineManager* get();
 };

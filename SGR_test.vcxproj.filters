@@ -108,6 +108,9 @@
     <ClInclude Include="TextureManager.h">
       <Filter>TextureManager</Filter>
     </ClInclude>
+    <ClInclude Include="BindPipelineCommand.h">
+      <Filter>CommandManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -160,10 +163,16 @@
     <None Include="SGRShaders\shader.frag">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="SGRShaders\compile.bat">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
     <None Include="SGRShaders\shader.vert">
       <Filter>Файлы ресурсов</Filter>
     </None>
-    <None Include="SGRShaders\compile.bat">
+    <None Include="SGRShaders\shaderInstance.frag">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="SGRShaders\shaderInstance.vert">
       <Filter>Файлы ресурсов</Filter>
     </None>
   </ItemGroup>

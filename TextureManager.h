@@ -11,12 +11,14 @@ class TextureManager {
 public:
 	static TextureManager* get();
 
+	static SgrErrCode createTextureImage(std::string image_path, SgrImage*& image);
+
 private:
 	static TextureManager* instance;
 	TextureManager();
 	TextureManager(const TextureManager&) = delete;
 	TextureManager& operator=(const TextureManager&) = delete;
 
-	SgrErrCode createTextureImage(std::string image_path, SgrImage*& image);
-	SgrErrCode createTextureSampler(VkSampler* sampler);
+protected:
+	static SgrErrCode createTextureSampler(VkSampler& sampler);
 };

@@ -1,5 +1,8 @@
 #include "SGR.h"
 
+#include "ShaderManager.h"
+#include "PipelineManager.h"
+
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
 	manualWindow = false;
@@ -25,6 +28,8 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	memoryManager = MemoryManager::get();
 	descriptorManager = DescriptorManager::get();
 	textureManager = TextureManager::get();
+	renderPassManager = RenderPassManager::get();
+	shaderManager = ShaderManager::get();
 
 	currentFrame = 0;
 }
@@ -69,13 +74,9 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 	maxFrameInFlight = swapChainManager->imageCount;
 
-	SgrErrCode resultInitDefaultDescriptorSetLayouts = descriptorManager->initDefaultDescriptorSetLayouts();
-	if (resultInitDefaultDescriptorSetLayouts != sgrOK)
-		return resultInitDefaultDescriptorSetLayouts;
-
-	SgrErrCode resultInitPipeline = pipelineManager->init();
-	if (resultInitPipeline != sgrOK)
-		return resultInitPipeline;
+	SgrErrCode resultInitRenderPass = renderPassManager->init();
+	if (resultInitRenderPass != sgrOK)
+		return resultInitRenderPass;
 
 	SgrErrCode resultInitFrameBuffers = swapChainManager->initFrameBuffers();
 	if (resultInitFrameBuffers != sgrOK)
@@ -90,10 +91,6 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 		return resultInitSemaphores;
 
 	sgrRunning = true;
-	lastDrawTime = SgrTime::now();
-	ubo.model = glm::mat4(1.0f);
-	ubo.view = glm::mat4(1.0f);
-	ubo.proj = glm::mat4(1.0f);
 
 	return sgrOK;
 }
@@ -119,24 +116,6 @@ SgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 	
 	return resultCreateWindow;
 }
-
-
-void SGR::updateUniFormBuffer()
-{
-	SgrTime_t currentTime = SgrTime::now();
-	float delta_time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastDrawTime).count();
-
-	ubo.model = glm::rotate(ubo.model, delta_time * glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
-
-	lastDrawTime = SgrTime::now();
-
-	VkDevice device = logicalDeviceManager->logicalDevice;
-	void* data;
-	vkMapMemory(device, uniformBuffers[currentFrame]->bufferMemory, 0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(device, uniformBuffers[currentFrame]->bufferMemory);
-}
-
 
 SgrErrCode SGR::drawFrame()
 {
@@ -164,7 +143,7 @@ SgrErrCode SGR::drawFrame()
 		return sgrFailedToAcquireImage;
 	}
 
-	updateUniFormBuffer();
+	updateUniformBuffer();
 
 	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -297,58 +276,6 @@ void SGR::setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam)
 
 SgrErrCode SGR::addToFrameSimpleTestObject()
 {
-	indices = { 0, 1, 2, 2, 3, 0 };
-	vertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-	};
-
-	SgrBuffer* vertexBuffer = nullptr;
-	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
-	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(vertexBuffer, size, vertices.data());
-	if (resultAllocateMemoryBuffer != sgrOK)
-		return resultAllocateMemoryBuffer;
-
-	std::vector<VkBuffer> vertexBuffers;
-	vertexBuffers.push_back((*vertexBuffer).vkBuffer);
-	commandManager->bindVertexBuffer(vertexBuffers);
-
-	SgrBuffer* indexBuffer = nullptr;
-	size = sizeof(indices[0]) * indices.size();
-	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(indexBuffer, size, indices.data());
-	commandManager->bindIndexBuffer((*indexBuffer).vkBuffer);
-
-	uniformBuffers.resize(swapChainManager->imageCount, nullptr);
-	std::vector<VkBuffer*> uniformVkBuffers;
-	size = sizeof(UniformBufferObject);
-	for (size_t i = 0; i < uniformBuffers.size(); i++) {
-		resultAllocateMemoryBuffer = memoryManager->createUniformBuffer(uniformBuffers[i], size);
-		if (resultAllocateMemoryBuffer != sgrOK)
-			return resultAllocateMemoryBuffer;
-		uniformVkBuffers.push_back(&uniformBuffers[i]->vkBuffer);
-	}
-	std::vector<VkDescriptorSet> descriptorsSets;
-	descriptorsSets.resize(uniformBuffers.size());
-
-	textureImages.resize(swapChainManager->imageCount, nullptr);
-	SgrErrCode resultCreateTextureImage = sgrOK;
-	for (size_t i = 0; i < textureImages.size(); i++) {
-		resultCreateTextureImage = textureManager->createTextureImage("Textures/test_texture.jpg", textureImages[i]);
-		if (resultCreateTextureImage != sgrOK)
-			return resultCreateTextureImage;
-	}
-
-	SgrErrCode resultInitUBODescriptors = descriptorManager->initAndBindDefaultDescriptors(descriptorsSets, uniformVkBuffers, textureImages);
-	if (resultInitUBODescriptors != sgrOK)
-		return resultInitUBODescriptors;
-
-	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(i, descriptorsSets[i], 0, 1);
-
-	commandManager->drawIndexed(indices.size(), 1, 0, 0, 0);
-
 	return sgrOK;
 }
 
@@ -360,4 +287,102 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 
 	physicalDeviceManager->pickedPhysicalDevice = sgrDevice;
 	return sgrOK;
+}
+
+SgrErrCode SGR::addNewTypeObject(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
+								std::string shaderVert, std::string shaderFrag, std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding,
+								std::vector<VkVertexInputBindingDescription> bindingDescriptions,
+								std::vector<VkVertexInputAttributeDescription> attributDescrtions, VkDeviceSize modelMatrixSize)
+{
+	SgrObject newObject;
+	newObject.name = name;
+	newObject.dynamicElementSize = modelMatrixSize;
+
+	// create vertex buffer
+	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
+	newObject.vertices = nullptr;
+	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, size, vertices.data());
+	if (resultAllocateMemoryBuffer != sgrOK)
+		return resultAllocateMemoryBuffer;
+
+	// create index buffer
+	size = sizeof(indices[0]) * indices.size();
+	newObject.indices = nullptr;
+	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
+	if (resultAllocateMemoryBuffer != sgrOK)
+		return resultAllocateMemoryBuffer;
+
+
+	SgrErrCode initShaderResult = shaderManager->createShaders(name, shaderVert, shaderFrag);
+	if (initShaderResult != sgrOK)
+		return initShaderResult;
+
+	ShaderManager::SgrShader objectShaders = shaderManager->getShadersByName(name);
+
+	DescriptorManager::SgrDescriptorInfo newDescriptorInfo;
+	newDescriptorInfo.name = name;
+	newDescriptorInfo.vertexBindingDescr = bindingDescriptions;
+	newDescriptorInfo.vertexAttributeDescr = attributDescrtions;
+	newDescriptorInfo.setLayoutBinding = setLayoutBinding;
+	descriptorManager->addNewDescriptorInfo(newDescriptorInfo);
+
+	pipelineManager->createPipeline(name, RenderPassManager::instance->renderPass, objectShaders, newDescriptorInfo);
+
+	objects.push_back(newObject);
+
+	return sgrOK;
+}
+
+SGR::SgrObject& SGR::findObjectByName(std::string name)
+{
+	for (size_t i = 0; i < objects.size(); i++) {
+		if (objects[i].name == name)
+			return objects[i];
+	}
+}
+
+SgrErrCode SGR::drawObject(std::string objName)
+{
+	SgrObject objectToDraw = findObjectByName(objName);
+
+	/*objectToDraw.dynamicUniformBuffer.addOneElement();*/
+
+	PipelineManager::SgrPipeline objectPipeline = pipelineManager->instance->getPipelineByName(objName);
+	commandManager->bindPipeline(objectPipeline.pipeline);
+	std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
+	commandManager->bindVertexBuffer(vertices);
+	commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
+
+	DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
+
+	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
+		commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, i, descrInfo.descriptorSets[i], 0, 1);
+
+	commandManager->drawIndexed(objectToDraw.indices->size, 1, 0, 0, 0);
+
+	return sgrOK;
+}
+
+SgrErrCode SGR::updateDynamicUniformBuffer(std::string objName, UniformBufferObject obj)
+{
+	//SgrObject object = findObjectByName(objName);
+	//VkDevice device = logicalDeviceManager->instance->logicalDevice;
+
+	//void* tempDataPointer;
+	//vkMapMemory(device, object.dynamicUniformBuffer->bufferMemory, 0, object.dynamicUniformBuffer->size, 0, &tempDataPointer);
+	//memcpy(tempDataPointer, &obj.model, object.dynamicUniformBuffer->size);
+	//vkFlushMappedMemoryRanges(device, 1, &memoryRange);
+	//vkUnmapMemory(device, object.dynamicUniformBuffer->bufferMemory);
+	return sgrOK;
+}
+
+SgrErrCode SGR::updateUniformBuffer(std::string objName, UniformBufferObject obj)
+{
+	SgrObject object = findObjectByName(objName);
+	return sgrOK;
+}
+
+SgrErrCode SGR::updateDescriptorSets(std::string name, std::vector<void*> data)
+{
+	return descriptorManager->updateDescriptorSets(name, data);
 }

@@ -41,7 +41,8 @@ private:
 	void bindVertexBuffer(std::vector<VkBuffer> vertexBuffers, VkDeviceSize* offsets = nullptr, int16_t cmdBufferIndex = -1);
 	void bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferIndex = -1);
 	void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance, int16_t cmdBufferIndex = -1);
-	void bindDescriptorSet(uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets = std::vector<uint32_t>{});
+	void bindDescriptorSet(VkPipelineLayout pipelineLayout, uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets = std::vector<uint32_t>{});
+	void bindPipeline(VkPipeline pipeline, int16_t cmdBufferIndex = -1);
 
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer cmdBuffer);

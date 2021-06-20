@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BindDescriptorSetCommand.h" />
+    <ClInclude Include="BindPipelineCommand.h" />
     <ClInclude Include="BindVertexCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandManager.h" />
@@ -196,6 +197,8 @@
     <None Include="SGRShaders\compile.bat" />
     <None Include="SGRShaders\shader.frag" />
     <None Include="SGRShaders\shader.vert" />
+    <None Include="SGRShaders\shaderInstance.frag" />
+    <None Include="SGRShaders\shaderInstance.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\test_texture.jpg" />

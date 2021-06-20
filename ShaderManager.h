@@ -6,23 +6,36 @@ class PipelineManager;
 class SGR;
 
 class ShaderManager {
+	friend class PipelineManager;
+	friend class SGR;
+
 private:
 	ShaderManager();
 	~ShaderManager();
 	ShaderManager(const ShaderManager&) = delete;
 	ShaderManager operator=(ShaderManager&) = delete;
-
 	static ShaderManager* instance;
 
-	VkShaderModule vertexModule;
-	VkShaderModule fragmentModule;
+	struct SgrShaderPack {
+		VkShaderModule vertex;
+		VkShaderModule fragment;
+	};
 
-	void initShaders();
-	void destroyShaders();
-	VkShaderModule createShader(const std::vector<char>& shaderCode);
+	struct SgrShader {
+		std::string name;
+		SgrShaderPack shaders;
+	};
 
-	friend class PipelineManager;
+	std::vector<SgrShader> objectShaders;
+
+	SgrErrCode createShaders(std::string name, std::string vertexShaderPath, std::string fragmentShaderPath);
+	SgrErrCode destroyShaders(std::string name);
+	SgrErrCode destroyAllShaders();
+	SgrShader getShadersByName(std::string name);
 
 public:
 	static ShaderManager* get();
+
+protected:
+	VkShaderModule createShader(std::string filePath);
 };

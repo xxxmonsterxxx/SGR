@@ -66,14 +66,14 @@ SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*&
     if (resultCreateImageView != sgrOK)
         return resultCreateImageView;
 
-    SgrErrCode resultCreateSampler = createTextureSampler(&image->sampler);
+    SgrErrCode resultCreateSampler = createTextureSampler(image->sampler);
     if (resultCreateSampler != sgrOK)
         return resultCreateSampler;
 
 	return sgrOK;
 }
 
-SgrErrCode TextureManager::createTextureSampler(VkSampler* sampler)
+SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)
 {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -90,7 +90,7 @@ SgrErrCode TextureManager::createTextureSampler(VkSampler* sampler)
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-    if (vkCreateSampler(LogicalDeviceManager::instance->logicalDevice, &samplerInfo, nullptr, sampler) != VK_SUCCESS)
+    if (vkCreateSampler(LogicalDeviceManager::instance->logicalDevice, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         return sgrCreateSamplerError;
 
     return sgrOK;

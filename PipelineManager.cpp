@@ -1,40 +1,12 @@
 #include "PipelineManager.h"
-#include "ShaderManager.h"
 #include "SwapChainManager.h"
 #include "LogicalDeviceManager.h"
 #include "RenderPassManager.h"
-#include "DescriptorManager.h"
 
 PipelineManager* PipelineManager::instance = nullptr;
 
-PipelineManager::PipelineManager()
-{
-    vertexBindingDescription.binding = 0;
-    vertexBindingDescription.stride = sizeof(Sgr2DVertex);
-    vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+PipelineManager::PipelineManager() { ; }
 
-    VkVertexInputAttributeDescription positionDescr;
-    positionDescr.binding = 0;
-    positionDescr.location = 0;
-    positionDescr.format = VK_FORMAT_R32G32_SFLOAT;
-    positionDescr.offset = offsetof(Sgr2DVertex, position);
-
-    VkVertexInputAttributeDescription colorDescr;
-    colorDescr.binding = 0;
-    colorDescr.location = 1;
-    colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
-    colorDescr.offset = offsetof(Sgr2DVertex, color);
-
-    VkVertexInputAttributeDescription textureDescr;
-    textureDescr.binding = 0;
-    textureDescr.location = 2;
-    textureDescr.format = VK_FORMAT_R32G32_SFLOAT;
-    textureDescr.offset = offsetof(Sgr2DVertex, texCoord);
-
-    vertexAttributeDescriptions.push_back(positionDescr);
-    vertexAttributeDescriptions.push_back(colorDescr);
-    vertexAttributeDescriptions.push_back(textureDescr);
-}
 PipelineManager::~PipelineManager() { ; }
 
 PipelineManager* PipelineManager::get()
@@ -47,31 +19,29 @@ PipelineManager* PipelineManager::get()
 		return instance;
 }
 
-SgrErrCode PipelineManager::init()
+SgrErrCode PipelineManager::createPipeline( std::string name,
+                                            VkRenderPass renderPass, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo)
 {
-    auto* shadMan = ShaderManager::get();
-    shadMan->initShaders();
-
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = shadMan->vertexModule;
+    vertShaderStageInfo.module = objectShaders.shaders.vertex;
     vertShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = shadMan->fragmentModule;
+    fragShaderStageInfo.module = objectShaders.shaders.fragment;
     fragShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size());
-    vertexInputInfo.pVertexBindingDescriptions = &vertexBindingDescription;
-    vertexInputInfo.pVertexAttributeDescriptions = vertexAttributeDescriptions.data();
+    vertexInputInfo.vertexBindingDescriptionCount = descriptorInfo.vertexBindingDescr.size();
+    vertexInputInfo.vertexAttributeDescriptionCount = descriptorInfo.vertexAttributeDescr.size();
+    vertexInputInfo.pVertexBindingDescriptions = descriptorInfo.vertexBindingDescr.data();
+    vertexInputInfo.pVertexAttributeDescriptions = descriptorInfo.vertexAttributeDescr.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -134,10 +104,12 @@ SgrErrCode PipelineManager::init()
 
     // ????? do wee need specify all similar layouts or only one
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &DescriptorManager::instance->defaultDescriptorSetLayouts[0];
+    pipelineLayoutInfo.pSetLayouts = descriptorInfo.setLayouts.data();
 
+    SgrPipeline newSgrPipeline;
+    newSgrPipeline.name = name;
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
-    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &newSgrPipeline.pipelineLayout) != VK_SUCCESS)
         return sgrInitPipelineLayoutError;
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -150,21 +122,56 @@ SgrErrCode PipelineManager::init()
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = pipelineLayout;
-
-    SgrErrCode resultInitRenderPass = RenderPassManager::get()->init();
-    if (resultInitRenderPass != sgrOK)
-        return resultInitRenderPass;
-
-    pipelineInfo.renderPass = RenderPassManager::get()->renderPass;
+    pipelineInfo.layout = newSgrPipeline.pipelineLayout;
+    pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+    VkPipeline newPipeline;
+    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newPipeline) != VK_SUCCESS)
         return sgrInitPipelineError;
 
-    // ??????????????????
-    shadMan->destroyShaders();
+    newSgrPipeline.pipeline = newPipeline;
+
+    pipelines.push_back(newSgrPipeline);
 
     return sgrOK;
 }
+
+SgrErrCode PipelineManager::destroyPipeline(std::string name)
+{
+    for (auto objPipeline : pipelines) {
+        if (objPipeline.name == name) {
+            vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipeline, nullptr);
+            vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipelineLayout, nullptr);
+            break;
+        }
+    }
+
+    return sgrOK;
+}
+
+SgrErrCode PipelineManager::destroyAllPipelines()
+{
+    for (auto objPipeline : pipelines) {
+        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipeline, nullptr);
+        vkDestroyRenderPass(LogicalDeviceManager::instance->logicalDevice, RenderPassManager::instance->renderPass, nullptr);
+        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipelineLayout, nullptr);
+    }
+
+    return sgrOK;
+}
+
+SgrErrCode PipelineManager::reinitAllPipelines()
+{
+    return sgrOK;
+}
+
+PipelineManager::SgrPipeline PipelineManager::getPipelineByName(std::string name)
+{
+    for (auto pipeline : pipelines) {
+        if (pipeline.name == name)
+            return pipeline;
+    }
+}
+

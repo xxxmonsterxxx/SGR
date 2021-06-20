@@ -11,29 +11,36 @@ class DescriptorManager {
 	friend class PipelineManager;
 
 private:
-	static DescriptorManager* instance;
 	DescriptorManager();
 	DescriptorManager(const DescriptorManager&) = delete;
 	DescriptorManager& operator=(const DescriptorManager&) = delete;
+	static DescriptorManager* instance;
 
-	VkDescriptorPool defaultDescriptorPool;
-	SgrErrCode initDefaultDescriptorPool();
+	struct SgrDescriptorInfo {
+		std::string name;
 
-	std::vector<VkDescriptorSetLayout> defaultDescriptorSetLayouts;
-	SgrErrCode initDefaultDescriptorSetLayouts();
+		std::vector<VkVertexInputBindingDescription> vertexBindingDescr;
+		std::vector<VkVertexInputAttributeDescription> vertexAttributeDescr;
 
-	SgrErrCode initAndBindDefaultDescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers, std::vector<SgrImage*> textureImages);
+		std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding;
+		std::vector<VkDescriptorSetLayout> setLayouts;
+		VkDescriptorPool descriptorPool;
+		std::vector<VkDescriptorSet> descriptorSets;
+	};
 
-	SgrErrCode initAndBindDescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers,
-								  VkDescriptorPool descriptorPool = VK_NULL_HANDLE,
-								  std::vector<VkDescriptorSetLayout> descriptorSetLayouts = std::vector<VkDescriptorSetLayout>{});
+	std::vector<SgrDescriptorInfo> descriptorInfos;
 
-	SgrErrCode bindDescriptors(std::vector<VkDescriptorSet> descriptorSets, std::vector<VkBuffer*> UBOBuffers,
-		VkDescriptorPool descriptorPool = VK_NULL_HANDLE,
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts = std::vector<VkDescriptorSetLayout>{});
+	SgrErrCode addNewDescriptorInfo(SgrDescriptorInfo& descrInfo);
+	SgrErrCode updateDescriptorSets(std::string name, std::vector<void*> data);
 
-	SgrErrCode bindDescriptors(std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites);
+	SgrDescriptorInfo getDescriptorInfoByName(std::string name);
 
 public:
 	static DescriptorManager* get();
+
+protected:
+	SgrErrCode createDescriptorSetLayout(SgrDescriptorInfo& descrInfo);
+	SgrErrCode createDescriptorPool(SgrDescriptorInfo& descrInfo);
+	SgrErrCode createDescriptorSets(SgrDescriptorInfo& descrInfo);
+	std::vector<std::vector<VkWriteDescriptorSet>> createDescriptorSetWrites(SgrDescriptorInfo& descrInfo);
 };

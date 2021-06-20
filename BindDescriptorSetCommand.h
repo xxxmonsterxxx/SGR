@@ -6,7 +6,8 @@
 class BindDescriptorSetCommand : Command {
 
 public:
-	BindDescriptorSetCommand(VkDescriptorSet _descriptorSet, uint32_t _firstSet, uint32_t _descriptorSetCount, std::vector<uint32_t> _dynamicOffsets) :
+	BindDescriptorSetCommand(VkPipelineLayout _pipelineLayout, VkDescriptorSet _descriptorSet, uint32_t _firstSet, uint32_t _descriptorSetCount, std::vector<uint32_t> _dynamicOffsets) :
+		pipelineLayout(_pipelineLayout),
 		descriptorSet(_descriptorSet),
 		firstSet(_firstSet),
 		descriptorSetCount(_descriptorSetCount),
@@ -16,6 +17,7 @@ public:
 	}
 
 private:
+	VkPipelineLayout pipelineLayout;
 	VkDescriptorSet descriptorSet;
 	uint32_t firstSet;
 	uint32_t descriptorSetCount;
@@ -25,7 +27,7 @@ private:
 		uint32_t* _dynamicOffsets = nullptr;
 		if (dynamicOffsets.size() != 0)
 			_dynamicOffsets = dynamicOffsets.data();
-		vkCmdBindDescriptorSets(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineManager::instance->pipelineLayout, firstSet, descriptorSetCount, &descriptorSet, (uint32_t)dynamicOffsets.size(), _dynamicOffsets);
+		vkCmdBindDescriptorSets(*cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, firstSet, descriptorSetCount, &descriptorSet, (uint32_t)dynamicOffsets.size(), _dynamicOffsets);
 		return sgrOK;
 	}
 };

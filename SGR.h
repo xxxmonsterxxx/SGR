@@ -23,15 +23,8 @@ public:
 		std::string name;
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
-		VkShaderModule shaderVert;
-		VkShaderModule shaderFrag;
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkPipeline pipeline;
-		SgrBuffer* uniformBuffer;
-		SgrBuffer* dynamicUniformBuffer;
-		VkDeviceSize dynamicElementSize;
-		UniformBufferObject* uboPtr;
-		SgrImage* texture;
+		SgrBuffer* dynamicUBO;
+		size_t dynamicAlignment;
 	};
 
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
@@ -77,13 +70,14 @@ public:
 	SgrErrCode addNewTypeObject(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
 								std::string shaderVert, std::string shaderFrag, std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding,
 								std::vector<VkVertexInputBindingDescription> bindingDescriptions,
-								std::vector<VkVertexInputAttributeDescription> attributDescrtions, VkDeviceSize modelMatrixSize);
+								std::vector<VkVertexInputAttributeDescription> attributDescrtions);
+	SgrErrCode setupUniformBuffers(std::string name, SgrBuffer* uboBuffer, SgrBuffer* instanceUBO);
 	SgrErrCode updateDescriptorSets(std::string name, std::vector<void*> data);
 
 
 
-	SgrErrCode drawObject(std::string objName);
-	SgrErrCode updateDynamicUniformBuffer(std::string objName, UniformBufferObject obj);
+	SgrErrCode drawObject(std::string objName, uint16_t count);
+	SgrErrCode updateDynamicUniformBuffer(std::string objName, SgrDynamicUniformBufferObject dynamicUBO);
 	SgrErrCode updateUniformBuffer(std::string objName, UniformBufferObject obj);
 
 private:
@@ -115,6 +109,8 @@ private:
 
 	uint8_t maxFrameInFlight;
 	uint8_t currentFrame;
+
+	uint32_t instanceUBOAlignment;
 
 	std::vector<SgrObject> objects;
 

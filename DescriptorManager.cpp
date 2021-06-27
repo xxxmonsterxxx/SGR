@@ -50,7 +50,7 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo)
     poolInfo.poolSizeCount = poolSizes.size();
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
-
+ 
     if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrInfo.descriptorPool) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorPoolError;
 }
@@ -118,6 +118,16 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
                     imageInfo.sampler = ((SgrImage*)data[k])->sampler;
 
                     descriptorWriteForSetOneBinding.pImageInfo = &imageInfo;
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                {
+                    VkDescriptorBufferInfo bufferInfo{};
+                    bufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
+                    bufferInfo.offset = 0;
+                    bufferInfo.range = ((SgrBuffer*)data[k])->size;
+
+                    descriptorWriteForSetOneBinding.pBufferInfo = &bufferInfo;
                     break;
                 }
             }

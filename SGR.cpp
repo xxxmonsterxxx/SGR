@@ -292,11 +292,10 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 SgrErrCode SGR::addNewTypeObject(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
 								std::string shaderVert, std::string shaderFrag, std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding,
 								std::vector<VkVertexInputBindingDescription> bindingDescriptions,
-								std::vector<VkVertexInputAttributeDescription> attributDescrtions, VkDeviceSize modelMatrixSize)
+								std::vector<VkVertexInputAttributeDescription> attributDescrtions)
 {
 	SgrObject newObject;
 	newObject.name = name;
-	newObject.dynamicElementSize = modelMatrixSize;
 
 	// create vertex buffer
 	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
@@ -341,38 +340,56 @@ SGR::SgrObject& SGR::findObjectByName(std::string name)
 	}
 }
 
-SgrErrCode SGR::drawObject(std::string objName)
+SgrErrCode SGR::setupUniformBuffers(std::string name, SgrBuffer* uboBuffer, SgrBuffer* instanceUBO)
+{
+	SgrObject& objectToDraw = findObjectByName(name);
+
+	objectToDraw.dynamicUBO = instanceUBO;
+
+	return sgrOK;
+}
+
+SgrErrCode SGR::drawObject(std::string objName, uint16_t count)
 {
 	SgrObject objectToDraw = findObjectByName(objName);
 
 	/*objectToDraw.dynamicUniformBuffer.addOneElement();*/
 
-	PipelineManager::SgrPipeline objectPipeline = pipelineManager->instance->getPipelineByName(objName);
-	commandManager->bindPipeline(objectPipeline.pipeline);
-	std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
-	commandManager->bindVertexBuffer(vertices);
-	commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
+	for (uint16_t i = 0; i < count; i++) {
+		PipelineManager::SgrPipeline objectPipeline = pipelineManager->instance->getPipelineByName(objName);
+		commandManager->bindPipeline(objectPipeline.pipeline);
+		std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
+		commandManager->bindVertexBuffer(vertices);
+		commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
 
-	DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
+		DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
+		std::vector<uint32_t> dynamicOffset = { i * static_cast<uint32_t>(objectToDraw.dynamicAlignment) };
 
-	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, i, descrInfo.descriptorSets[i], 0, 1);
+		for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
+			commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, i, descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
 
-	commandManager->drawIndexed(objectToDraw.indices->size, 1, 0, 0, 0);
+		commandManager->drawIndexed(6, 1, 0, 0, 0);
+	}
 
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateDynamicUniformBuffer(std::string objName, UniformBufferObject obj)
+SgrErrCode SGR::updateDynamicUniformBuffer(std::string objName, SgrDynamicUniformBufferObject dynamicUBO)
 {
-	//SgrObject object = findObjectByName(objName);
-	//VkDevice device = logicalDeviceManager->instance->logicalDevice;
+	SgrObject& object = findObjectByName(objName);
+	object.dynamicAlignment = dynamicUBO.dynamicAlignment;
+	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
-	//void* tempDataPointer;
-	//vkMapMemory(device, object.dynamicUniformBuffer->bufferMemory, 0, object.dynamicUniformBuffer->size, 0, &tempDataPointer);
-	//memcpy(tempDataPointer, &obj.model, object.dynamicUniformBuffer->size);
-	//vkFlushMappedMemoryRanges(device, 1, &memoryRange);
-	//vkUnmapMemory(device, object.dynamicUniformBuffer->bufferMemory);
+	void* tempDataPointer;
+	vkMapMemory(device, object.dynamicUBO->bufferMemory, 0, object.dynamicUBO->size, 0, &tempDataPointer);
+	memcpy(tempDataPointer, dynamicUBO.data, object.dynamicUBO->size);
+
+	VkMappedMemoryRange mappedMemoryRange{};
+	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+	mappedMemoryRange.memory = object.dynamicUBO->bufferMemory;
+	mappedMemoryRange.size = object.dynamicUBO->size;
+	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
+	vkUnmapMemory(device, object.dynamicUBO->bufferMemory);
 	return sgrOK;
 }
 

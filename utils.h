@@ -30,9 +30,16 @@ struct Sgr2DVertex {
 };
 
 struct UniformBufferObject {
-	glm::mat4 model = glm::mat4(1.f);
 	glm::mat4 view = glm::mat4(1.f);
 	glm::mat4 proj = glm::mat4(1.f);
+};
+
+struct SgrDynamicUniformBufferObject {
+	void* data = nullptr;
+	size_t instanceSize = 0;
+	size_t instnaceCount = 0;
+	size_t dynamicAlignment = 0;
+	size_t dataSize = 0;
 };
 
 enum SgrErrCode

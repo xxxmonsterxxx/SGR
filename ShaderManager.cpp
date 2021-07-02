@@ -17,8 +17,9 @@ ShaderManager* ShaderManager::get()
 		return instance;
 }
 
-VkShaderModule ShaderManager::createShader(const std::vector<char>& shaderCode)
+VkShaderModule ShaderManager::createShader(std::string filePath)
 {
+    std::vector<char> shaderCode = FileManager::readFile(filePath);
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = shaderCode.size();
@@ -26,22 +27,36 @@ VkShaderModule ShaderManager::createShader(const std::vector<char>& shaderCode)
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(LogicalDeviceManager::get()->getLogicalDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create shader module!");
+        throw std::printf("Failed to create shader module from path %s", filePath.c_str());
     }
 
     return shaderModule;
 }
 
-void ShaderManager::initShaders()
+SgrErrCode ShaderManager::createShaders(std::string name, std::string vertexShaderPath, std::string fragmentShaderPath)
 {
-	FileManager* fm = FileManager::get();
+    VkShaderModule newVertexShader = createShader(vertexShaderPath);
+    VkShaderModule newFragmentShader = createShader(fragmentShaderPath);
+    SgrShader newShaders{ name,newVertexShader,newFragmentShader };
+    objectShaders.push_back(newShaders);
 
-    vertexModule = createShader(fm->readFile("SGRShaders/vertex.spv"));
-    fragmentModule = createShader(fm->readFile("SGRShaders/fragment.spv"));
+    return sgrOK;
 }
 
-void ShaderManager::destroyShaders()
+SgrErrCode ShaderManager::destroyShaders(std::string name)
 {
-    vkDestroyShaderModule(LogicalDeviceManager::get()->getLogicalDevice(), fragmentModule, nullptr);
-    vkDestroyShaderModule(LogicalDeviceManager::get()->getLogicalDevice(), vertexModule, nullptr);
+    return sgrOK;
+}
+
+SgrErrCode ShaderManager::destroyAllShaders()
+{
+    return sgrOK;
+}
+
+ShaderManager::SgrShader ShaderManager::getShadersByName(std::string name)
+{
+    for (auto shaders : objectShaders) {
+        if (shaders.name == name)
+            return shaders;
+    }
 }

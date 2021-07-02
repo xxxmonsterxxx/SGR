@@ -1,5 +1,6 @@
 #include "DescriptorManager.h"
 #include "LogicalDeviceManager.h"
+#include "MemoryManager.h"
 
 DescriptorManager* DescriptorManager::instance = nullptr;
 
@@ -13,129 +14,157 @@ DescriptorManager* DescriptorManager::get()
         return instance;
 }
 
-DescriptorManager::DescriptorManager()
+DescriptorManager::DescriptorManager() { ; }
+
+SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descrInfo)
 {
-    defaultDescriptorPool = VK_NULL_HANDLE;
-}
-
-SgrErrCode DescriptorManager::initDefaultDescriptorSetLayouts()
-{
-    if (defaultDescriptorSetLayouts.size() != 0)
-        return sgrOK;
-
-    VkDescriptorSetLayoutBinding uboLayoutBinding;
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = bindings.size();
-    layoutInfo.pBindings = bindings.data();
+    layoutInfo.bindingCount = descrInfo.setLayoutBinding.size();
+    layoutInfo.pBindings = descrInfo.setLayoutBinding.data();
 
-    VkDescriptorSetLayout descriptorSetLayout;
-    if (vkCreateDescriptorSetLayout(LogicalDeviceManager::instance->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    VkDescriptorSetLayout newLayout;
+    if (vkCreateDescriptorSetLayout(LogicalDeviceManager::instance->logicalDevice, &layoutInfo, nullptr, &newLayout) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorSetLayoutError;
 
-    // if we dont specify different layout set for each swapchain image, then we'll use imageCount number simillar setLayouts
-    for (size_t i = 0; i < SwapChainManager::instance->imageCount; i++)
-        defaultDescriptorSetLayouts.push_back(descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> newSetLayouts(SwapChainManager::instance->imageCount, newLayout);
+    descrInfo.setLayouts = newSetLayouts;
 
     return sgrOK;
 }
 
-SgrErrCode DescriptorManager::initDefaultDescriptorPool()
+SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo)
 {
-    if (defaultDescriptorPool != VK_NULL_HANDLE)
-        return sgrOK;
-
     uint32_t swapChainImageCount = SwapChainManager::instance->imageCount;
-    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    std::vector<VkDescriptorPoolSize> poolSizes;
 
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = swapChainImageCount;
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = swapChainImageCount;
+    for (auto binding : descrInfo.setLayoutBinding) {
+        VkDescriptorPoolSize poolSize;
+        poolSize.type = binding.descriptorType;
+        poolSize.descriptorCount = swapChainImageCount;
+        poolSizes.push_back(poolSize);
+    }
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = poolSizes.size();
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
-
-    if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &defaultDescriptorPool) != VK_SUCCESS)
+ 
+    if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrInfo.descriptorPool) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorPoolError;
-    return sgrOK;
 }
 
-SgrErrCode DescriptorManager::initAndBindDefaultDescriptors(std::vector<VkDescriptorSet>& descriptorSets, std::vector<VkBuffer*> UBOBuffers, std::vector<SgrImage*> textureImages)
+SgrErrCode DescriptorManager::createDescriptorSets(SgrDescriptorInfo& descrInfo)
 {
-    if (descriptorSets.size() != UBOBuffers.size())
-        return sgrWrongDescrAndUBOSize;
-
-    if (defaultDescriptorPool == VK_NULL_HANDLE) {
-        SgrErrCode resultInitDefaultUBODescriptorPool = initDefaultDescriptorPool();
-        if (resultInitDefaultUBODescriptorPool != sgrOK)
-            return resultInitDefaultUBODescriptorPool;
-    }
-
-    if (defaultDescriptorSetLayouts.size() == 0) {
-        SgrErrCode resultInitDefaultDescriptorSetLayouts = initDefaultDescriptorSetLayouts();
-        if (resultInitDefaultDescriptorSetLayouts != sgrOK)
-            return resultInitDefaultDescriptorSetLayouts;
-    }
-
     uint32_t swapChainImageCount = SwapChainManager::instance->imageCount;
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = defaultDescriptorPool;
+    allocInfo.descriptorPool = descrInfo.descriptorPool;
     allocInfo.descriptorSetCount = swapChainImageCount;
-    allocInfo.pSetLayouts = defaultDescriptorSetLayouts.data();
-    descriptorSets.resize(swapChainImageCount);
-    if (vkAllocateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    allocInfo.pSetLayouts = descrInfo.setLayouts.data();
+    descrInfo.descriptorSets.resize(swapChainImageCount);
+    if (vkAllocateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, &allocInfo, descrInfo.descriptorSets.data()) != VK_SUCCESS)
         return sgrInitDescriptorSetsError;
+    return sgrOK;
+}
 
-    for (size_t i = 0; i < descriptorSets.size(); i++) {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = *UBOBuffers[i];
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+SgrErrCode DescriptorManager::addNewDescriptorInfo(SgrDescriptorInfo& descrInfo)
+{
+    createDescriptorSetLayout(descrInfo);
+    createDescriptorPool(descrInfo);
+    createDescriptorSets(descrInfo);
 
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureImages[i]->view;
-        imageInfo.sampler = textureImages[i]->sampler;
+    descriptorInfos.push_back(descrInfo);
+    return sgrOK;
+}
 
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets[i];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
+SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector<void*> data)
+{
+    size_t i = 0;
+    for (; i < descriptorInfos.size(); ) {
+        if (descriptorInfos[i].name != name) {
+            i++;
+            continue;
+        }
+        else
+            break;
+    }
 
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;
+    if (i == descriptorInfos.size() + 1)
+        return sgrDescrUpdateError;
 
-        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+    std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites = createDescriptorSetWrites(descriptorInfos[i]);
+
+    for (size_t j = 0; j < descriptorWrites.size(); j++) {
+        for (size_t k = 0; k < descriptorWrites[j].size(); k++) {
+            VkWriteDescriptorSet& descriptorWriteForSetOneBinding = descriptorWrites[j][k];
+            switch (descriptorWriteForSetOneBinding.descriptorType) {
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                {
+                    VkDescriptorBufferInfo bufferInfo{};
+                    bufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
+                    bufferInfo.offset = 0;
+                    bufferInfo.range = ((SgrBuffer*)data[k])->size;
+
+                    descriptorWriteForSetOneBinding.pBufferInfo = &bufferInfo;
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                {
+                    VkDescriptorImageInfo imageInfo{};
+                    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imageInfo.imageView = ((SgrImage*)data[k])->view;
+                    imageInfo.sampler = ((SgrImage*)data[k])->sampler;
+
+                    descriptorWriteForSetOneBinding.pImageInfo = &imageInfo;
+                    break;
+                }
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                {
+                    VkDescriptorBufferInfo bufferInfo{};
+                    bufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
+                    bufferInfo.offset = 0;
+                    bufferInfo.range = ((SgrBuffer*)data[k])->size;
+
+                    descriptorWriteForSetOneBinding.pBufferInfo = &bufferInfo;
+                    break;
+                }
+            }
+        }
+        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, descriptorWrites[j].size(), descriptorWrites[j].data(), 0, nullptr);
     }
 
     return sgrOK;
+}
+
+std::vector<std::vector<VkWriteDescriptorSet>> DescriptorManager::createDescriptorSetWrites(SgrDescriptorInfo& descrInfo)
+{
+    std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites;
+    for (size_t i = 0; i < descrInfo.descriptorSets.size(); i++) {
+        std::vector<VkWriteDescriptorSet> descriptorWritesForSet;
+        for (size_t j = 0; j < descrInfo.setLayoutBinding.size(); j++) {
+            VkWriteDescriptorSet newDescriptorWriteSet{};
+            newDescriptorWriteSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            newDescriptorWriteSet.dstSet = descrInfo.descriptorSets[i];
+            newDescriptorWriteSet.dstArrayElement = 0;
+            newDescriptorWriteSet.descriptorCount = descrInfo.setLayoutBinding[j].descriptorCount;
+            newDescriptorWriteSet.dstBinding = descrInfo.setLayoutBinding[j].binding;
+            newDescriptorWriteSet.descriptorType = descrInfo.setLayoutBinding[j].descriptorType;
+
+            descriptorWritesForSet.push_back(newDescriptorWriteSet);
+        }
+        descriptorWrites.push_back(descriptorWritesForSet);
+    }
+
+    return descriptorWrites;
+}
+
+
+DescriptorManager::SgrDescriptorInfo DescriptorManager::getDescriptorInfoByName(std::string name)
+{
+    for (size_t i = 0; i < descriptorInfos.size(); i++) {
+        if (descriptorInfos[i].name == name)
+            return descriptorInfos[i];
+    }
 }

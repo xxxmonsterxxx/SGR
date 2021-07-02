@@ -5,11 +5,11 @@
 
 class SGR;
 class TextureManager;
-class SwapChainManager;
 
 struct SgrBuffer {
 	VkBuffer vkBuffer;
 	VkDeviceMemory bufferMemory;
+	VkDeviceSize size;
 };
 
 class MemoryManager {
@@ -33,14 +33,15 @@ class MemoryManager {
 
 	SgrErrCode createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* vertexData);
 	SgrErrCode createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* indexData);
-	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 
 	static void copyBufferToImage(SgrBuffer* buffer, SgrImage* image);
+	static void copyDataToBuffer(SgrBuffer* buffer, void* data);
 
 	std::vector<SgrBuffer*> allocatedBuffers;
 
-
 public:
-
 	static MemoryManager* get();
+	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
+	static SgrErrCode createDynamicUniformMemory(SgrDynamicUniformBufferObject& dynamicUBO);
+	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 };

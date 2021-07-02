@@ -9,6 +9,7 @@
 #include "BindIndexCommand.h"
 #include "DrawIndexedCommand.h"
 #include "BindDescriptorSetCommand.h"
+#include "BindPipelineCommand.h"
 
 CommandManager* CommandManager::instance = nullptr;
 
@@ -76,13 +77,11 @@ SgrErrCode CommandManager::initCommandBuffers()
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = SwapChainManager::get()->extent;
 
-        VkClearValue clearColor = { 0.823f, 0.3058f, 0.8392f, 1.0f };
+        VkClearValue clearColor = { 0.5f, 0.5f, 0.5f, 1.0f };
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineManager::get()->pipeline);
     }
 
     buffersEnded = false;
@@ -118,16 +117,22 @@ void CommandManager::bindIndexBuffer(VkBuffer indexBuffer, int16_t cmdBufferInde
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindIndexCmd);
 }
 
-void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t verteOffset, uint32_t firstInstance, int16_t cmdBufferIndex)
+void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance, int16_t cmdBufferIndex)
 {
-    DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, verteOffset, firstInstance);
+    DrawIndexedCommand* newDrawIndexedCmd = new DrawIndexedCommand(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     addCmdToBuffer(cmdBufferIndex, (Command*)newDrawIndexedCmd);
 }
 
-void CommandManager::bindDescriptorSet(uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets)
+void CommandManager::bindDescriptorSet(VkPipelineLayout pipelineLayout, uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets)
 {
-    BindDescriptorSetCommand* newBindDescriptorSetCmd = new BindDescriptorSetCommand(descriptorSet, firstSet, descriptorSetCount, dynamicOffsets);
+    BindDescriptorSetCommand* newBindDescriptorSetCmd = new BindDescriptorSetCommand(pipelineLayout, descriptorSet, firstSet, descriptorSetCount, dynamicOffsets);
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindDescriptorSetCmd);
+}
+
+void CommandManager::bindPipeline(VkPipeline pipeline, int16_t cmdBufferIndex)
+{
+    BindPipelineCommand* newBindPipelineCmd = new BindPipelineCommand(pipeline);
+    addCmdToBuffer(cmdBufferIndex, (Command*)newBindPipelineCmd);
 }
 
 SgrErrCode CommandManager::endInitCommandBuffers()

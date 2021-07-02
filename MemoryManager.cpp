@@ -37,6 +37,7 @@ SgrErrCode MemoryManager::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFl
 SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
 {
     SgrBuffer* newBuffer = new SgrBuffer;
+    newBuffer->size = size;
 
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 
@@ -74,6 +75,16 @@ SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, Vk
     return sgrOK;
 }
 
+void MemoryManager::copyDataToBuffer(SgrBuffer* buffer, void* data)
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    void* tempDataPointer;
+    vkMapMemory(device, buffer->bufferMemory, 0, buffer->size, 0, &tempDataPointer);
+    memcpy(tempDataPointer, data, buffer->size);
+    vkUnmapMemory(device, buffer->bufferMemory);
+}
+
 SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDeviceSize size, void* data)
 {
     if (buffer != nullptr)
@@ -84,10 +95,7 @@ SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDevi
 
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 
-    void* tempDataPointer;
-    vkMapMemory(device, buffer->bufferMemory, 0, size, 0, &tempDataPointer);
-    memcpy(tempDataPointer, data, (size_t)size);
-    vkUnmapMemory(device, buffer->bufferMemory);
+    copyDataToBuffer(buffer, data);
 
     return sgrOK;
 }
@@ -160,6 +168,17 @@ SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize s
     return sgrOK;
 }
 
+SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size)
+{
+    if (buffer != nullptr)
+        return sgrIncorrectPointer;
+    SgrErrCode resultCreateBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    if (resultCreateBuffer != sgrOK)
+        return resultCreateBuffer;
+    allocatedBuffers.push_back(buffer);
+    return sgrOK;
+}
+
 void MemoryManager::copyBufferToImage(SgrBuffer* buffer, SgrImage* image) {
     VkCommandBuffer commandBuffer = CommandManager::instance->beginSingleTimeCommands();
 
@@ -181,4 +200,29 @@ void MemoryManager::copyBufferToImage(SgrBuffer* buffer, SgrImage* image) {
     vkCmdCopyBufferToImage(commandBuffer, buffer->vkBuffer, image->vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     CommandManager::instance->endSingleTimeCommands(commandBuffer);
+}
+
+SgrErrCode MemoryManager::createDynamicUniformMemory(SgrDynamicUniformBufferObject& dynamicUBO)
+{
+    if (dynamicUBO.data != nullptr)
+        return sgrIncorrectPointer;
+
+    // Calculate required alignment based on minimum device offset alignment
+    size_t minUboAlignment = PhysicalDeviceManager::instance->pickedPhysicalDevice.props.limits.minUniformBufferOffsetAlignment;
+    size_t desiredAlignment = dynamicUBO.instanceSize;
+    if (minUboAlignment > 0) {
+        desiredAlignment = (desiredAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
+    }
+
+    dynamicUBO.dynamicAlignment = desiredAlignment;
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    dynamicUBO.data = _aligned_malloc(desiredAlignment*dynamicUBO.instnaceCount, dynamicUBO.dynamicAlignment);
+#else
+    int res = posix_memalign(&dynamicUBO.data, dynamicUBO.dynamicAlignment, desiredAlignment * dynamicUBO.instnaceCount);
+    if (res != 0)
+        dynamicUBO.data = nullptr;
+#endif
+
+    dynamicUBO.dataSize = dynamicUBO.instnaceCount * dynamicUBO.dynamicAlignment;
 }

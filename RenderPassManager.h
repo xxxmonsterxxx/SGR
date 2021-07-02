@@ -5,24 +5,24 @@
 class PipelineManager;
 class SwapChainManager;
 class CommandManager;
+class SGR;
 
 class RenderPassManager {
+	friend class PipelineManager;
+	friend class SwapChainManager;
+	friend class CommandManager;
+	friend class SGR;
+	
 private:
 	RenderPassManager();
 	~RenderPassManager();
 	RenderPassManager(const RenderPassManager&) = delete;
 	RenderPassManager operator=(RenderPassManager&) = delete;
-
 	static RenderPassManager* instance;
-
-	SgrErrCode init();
 
 	VkRenderPass renderPass;
 
-	friend class PipelineManager;
-	friend class SwapChainManager;
-	friend class CommandManager;
-
+	SgrErrCode init();
 public:
 	static RenderPassManager* get();
 };

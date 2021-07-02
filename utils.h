@@ -26,13 +26,19 @@ using SgrTime_t = std::chrono::steady_clock::time_point;
 struct Sgr2DVertex {
 	glm::vec2 position;
 	glm::vec3 color;
-	glm::vec2 texCoord;
 };
 
-struct UniformBufferObject {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+struct SgrUniformBufferObject {
+	glm::mat4 view = glm::mat4(1.f);
+	glm::mat4 proj = glm::mat4(1.f);
+};
+
+struct SgrDynamicUniformBufferObject {
+	void* data = nullptr;
+	size_t instanceSize = 0;
+	size_t instnaceCount = 0;
+	size_t dynamicAlignment = 0;
+	size_t dataSize = 0;
 };
 
 enum SgrErrCode
@@ -77,5 +83,7 @@ enum SgrErrCode
 	sgrUnsupportedLayoutTransition,
 	sgrCreateSamplerError,
 	sgrIncorrectDescriptorWritesSize,
-	sgrIncorrectNumberBuffersForDescriptors
+	sgrIncorrectNumberBuffersForDescriptors,
+	sgrDoubleSettingVertices,
+	sgrDescrUpdateError
 };

@@ -184,8 +184,7 @@ SgrErrCode SwapChainManager::cleanOldSwapChain()
 
     vkFreeCommandBuffers(device, CommandManager::instance->commandPool, static_cast<uint32_t>(CommandManager::instance->commandBuffers.size()), CommandManager::instance->commandBuffers.data());
 
-    vkDestroyPipeline(device, PipelineManager::instance->pipeline, nullptr);
-    vkDestroyPipelineLayout(device, PipelineManager::instance->pipelineLayout, nullptr);
+    PipelineManager::instance->destroyAllPipelines();
     vkDestroyRenderPass(device, RenderPassManager::instance->renderPass, nullptr);
 
     for (size_t i = 0; i < imageViews.size(); i++) {
@@ -207,7 +206,7 @@ SgrErrCode SwapChainManager::reinitSwapChain()
     if (initSwapChain() != sgrOK)
         return sgrReinitSwapChainError;
 
-    if (PipelineManager::instance->init() != sgrOK)
+    if (PipelineManager::instance->reinitAllPipelines() != sgrOK)
         return sgrReinitPipelineError;
 
     if (initFrameBuffers() != sgrOK)

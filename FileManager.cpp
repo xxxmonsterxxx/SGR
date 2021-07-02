@@ -15,7 +15,7 @@ FileManager* FileManager::get()
 		return instance;
 }
 
-std::vector<char> FileManager::readFile(const std::string& filename)
+std::vector<char> FileManager::readFile(const std::string filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 

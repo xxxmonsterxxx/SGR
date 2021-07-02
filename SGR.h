@@ -73,6 +73,10 @@ public:
 	SgrErrCode drawObject(std::string objName, uint32_t dynamicUBOAlignment);
 
 private:
+	const uint8_t engineVersionMajor = 0;
+	const uint8_t engineVersionMinor = 1;
+	const uint8_t enginePatch = 1;
+
 	bool sgrRunning;
 
 	std::string applicationName;

@@ -238,7 +238,7 @@ SgrErrCode SGR::initVulkanInstance()
 	appInfo.pApplicationName = applicationName.c_str();
 	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.pEngineName = "Simple Graphic Renderer";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.engineVersion = VK_MAKE_VERSION(this->engineVersionMajor, this->appVersionMinor, this->enginePatch);
 	appInfo.apiVersion = VK_API_VERSION_1_0;
 
 	VkInstanceCreateInfo createInfo{};

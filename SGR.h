@@ -18,14 +18,14 @@
 
 class SGR {
 public:
-
 	struct SgrObject {
 		std::string name;
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
-		SgrBuffer* dynamicUBO;
-		size_t dynamicAlignment;
 	};
+
+	SgrBuffer* UBO;
+	SgrBuffer* dynamicUBO;
 
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
 	~SGR(); 
@@ -59,26 +59,18 @@ public:
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
-	void setVertexBindingDescription(VkVertexInputBindingDescription description);
-	void setVertexAttributeDescription(std::array<VkVertexInputAttributeDescription, 2> description);
+	SgrErrCode addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
+									std::string shaderVert, std::string shaderFrag,
+									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
+									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
+									std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding);
+	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
-	/*
-	* Test method that show works or not this library on your gpu
-	*/
-	SgrErrCode addToFrameSimpleTestObject();
+	SgrErrCode setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO);
+	SgrErrCode updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynamicUBO);
+	SgrErrCode updateUniformBuffer(SgrUniformBufferObject obj);
 
-	SgrErrCode addNewTypeObject(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-								std::string shaderVert, std::string shaderFrag, std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding,
-								std::vector<VkVertexInputBindingDescription> bindingDescriptions,
-								std::vector<VkVertexInputAttributeDescription> attributDescrtions);
-	SgrErrCode setupUniformBuffers(std::string name, SgrBuffer* uboBuffer, SgrBuffer* instanceUBO);
-	SgrErrCode updateDescriptorSets(std::string name, std::vector<void*> data);
-
-
-
-	SgrErrCode drawObject(std::string objName, uint16_t count);
-	SgrErrCode updateDynamicUniformBuffer(std::string objName, SgrDynamicUniformBufferObject dynamicUBO);
-	SgrErrCode updateUniformBuffer(std::string objName, UniformBufferObject obj);
+	SgrErrCode drawObject(std::string objName, uint32_t dynamicUBOAlignment);
 
 private:
 	bool sgrRunning;
@@ -118,8 +110,6 @@ private:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
-
-	void updateUniformBuffer() { ; }
 
 	SgrErrCode initSyncObjects();
 

@@ -25,6 +25,12 @@ void SGRalignedFree(void* data)
 #endif
 }
 
+
+float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
+{
+	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
+}
+
 std::vector<VkDescriptorSetLayoutBinding> createDescriptorSetLayoutBinding()
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding;
@@ -77,17 +83,10 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 	colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
 	colorDescr.offset = offsetof(Sgr2DVertex, color);
 
-	VkVertexInputAttributeDescription textureDescr;
-	textureDescr.binding = 0;
-	textureDescr.location = 2;
-	textureDescr.format = VK_FORMAT_R32G32_SFLOAT;
-	textureDescr.offset = offsetof(Sgr2DVertex, texCoord);
-
 	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 	vertexAttributeDescriptions.push_back(positionDescr);
 	vertexAttributeDescriptions.push_back(colorDescr);
-	vertexAttributeDescriptions.push_back(textureDescr);
-	return vertexAttributeDescriptions;
+	return vertexAttributeDescriptions; 
 }
 
 int main()
@@ -113,17 +112,17 @@ int main()
 	std::string objectName = "rectangle";
 	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
 	std::vector<Sgr2DVertex> obMeshVertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 	};
 
 	std::string obShaderVert = "SGRShaders/vertex.spv";
 	std::string obShaderFrag = "SGRShaders/fragment.spv";
 
-	UniformBufferObject objectsUBO;
-	std::string ob1Texture = "Textures/test_texture.jpg";
+	SgrUniformBufferObject objectsUBO;
+	std::string ob1Texture = "Textures/man.png";
 	std::string ob2Texture = "Textures/test_texture2.jpg";
 
 	// new object layout creating done. Next step - setup this data to SGR and add command to draw.
@@ -133,13 +132,13 @@ int main()
 	std::vector<VkVertexInputBindingDescription> bindInpDescr = createBindingDescr();
 	std::vector<VkVertexInputAttributeDescription> attDescr = createAttrDescr();
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewTypeObject(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, setLayoutBinding, bindInpDescr, attDescr);
+	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
 
 	SgrBuffer* uboBuffer = nullptr;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(UniformBufferObject));
+	SgrErrCode resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrUniformBufferObject));
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 	
@@ -148,9 +147,14 @@ int main()
 	if (resultCreateTextureImage != sgrOK)
 		return resultCreateTextureImage;
 
+	struct InstanceData {
+		glm::mat4 model;
+		glm::vec2 texCoord;
+		glm::vec2 texSize;
+	} instanceData;
 	SgrDynamicUniformBufferObject rectangles;
 	rectangles.instnaceCount = 2;
-	rectangles.instanceSize = sizeof(glm::mat4);
+	rectangles.instanceSize = sizeof(InstanceData);
 	MemoryManager::createDynamicUniformMemory(rectangles);
 	SgrBuffer* instanceUBO = nullptr;
 	resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize);
@@ -162,24 +166,63 @@ int main()
 	objectData.push_back((void*)(texture));
 	objectData.push_back((void*)(instanceUBO));
 
-	sgr_object1.updateDescriptorSets("rectangle", objectData);
+	sgr_object1.writeDescriptorSets("rectangle", objectData);
 
-	sgr_object1.setupUniformBuffers("rectangle", uboBuffer, instanceUBO);
+	sgr_object1.setupUniformBuffers(uboBuffer, instanceUBO);
 
-	glm::mat4* object1 = (glm::mat4*)((uint64_t)rectangles.data);
-	*object1 = glm::rotate(glm::mat4(1.0f), glm::radians(9.f), glm::vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4* object2 = (glm::mat4*)((uint64_t)rectangles.data + rectangles.dynamicAlignment);
-	*object2 = glm::translate(glm::mat4(1.f), glm::vec3(-0.2f, -0.2f, 0.f));
-	sgr_object1.updateDynamicUniformBuffer("rectangle", rectangles);
 
-	/*sgr_object1.updateUniformBuffer("rectange", ubo);*/
+	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
+	*model = glm::mat4(1.f);
+	glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
+	texCoord->x = 0.055;
+	texCoord->y = 0.125;
+	glm::vec2* texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4));
+	texSize->x = 0.222;
+	texSize->y = 0.5;
 
-	sgr_object1.drawObject("rectangle", 2);
+	model = (glm::mat4*)((uint64_t)rectangles.data + rectangles.dynamicAlignment);
+	*model = glm::mat4(1.f);
+	*model = glm::translate(*model, glm::vec3(0.5, 0.3, 0.f));
+	texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + rectangles.dynamicAlignment);
+	texCoord->x = 0.055;
+	texCoord->y = 0.375;
+	texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4) + rectangles.dynamicAlignment);
+	texSize->x = 0.222;
+	texSize->y = 0.5;
 
+	sgr_object1.updateDynamicUniformBuffer(rectangles);
+
+	SgrUniformBufferObject ubo;
+	ubo.view = glm::mat4(1.f);
+	ubo.view = glm::rotate(ubo.view, glm::radians(90.f), glm::vec3(0, 0, 1));
+	ubo.proj = glm::mat4(1.f);
+	sgr_object1.updateUniformBuffer(ubo);
+
+	sgr_object1.drawObject("rectangle", 0 * rectangles.dynamicAlignment);
+	sgr_object1.drawObject("rectangle", 1 * rectangles.dynamicAlignment);
+
+	SgrTime_t lastDraw = SgrTime::now();
 	while (sgr_object1.isSGRRunning()) {
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
+
+		if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
+			glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
+			texCoord->x += 0.111;
+			if (texCoord->x >= 1)
+				texCoord->x = 0.055;
+
+			texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + rectangles.dynamicAlignment);
+			texCoord->x += 0.111;
+			if (texCoord->x >= 1)
+				texCoord->x = 0.055;
+
+			lastDraw = SgrTime::now();
+			sgr_object1.updateDynamicUniformBuffer(rectangles);
+		}
+
+		sgr_object1.updateUniformBuffer(ubo);
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

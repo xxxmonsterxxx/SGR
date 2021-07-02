@@ -75,6 +75,16 @@ SgrErrCode MemoryManager::createBuffer(SgrBuffer*& buffer, VkDeviceSize size, Vk
     return sgrOK;
 }
 
+void MemoryManager::copyDataToBuffer(SgrBuffer* buffer, void* data)
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    void* tempDataPointer;
+    vkMapMemory(device, buffer->bufferMemory, 0, buffer->size, 0, &tempDataPointer);
+    memcpy(tempDataPointer, data, buffer->size);
+    vkUnmapMemory(device, buffer->bufferMemory);
+}
+
 SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDeviceSize size, void* data)
 {
     if (buffer != nullptr)
@@ -85,10 +95,7 @@ SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDevi
 
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 
-    void* tempDataPointer;
-    vkMapMemory(device, buffer->bufferMemory, 0, size, 0, &tempDataPointer);
-    memcpy(tempDataPointer, data, (size_t)size);
-    vkUnmapMemory(device, buffer->bufferMemory);
+    copyDataToBuffer(buffer, data);
 
     return sgrOK;
 }

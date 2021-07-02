@@ -5,7 +5,6 @@
 
 class SGR;
 class TextureManager;
-class SwapChainManager;
 
 struct SgrBuffer {
 	VkBuffer vkBuffer;
@@ -36,9 +35,9 @@ class MemoryManager {
 	SgrErrCode createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize size, void* indexData);
 
 	static void copyBufferToImage(SgrBuffer* buffer, SgrImage* image);
+	static void copyDataToBuffer(SgrBuffer* buffer, void* data);
 
 	std::vector<SgrBuffer*> allocatedBuffers;
-
 
 public:
 	static MemoryManager* get();

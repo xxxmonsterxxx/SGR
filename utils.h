@@ -26,10 +26,9 @@ using SgrTime_t = std::chrono::steady_clock::time_point;
 struct Sgr2DVertex {
 	glm::vec2 position;
 	glm::vec3 color;
-	glm::vec2 texCoord = glm::vec2(0.f);
 };
 
-struct UniformBufferObject {
+struct SgrUniformBufferObject {
 	glm::mat4 view = glm::mat4(1.f);
 	glm::mat4 proj = glm::mat4(1.f);
 };

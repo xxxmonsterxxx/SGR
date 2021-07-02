@@ -9,8 +9,6 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	sgrRunning = false;
 	window = nullptr;
 	applicationName = "Simple graphic application";
-	appVersionMajor = 1;
-	appVersionMinor = 0;
 	applicationName = appName;
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
@@ -236,7 +234,7 @@ SgrErrCode SGR::initVulkanInstance()
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = applicationName.c_str();
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.applicationVersion = VK_MAKE_VERSION(appVersionMajor, appVersionMinor, 0);
 	appInfo.pEngineName = "Simple Graphic Renderer";
 	appInfo.engineVersion = VK_MAKE_VERSION(this->engineVersionMajor, this->appVersionMinor, this->enginePatch);
 	appInfo.apiVersion = VK_API_VERSION_1_0;

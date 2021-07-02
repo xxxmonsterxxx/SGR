@@ -59,4 +59,8 @@ ShaderManager::SgrShader ShaderManager::getShadersByName(std::string name)
         if (shaders.name == name)
             return shaders;
     }
+
+    SgrShader emptyShaders;
+    emptyShaders.name = "empty";
+    return emptyShaders;
 }

@@ -29,6 +29,10 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	renderPassManager = RenderPassManager::get();
 	shaderManager = ShaderManager::get();
 
+	SgrObject emptyObject;
+	emptyObject.name = "empty";
+	objects.push_back(emptyObject);
+
 	currentFrame = 0;
 }
 
@@ -309,6 +313,8 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 		return initShaderResult;
 
 	ShaderManager::SgrShader objectShaders = shaderManager->getShadersByName(name);
+	if (objectShaders.name == "empty")
+		return sgrMissingShaders;
 
 	DescriptorManager::SgrDescriptorInfo newDescriptorInfo;
 	newDescriptorInfo.name = name;
@@ -330,6 +336,8 @@ SGR::SgrObject& SGR::findObjectByName(std::string name)
 		if (objects[i].name == name)
 			return objects[i];
 	}
+
+	return objects[0];
 }
 
 SgrErrCode SGR::setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO)
@@ -342,18 +350,26 @@ SgrErrCode SGR::setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO
 SgrErrCode SGR::drawObject(std::string objName, uint32_t dynamicUBOAlignment)
 {
 	SgrObject objectToDraw = findObjectByName(objName);
+	if (objectToDraw.name == "empty")
+		return sgrMissingObject;
 
 	PipelineManager::SgrPipeline objectPipeline = pipelineManager->instance->getPipelineByName(objName);
+	if (objectPipeline.name == "empty")
+		return sgrMissingPipeline;
+
 	commandManager->bindPipeline(objectPipeline.pipeline);
 	std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
 	commandManager->bindVertexBuffer(vertices);
 	commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
 
 	DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
+	if (descrInfo.name == "empty")
+		return sgrMissingDescriptorInfo;
+
 	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(dynamicUBOAlignment) };
 
 	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, i, descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
+		commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, static_cast<uint8_t>(i), descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
 
 	commandManager->drawIndexed(6, 1, 0, 0, 0);
 

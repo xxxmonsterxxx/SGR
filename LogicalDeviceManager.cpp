@@ -46,7 +46,7 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     createInfo.pEnabledFeatures = &sgrDevice.deviceFeatures;
 
     std::vector<const char*> enabledExtensions;
-    uint32_t enabledExtensionsCount = physDeviceManager->getEnabledExtensions()->size();
+    uint32_t enabledExtensionsCount = static_cast<uint32_t>(physDeviceManager->getEnabledExtensions()->size());
     for (uint8_t i = 0; i < enabledExtensionsCount; i++) {
         enabledExtensions.push_back(physDeviceManager->getEnabledExtensions()->at(i).c_str());
     }

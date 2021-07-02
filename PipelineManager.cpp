@@ -38,8 +38,8 @@ SgrErrCode PipelineManager::createPipeline( std::string name,
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = descriptorInfo.vertexBindingDescr.size();
-    vertexInputInfo.vertexAttributeDescriptionCount = descriptorInfo.vertexAttributeDescr.size();
+    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(descriptorInfo.vertexBindingDescr.size());
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(descriptorInfo.vertexAttributeDescr.size());
     vertexInputInfo.pVertexBindingDescriptions = descriptorInfo.vertexBindingDescr.data();
     vertexInputInfo.pVertexAttributeDescriptions = descriptorInfo.vertexAttributeDescr.data();
 
@@ -173,5 +173,9 @@ PipelineManager::SgrPipeline PipelineManager::getPipelineByName(std::string name
         if (pipeline.name == name)
             return pipeline;
     }
+
+    SgrPipeline emptyPipeline;
+    emptyPipeline.name = "empty";
+    return emptyPipeline;
 }
 

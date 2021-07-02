@@ -225,4 +225,6 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrDynamicUniformBufferObje
 #endif
 
     dynamicUBO.dataSize = dynamicUBO.instnaceCount * dynamicUBO.dynamicAlignment;
+
+    return sgrOK;
 }

@@ -136,7 +136,7 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
                 }
             }
         }
-        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, descriptorWrites[j].size(), descriptorWrites[j].data(), 0, nullptr);
+        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, static_cast<uint32_t>(descriptorWrites[j].size()), descriptorWrites[j].data(), 0, nullptr);
     }
 
     return sgrOK;

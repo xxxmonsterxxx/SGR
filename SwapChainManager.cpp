@@ -301,7 +301,7 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
     allocInfo.memoryTypeIndex = memoryFindedIndex;
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &image->memory) != VK_SUCCESS)
-        sgrAllocateMemoryError;
+        return sgrAllocateMemoryError;
 
     vkBindImageMemory(device, image->vkImage, image->memory, 0);
     return sgrOK;

@@ -68,7 +68,7 @@ private:
 	static SgrErrCode transitionImageLayout(SgrImage* image, VkImageLayout oldLayout, VkImageLayout newLayout);
 
 	VkSwapchainKHR swapChain;
-	SgrSwapChainDetails capabilities;
+	SgrSwapChainDetails details;
 	uint32_t imageCount;
 	std::vector<VkImage> images;
 	VkFormat imageFormat;

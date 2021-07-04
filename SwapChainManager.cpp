@@ -54,7 +54,7 @@ SgrSwapChainDetails SwapChainManager::querySwapChainDetails(VkPhysicalDevice dev
 
 void SwapChainManager::setSwapChainDeviceCapabilities(VkPhysicalDevice device)
 {
-    capabilities = querySwapChainDetails(device);
+    details = querySwapChainDetails(device);
 }
 
 void SwapChainManager::setupSwapChainProperties()
@@ -63,19 +63,19 @@ void SwapChainManager::setupSwapChainProperties()
 
     // choose surface color space format
     bool propertyChoosed = false;
-    for (const auto& availableFormat : capabilities.formats) {
+    for (const auto& availableFormat : details.formats) {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
             surfaceFormat = availableFormat;
             propertyChoosed = true;
         }
     }
     if (!propertyChoosed)
-        surfaceFormat = capabilities.formats[0];
+        surfaceFormat = details.formats[0];
 
 
     // choose present mode format
     propertyChoosed = false;
-    for (const auto& availablePresentMode : capabilities.presentModes) {
+    for (const auto& availablePresentMode : details.presentModes) {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             presentMode = availablePresentMode;
             propertyChoosed = true;
@@ -85,7 +85,7 @@ void SwapChainManager::setupSwapChainProperties()
         presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     // choose extend
-    VkSurfaceCapabilitiesKHR caps = capabilities.capabilities;
+    VkSurfaceCapabilitiesKHR caps = details.capabilities;
     if (caps.currentExtent.width != UINT32_MAX) {
         extent = caps.currentExtent;
     }
@@ -152,7 +152,7 @@ SgrErrCode SwapChainManager::initSwapChain()
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     }
 
-    createInfo.preTransform = capabilities.capabilities.currentTransform;
+    createInfo.preTransform = details.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;

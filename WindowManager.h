@@ -9,18 +9,18 @@ class WindowManager {
 
 private:
 	// default size of renderer's window
-	uint32_t windowWidth;
-	uint32_t windowHeight;
-	std::string windowName;
+	uint32_t width;
+	uint32_t height;
+	std::string name;
 
 	GLFWwindow* window; // render window. Now we have only one window to graphic render, but in future it could be some.
 
 	/**
 	 * Create window automatically or with arguments.
 	 * 
-	 * \param windowWidth
-	 * \param windowHeight
-	 * \param windowName
+	 * \param width
+	 * \param height
+	 * \param name
 	 * \return 
 	 */
 	SgrErrCode init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName);
@@ -29,7 +29,7 @@ private:
 	 * Init Window manually. There will be possibility to init own special window from outside.
 	 *
 	 * \param newWindow
-	 * \param windowName
+	 * \param name
 	 * \return
 	 */
 	SgrErrCode init(GLFWwindow* newWindow, const char* windowName);

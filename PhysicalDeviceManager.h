@@ -8,7 +8,7 @@ class MemoryManager;
 class TextureManager;
 
 struct SgrPhysicalDevice {
-	VkPhysicalDevice physDevice;
+	VkPhysicalDevice vkPhysDevice;
 	std::vector<VkQueueFamilyProperties> queueFamilies;
 	std::vector<VkExtensionProperties> extensions;
 	VkPhysicalDeviceFeatures deviceFeatures{};
@@ -18,7 +18,7 @@ struct SgrPhysicalDevice {
 
 	bool operator==(const SgrPhysicalDevice& comp) const
 	{
-		if (this->physDevice == comp.physDevice) {
+		if (this->vkPhysDevice == comp.vkPhysDevice) {
 			return true;
 		}
 		return false;

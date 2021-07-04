@@ -12,3 +12,11 @@ bld/
 
 # Visual Studio directory
 .vs/
+
+#CMake system
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+#Apple cache
+*.DS_Store

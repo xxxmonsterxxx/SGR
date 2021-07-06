@@ -54,7 +54,7 @@ SgrErrCode CommandManager::initCommandBuffers()
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
     if (vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
         return sgrInitCommandBuffersError;
@@ -85,6 +85,12 @@ SgrErrCode CommandManager::initCommandBuffers()
     }
 
     buffersEnded = false;
+    return sgrOK;
+}
+
+SgrErrCode CommandManager::freeCommandBuffers()
+{
+    vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     return sgrOK;
 }
 
@@ -123,15 +129,15 @@ void CommandManager::drawIndexed(uint32_t indexCount, uint32_t instanceCount, ui
     addCmdToBuffer(cmdBufferIndex, (Command*)newDrawIndexedCmd);
 }
 
-void CommandManager::bindDescriptorSet(VkPipelineLayout pipelineLayout, uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets)
+void CommandManager::bindDescriptorSet(VkPipelineLayout* pipelineLayout, uint8_t cmdBufferIndex, VkDescriptorSet descriptorSet, uint32_t firstSet, uint32_t descriptorSetCount, std::vector<uint32_t> dynamicOffsets)
 {
     BindDescriptorSetCommand* newBindDescriptorSetCmd = new BindDescriptorSetCommand(pipelineLayout, descriptorSet, firstSet, descriptorSetCount, dynamicOffsets);
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindDescriptorSetCmd);
 }
 
-void CommandManager::bindPipeline(VkPipeline pipeline, int16_t cmdBufferIndex)
+void CommandManager::bindPipeline(VkPipeline* sgrPipeline, int16_t cmdBufferIndex)
 {
-    BindPipelineCommand* newBindPipelineCmd = new BindPipelineCommand(pipeline);
+    BindPipelineCommand* newBindPipelineCmd = new BindPipelineCommand(sgrPipeline);
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindPipelineCmd);
 }
 

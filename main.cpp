@@ -151,7 +151,8 @@ int main()
 		glm::mat4 model;
 		glm::vec2 texCoord;
 		glm::vec2 texSize;
-	} instanceData;
+	};
+
 	SgrDynamicUniformBufferObject rectangles;
 	rectangles.instnaceCount = 2;
 	rectangles.instanceSize = sizeof(InstanceData);
@@ -169,7 +170,6 @@ int main()
 	sgr_object1.writeDescriptorSets("rectangle", objectData);
 
 	sgr_object1.setupUniformBuffers(uboBuffer, instanceUBO);
-
 
 	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
 	*model = glm::mat4(1.f);

@@ -23,6 +23,7 @@ private:
 	VkRenderPass renderPass;
 
 	SgrErrCode init();
+	SgrErrCode destroyRenderPass();
 public:
 	static RenderPassManager* get();
 };

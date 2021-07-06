@@ -34,16 +34,16 @@ SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 	windowName = "SGR";
 
 	if (windowWidth != 0)
-		this->windowWidth = windowWidth;
+		this->width = windowWidth;
 	if (windowHeight != 0)
-		this->windowHeight = windowHeight;
+		this->height = windowHeight;
 	if (std::string(windowName).length() != 0)
-		this->windowName = std::string(windowName);
+		this->name = std::string(windowName);
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	window = glfwCreateWindow(this->windowWidth, this->windowHeight, this->windowName.c_str(), nullptr, nullptr);
+	window = glfwCreateWindow(this->width, this->height, this->name.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
@@ -59,8 +59,8 @@ SgrErrCode WindowManager::init(GLFWwindow* newWindow, const char* windowName)
 		return sgrBadPointer;
 	}
 
-	glfwGetWindowSize(newWindow, (int*)(&windowWidth), (int*)&(windowHeight));
-	this->windowName = std::string(windowName);
+	glfwGetWindowSize(newWindow, (int*)(&width), (int*)&(height));
+	this->name = std::string(windowName);
 	window = newWindow;
 
 	return sgrOK;

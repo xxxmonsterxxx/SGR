@@ -46,7 +46,7 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     createInfo.pEnabledFeatures = &sgrDevice.deviceFeatures;
 
     std::vector<const char*> enabledExtensions;
-    uint32_t enabledExtensionsCount = physDeviceManager->getEnabledExtensions()->size();
+    uint32_t enabledExtensionsCount = static_cast<uint32_t>(physDeviceManager->getEnabledExtensions()->size());
     for (uint8_t i = 0; i < enabledExtensionsCount; i++) {
         enabledExtensions.push_back(physDeviceManager->getEnabledExtensions()->at(i).c_str());
     }
@@ -55,7 +55,7 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     createInfo.ppEnabledExtensionNames = enabledExtensions.data();
     createInfo.enabledLayerCount = 0;
 
-    if (vkCreateDevice(sgrDevice.physDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
+    if (vkCreateDevice(sgrDevice.vkPhysDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
         return sgrInitLogicalDeviceError;
 
     vkGetDeviceQueue(logicalDevice, sgrDevice.fixedGraphicsQueue.value(), 0, &graphicsQueue);

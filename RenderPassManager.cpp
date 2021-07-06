@@ -55,8 +55,14 @@ SgrErrCode RenderPassManager::init()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(LogicalDeviceManager::get()->getLogicalDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(LogicalDeviceManager::instance->logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
         return sgrInitRenderPassError;
 
 	return sgrOK;
+}
+
+SgrErrCode RenderPassManager::destroyRenderPass()
+{
+    vkDestroyRenderPass(LogicalDeviceManager::instance->logicalDevice, renderPass, nullptr);
+    return sgrOK;
 }

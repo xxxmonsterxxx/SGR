@@ -22,7 +22,7 @@ MemoryManager* MemoryManager::get()
 SgrErrCode MemoryManager::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags props, uint32_t& findedProps)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(PhysicalDeviceManager::instance->pickedPhysicalDevice.physDevice, &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(PhysicalDeviceManager::instance->pickedPhysicalDevice.vkPhysDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & props) == props) {
@@ -225,4 +225,6 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrDynamicUniformBufferObje
 #endif
 
     dynamicUBO.dataSize = dynamicUBO.instnaceCount * dynamicUBO.dynamicAlignment;
+
+    return sgrOK;
 }

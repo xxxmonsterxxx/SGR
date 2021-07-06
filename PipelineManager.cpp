@@ -5,7 +5,12 @@
 
 PipelineManager* PipelineManager::instance = nullptr;
 
-PipelineManager::PipelineManager() { ; }
+PipelineManager::PipelineManager() 
+{
+    SgrPipeline emptyPipeline;
+    emptyPipeline.name = "empty";
+    pipelines.push_back(emptyPipeline);
+}
 
 PipelineManager::~PipelineManager() { ; }
 
@@ -19,8 +24,18 @@ PipelineManager* PipelineManager::get()
 		return instance;
 }
 
-SgrErrCode PipelineManager::createPipeline( std::string name,
-                                            VkRenderPass renderPass, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo)
+SgrErrCode PipelineManager::createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo)
+{
+    SgrPipeline newPipline;
+    newPipline.name = name;
+    SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, newPipline);
+    if (resultCreatePipeline != sgrOK)
+        return resultCreatePipeline;
+    pipelines.push_back(newPipline);
+    return sgrOK;
+}
+
+SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo, SgrPipeline& sgrPipeline)
 {
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -38,8 +53,8 @@ SgrErrCode PipelineManager::createPipeline( std::string name,
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = descriptorInfo.vertexBindingDescr.size();
-    vertexInputInfo.vertexAttributeDescriptionCount = descriptorInfo.vertexAttributeDescr.size();
+    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(descriptorInfo.vertexBindingDescr.size());
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(descriptorInfo.vertexAttributeDescr.size());
     vertexInputInfo.pVertexBindingDescriptions = descriptorInfo.vertexBindingDescr.data();
     vertexInputInfo.pVertexAttributeDescriptions = descriptorInfo.vertexAttributeDescr.data();
 
@@ -106,10 +121,8 @@ SgrErrCode PipelineManager::createPipeline( std::string name,
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = descriptorInfo.setLayouts.data();
 
-    SgrPipeline newSgrPipeline;
-    newSgrPipeline.name = name;
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
-    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &newSgrPipeline.pipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &sgrPipeline.pipelineLayout) != VK_SUCCESS)
         return sgrInitPipelineLayoutError;
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -122,41 +135,22 @@ SgrErrCode PipelineManager::createPipeline( std::string name,
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = newSgrPipeline.pipelineLayout;
-    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.layout = sgrPipeline.pipelineLayout;
+    pipelineInfo.renderPass = RenderPassManager::instance->renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    VkPipeline newPipeline;
-    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newPipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &sgrPipeline.pipeline) != VK_SUCCESS)
         return sgrInitPipelineError;
-
-    newSgrPipeline.pipeline = newPipeline;
-
-    pipelines.push_back(newSgrPipeline);
-
-    return sgrOK;
-}
-
-SgrErrCode PipelineManager::destroyPipeline(std::string name)
-{
-    for (auto objPipeline : pipelines) {
-        if (objPipeline.name == name) {
-            vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipeline, nullptr);
-            vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipelineLayout, nullptr);
-            break;
-        }
-    }
 
     return sgrOK;
 }
 
 SgrErrCode PipelineManager::destroyAllPipelines()
 {
-    for (auto objPipeline : pipelines) {
-        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipeline, nullptr);
-        vkDestroyRenderPass(LogicalDeviceManager::instance->logicalDevice, RenderPassManager::instance->renderPass, nullptr);
-        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, objPipeline.pipelineLayout, nullptr);
+    for (size_t i = 0; i < pipelines.size(); i++) {
+        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, pipelines[i].pipeline, nullptr);
+        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, pipelines[i].pipelineLayout, nullptr);
     }
 
     return sgrOK;
@@ -164,14 +158,26 @@ SgrErrCode PipelineManager::destroyAllPipelines()
 
 SgrErrCode PipelineManager::reinitAllPipelines()
 {
+    size_t oldPipelineNum = pipelines.size();
+    for (size_t i = 0; i < oldPipelineNum; i++) {
+        if (pipelines[i].name == "empty")
+            continue;
+
+        SgrErrCode resultCreatePipline = createPipeline(ShaderManager::instance->getShadersByName(pipelines[i].name), DescriptorManager::instance->getDescriptorInfoByName(pipelines[i].name), pipelines[i]);
+        if (resultCreatePipline != sgrOK)
+            return sgrReinitPipelineError;
+    }
+
     return sgrOK;
 }
 
-PipelineManager::SgrPipeline PipelineManager::getPipelineByName(std::string name)
+PipelineManager::SgrPipeline* PipelineManager::getPipelineByName(std::string name)
 {
-    for (auto pipeline : pipelines) {
-        if (pipeline.name == name)
-            return pipeline;
+    for (size_t i = 0; i < pipelines.size(); i++) {
+        if (pipelines[i].name == name)
+            return &pipelines[i];
     }
+
+    return &pipelines[0];
 }
 

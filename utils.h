@@ -85,5 +85,9 @@ enum SgrErrCode
 	sgrIncorrectDescriptorWritesSize,
 	sgrIncorrectNumberBuffersForDescriptors,
 	sgrDoubleSettingVertices,
-	sgrDescrUpdateError
+	sgrDescrUpdateError,
+	sgrMissingShaders,
+	sgrMissingObject,
+	sgrMissingPipeline,
+	sgrMissingDescriptorInfo
 };

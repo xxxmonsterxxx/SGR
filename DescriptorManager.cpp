@@ -20,7 +20,7 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = descrInfo.setLayoutBinding.size();
+    layoutInfo.bindingCount = static_cast<uint32_t>(descrInfo.setLayoutBinding.size());
     layoutInfo.pBindings = descrInfo.setLayoutBinding.data();
 
     VkDescriptorSetLayout newLayout;
@@ -47,12 +47,14 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo)
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = poolSizes.size();
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
  
     if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrInfo.descriptorPool) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorPoolError;
+
+    return sgrOK;
 }
 
 SgrErrCode DescriptorManager::createDescriptorSets(SgrDescriptorInfo& descrInfo)
@@ -97,22 +99,25 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
     std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites = createDescriptorSetWrites(descriptorInfos[i]);
 
     for (size_t j = 0; j < descriptorWrites.size(); j++) {
+
+        VkDescriptorBufferInfo uboBufferInfo{};
+        VkDescriptorImageInfo imageInfo{};
+        VkDescriptorBufferInfo dynamicUboBufferInfo{};
+
         for (size_t k = 0; k < descriptorWrites[j].size(); k++) {
             VkWriteDescriptorSet& descriptorWriteForSetOneBinding = descriptorWrites[j][k];
             switch (descriptorWriteForSetOneBinding.descriptorType) {
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                 {
-                    VkDescriptorBufferInfo bufferInfo{};
-                    bufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
-                    bufferInfo.offset = 0;
-                    bufferInfo.range = ((SgrBuffer*)data[k])->size;
+                    uboBufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
+                    uboBufferInfo.offset = 0;
+                    uboBufferInfo.range = ((SgrBuffer*)data[k])->size;
 
-                    descriptorWriteForSetOneBinding.pBufferInfo = &bufferInfo;
+                    descriptorWriteForSetOneBinding.pBufferInfo = &uboBufferInfo;
                     break;
                 }
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                {
-                    VkDescriptorImageInfo imageInfo{};
+                {   
                     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                     imageInfo.imageView = ((SgrImage*)data[k])->view;
                     imageInfo.sampler = ((SgrImage*)data[k])->sampler;
@@ -121,18 +126,17 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
                     break;
                 }
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                {
-                    VkDescriptorBufferInfo bufferInfo{};
-                    bufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
-                    bufferInfo.offset = 0;
-                    bufferInfo.range = ((SgrBuffer*)data[k])->size;
+                {   
+                    dynamicUboBufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
+                    dynamicUboBufferInfo.offset = 0;
+                    dynamicUboBufferInfo.range = ((SgrBuffer*)data[k])->size;
 
-                    descriptorWriteForSetOneBinding.pBufferInfo = &bufferInfo;
+                    descriptorWriteForSetOneBinding.pBufferInfo = &dynamicUboBufferInfo;
                     break;
                 }
             }
         }
-        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, descriptorWrites[j].size(), descriptorWrites[j].data(), 0, nullptr);
+        vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, static_cast<uint32_t>(descriptorWrites[j].size()), descriptorWrites[j].data(), 0, nullptr);
     }
 
     return sgrOK;
@@ -167,4 +171,8 @@ DescriptorManager::SgrDescriptorInfo DescriptorManager::getDescriptorInfoByName(
         if (descriptorInfos[i].name == name)
             return descriptorInfos[i];
     }
+
+    SgrDescriptorInfo emptyDescriptorInfo;
+    emptyDescriptorInfo.name = "empty";
+    return emptyDescriptorInfo;
 }

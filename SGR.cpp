@@ -135,6 +135,7 @@ SgrErrCode SGR::drawFrame()
 	VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		unbindAllMeshesAndPiplines();
 		SgrErrCode reinitSwapChain = swapChainManager->reinitSwapChain();
 		if (reinitSwapChain != sgrOK) {
 			return reinitSwapChain;
@@ -187,6 +188,7 @@ SgrErrCode SGR::drawFrame()
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->windowResized) {
 		windowManager->windowResized = false;
+		unbindAllMeshesAndPiplines();
 		swapChainManager->reinitSwapChain();
 	}
 	else if (result != VK_SUCCESS) {
@@ -323,7 +325,7 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 	newDescriptorInfo.setLayoutBinding = setDescriptorSetsLayoutBinding;
 	descriptorManager->addNewDescriptorInfo(newDescriptorInfo);
 
-	pipelineManager->createPipeline(name, RenderPassManager::instance->renderPass, objectShaders, newDescriptorInfo);
+	pipelineManager->createAndAddPipeline(name, objectShaders, newDescriptorInfo);
 
 	objects.push_back(newObject);
 
@@ -347,20 +349,29 @@ SgrErrCode SGR::setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO
 	return sgrOK;
 }
 
+void SGR::unbindAllMeshesAndPiplines()
+{
+	for (size_t i = 0; i < objects.size(); i++)
+		objects[i].meshDataAndPiplineBinded = false;
+}
+
 SgrErrCode SGR::drawObject(std::string objName, uint32_t dynamicUBOAlignment)
 {
-	SgrObject objectToDraw = findObjectByName(objName);
+	SgrObject& objectToDraw = findObjectByName(objName);
 	if (objectToDraw.name == "empty")
 		return sgrMissingObject;
 
-	PipelineManager::SgrPipeline objectPipeline = pipelineManager->instance->getPipelineByName(objName);
-	if (objectPipeline.name == "empty")
+	PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(objName);
+	if (objectPipeline->name == "empty")
 		return sgrMissingPipeline;
 
-	commandManager->bindPipeline(objectPipeline.pipeline);
-	std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
-	commandManager->bindVertexBuffer(vertices);
-	commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
+	if (!objectToDraw.meshDataAndPiplineBinded) {
+		commandManager->bindPipeline(&objectPipeline->pipeline);
+		std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
+		commandManager->bindVertexBuffer(vertices);
+		commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
+		objectToDraw.meshDataAndPiplineBinded = true;
+	}
 
 	DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
 	if (descrInfo.name == "empty")
@@ -369,7 +380,7 @@ SgrErrCode SGR::drawObject(std::string objName, uint32_t dynamicUBOAlignment)
 	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(dynamicUBOAlignment) };
 
 	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(objectPipeline.pipelineLayout, static_cast<uint8_t>(i), descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
+		commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
 
 	commandManager->drawIndexed(6, 1, 0, 0, 0);
 

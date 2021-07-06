@@ -5,7 +5,7 @@ PhysicalDeviceManager* PhysicalDeviceManager::instance = nullptr;
 
 PhysicalDeviceManager::PhysicalDeviceManager() 
 {
-    pickedPhysicalDevice.physDevice = VK_NULL_HANDLE;
+    pickedPhysicalDevice.vkPhysDevice = VK_NULL_HANDLE;
 }
 
 PhysicalDeviceManager::~PhysicalDeviceManager() { ; }
@@ -40,7 +40,7 @@ SgrErrCode PhysicalDeviceManager::init(VkInstance instance)
         vkGetPhysicalDeviceProperties(device, &deviceProp);
         printf("\n%s", deviceProp.deviceName);
         SgrPhysicalDevice newDeviceWithProp;
-        newDeviceWithProp.physDevice = device;
+        newDeviceWithProp.vkPhysDevice = device;
 
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -71,7 +71,7 @@ bool PhysicalDeviceManager::isSupportRequiredQueuesAndSurface(SgrPhysicalDevice&
                     device.fixedGraphicsQueue = queueIndex;
             }
             if (surface != nullptr && !device.fixedPresentQueue.has_value()) {
-                vkGetPhysicalDeviceSurfaceSupportKHR(device.physDevice, queueIndex, *surface, &surfaceSupport);
+                vkGetPhysicalDeviceSurfaceSupportKHR(device.vkPhysDevice, queueIndex, *surface, &surfaceSupport);
                 if (surfaceSupport)
                     device.fixedPresentQueue = queueIndex;
             }
@@ -106,7 +106,7 @@ bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device
 
 bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice)
 {
-    SgrSwapChainDetails deviceSwapChainDetails = SwapChainManager::instance->querySwapChainDetails(sgrDevice.physDevice);
+    SgrSwapChainDetails deviceSwapChainDetails = SwapChainManager::instance->querySwapChainDetails(sgrDevice.vkPhysDevice);
     if (!deviceSwapChainDetails.formats.empty() && !deviceSwapChainDetails.presentModes.empty())
         return true;
 
@@ -116,7 +116,7 @@ bool PhysicalDeviceManager::isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevic
 bool PhysicalDeviceManager::isSupportSamplerAnisotropy(SgrPhysicalDevice sgrDevice)
 {
     VkPhysicalDeviceFeatures supportedFeatures;
-    vkGetPhysicalDeviceFeatures(sgrDevice.physDevice, &supportedFeatures);
+    vkGetPhysicalDeviceFeatures(sgrDevice.vkPhysDevice, &supportedFeatures);
     if (supportedFeatures.samplerAnisotropy)
         return true;
 
@@ -132,7 +132,7 @@ SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
             isSupportAnySwapChainMode(physDev) &&
             isSupportSamplerAnisotropy(physDev)) {
                 pickedPhysicalDevice = physDev;
-                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.physDevice, &pickedPhysicalDevice.props);
+                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.vkPhysDevice, &pickedPhysicalDevice.props);
                 return sgrOK;
         }
     }
@@ -149,7 +149,7 @@ SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
             isSupportAnySwapChainMode(physDev)) {
                 pickedPhysicalDevice = physDev;
                 enabledExtensions = requiredExtensions;
-                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.physDevice, &pickedPhysicalDevice.props);
+                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.vkPhysDevice, &pickedPhysicalDevice.props);
                 return sgrOK;
         }
     }

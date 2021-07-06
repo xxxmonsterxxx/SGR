@@ -9,6 +9,7 @@ class PipelineManager;
 class DescriptorManager;
 class CommandManager;
 class TextureManager;
+class RenderPassManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
@@ -18,6 +19,7 @@ class LogicalDeviceManager {
 	friend class DescriptorManager;
 	friend class CommandManager;
 	friend class TextureManager;
+	friend class RenderPassManager;
 
 public:
 

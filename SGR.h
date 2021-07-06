@@ -22,6 +22,7 @@ public:
 		std::string name;
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
+		bool meshDataAndPiplineBinded = false;
 	};
 
 	SgrBuffer* UBO;
@@ -71,6 +72,7 @@ public:
 	SgrErrCode updateUniformBuffer(SgrUniformBufferObject obj);
 
 	SgrErrCode drawObject(std::string objName, uint32_t dynamicUBOAlignment);
+	void unbindAllMeshesAndPiplines();
 
 private:
 	const uint8_t engineVersionMajor = 0;

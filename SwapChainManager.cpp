@@ -59,7 +59,7 @@ void SwapChainManager::setSwapChainDeviceCapabilities(VkPhysicalDevice device)
 
 void SwapChainManager::setupSwapChainProperties()
 {
-    setSwapChainDeviceCapabilities(PhysicalDeviceManager::instance->pickedPhysicalDevice.physDevice);
+    setSwapChainDeviceCapabilities(PhysicalDeviceManager::instance->pickedPhysicalDevice.vkPhysDevice);
 
     // choose surface color space format
     bool propertyChoosed = false;
@@ -182,10 +182,11 @@ SgrErrCode SwapChainManager::cleanOldSwapChain()
         vkDestroyFramebuffer(device, framebuffers[i], nullptr);
     }
 
-    vkFreeCommandBuffers(device, CommandManager::instance->commandPool, static_cast<uint32_t>(CommandManager::instance->commandBuffers.size()), CommandManager::instance->commandBuffers.data());
+    CommandManager::instance->freeCommandBuffers();
 
     PipelineManager::instance->destroyAllPipelines();
-    vkDestroyRenderPass(device, RenderPassManager::instance->renderPass, nullptr);
+
+    RenderPassManager::instance->destroyRenderPass();
 
     for (size_t i = 0; i < imageViews.size(); i++) {
         vkDestroyImageView(device, imageViews[i], nullptr);
@@ -205,6 +206,9 @@ SgrErrCode SwapChainManager::reinitSwapChain()
 
     if (initSwapChain() != sgrOK)
         return sgrReinitSwapChainError;
+
+    if (RenderPassManager::instance->init() != sgrOK)
+        return sgrReinitRenderPassError;
 
     if (PipelineManager::instance->reinitAllPipelines() != sgrOK)
         return sgrReinitPipelineError;
@@ -301,7 +305,7 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
     allocInfo.memoryTypeIndex = memoryFindedIndex;
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &image->memory) != VK_SUCCESS)
-        sgrAllocateMemoryError;
+        return sgrAllocateMemoryError;
 
     vkBindImageMemory(device, image->vkImage, image->memory, 0);
     return sgrOK;

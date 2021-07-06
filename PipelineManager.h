@@ -16,6 +16,15 @@ class PipelineManager {
 	friend class SwapChainManager;
 	friend class BindDescriptorSetCommand;
 
+public:
+	struct SgrPipeline {
+		std::string name = "empty";
+		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+		VkPipeline pipeline = VK_NULL_HANDLE;
+	};
+
+	static PipelineManager* get();
+
 private:
 	PipelineManager();
 	~PipelineManager();
@@ -23,21 +32,13 @@ private:
 	PipelineManager operator=(PipelineManager&) = delete;
 	static PipelineManager* instance;
 
-	struct SgrPipeline {
-		std::string name;
-		VkPipelineLayout pipelineLayout;
-		VkPipeline pipeline;
-	};
-
 	std::vector<SgrPipeline> pipelines;
 
-	SgrErrCode createPipeline(  std::string name, VkRenderPass renderPass,
-								ShaderManager::SgrShader objectShaders, 
-								DescriptorManager::SgrDescriptorInfo descriptorInfo);
-	SgrErrCode destroyPipeline(std::string name);
+	SgrErrCode createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo);
+	SgrErrCode createPipeline(ShaderManager::SgrShader objectShaders, 
+							  DescriptorManager::SgrDescriptorInfo descriptorInfo,
+							  SgrPipeline& sgrPipeline);
 	SgrErrCode destroyAllPipelines();
 	SgrErrCode reinitAllPipelines();
-	SgrPipeline getPipelineByName(std::string name);
-public:
-	static PipelineManager* get();
+	SgrPipeline* getPipelineByName(std::string name);
 };

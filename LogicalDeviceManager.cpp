@@ -55,7 +55,7 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     createInfo.ppEnabledExtensionNames = enabledExtensions.data();
     createInfo.enabledLayerCount = 0;
 
-    if (vkCreateDevice(sgrDevice.physDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
+    if (vkCreateDevice(sgrDevice.vkPhysDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
         return sgrInitLogicalDeviceError;
 
     vkGetDeviceQueue(logicalDevice, sgrDevice.fixedGraphicsQueue.value(), 0, &graphicsQueue);

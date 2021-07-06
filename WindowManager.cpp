@@ -46,6 +46,7 @@ SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 	window = glfwCreateWindow(this->width, this->height, this->name.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetWindowAspectRatio(window, 1, 1);
 
 	if (window == nullptr)
 		return sgrInitWindowError;

@@ -13,6 +13,9 @@ bld/
 # Visual Studio directory
 .vs/
 
+# Visual Studio Code directory
+.vscode/
+
 #CMake system
 CMakeFiles/
 CMakeCache.txt

@@ -134,6 +134,8 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
                     descriptorWriteForSetOneBinding.pBufferInfo = &dynamicUboBufferInfo;
                     break;
                 }
+                default:
+                    return sgrUnknownVkDescriptorType;
             }
         }
         vkUpdateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, static_cast<uint32_t>(descriptorWrites[j].size()), descriptorWrites[j].data(), 0, nullptr);

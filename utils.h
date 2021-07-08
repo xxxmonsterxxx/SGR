@@ -89,5 +89,6 @@ enum SgrErrCode
 	sgrMissingShaders,
 	sgrMissingObject,
 	sgrMissingPipeline,
-	sgrMissingDescriptorInfo
+	sgrMissingDescriptorInfo,
+	sgrUnknownVkDescriptorType
 };

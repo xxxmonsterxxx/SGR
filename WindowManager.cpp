@@ -1,13 +1,18 @@
 #include "WindowManager.h"
+#include "SGR.h"
 
 
-static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+void WindowManager::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
 	if (width == 0 || height == 0)
 		app->windowMinimized = true;
 	else {
 		app->windowResized = true;
 		app->windowMinimized = false;
+		if (app->getParrentSGRptr()) {
+			app->requestUpdateSwapChain();
+			app->getParrentSGRptr()->drawFrame();
+		}
 	}
 }
 
@@ -30,7 +35,7 @@ WindowManager* WindowManager::get()
 SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName)
 {
 	windowWidth = 800;
-	windowHeight = 600;
+	windowHeight = 800;
 	windowName = "SGR";
 
 	if (windowWidth != 0)
@@ -65,6 +70,17 @@ SgrErrCode WindowManager::init(GLFWwindow* newWindow, const char* windowName)
 	window = newWindow;
 
 	return sgrOK;
+}
+
+void WindowManager::setAspectRatio(uint8_t x, uint8_t y)
+{
+	glfwSetWindowAspectRatio(window, x, y);
+}
+
+void WindowManager::requestUpdateSwapChain()
+{
+	SwapChainManager::instance->reinitSwapChain();
+	windowResized = false;
 }
 
 void WindowManager::destroy()

@@ -1,31 +1,6 @@
 #include "SGR.h"
 #include "iostream"
 
-// Wrapper functions for aligned memory allocation
-	// There is currently no standard for this in C++ that works across all platforms and vendors, so we abstract this
-void* SGRalignedAlloc(size_t size, size_t alignment)
-{
-	void* data = nullptr;
-#if defined(_MSC_VER) || defined(__MINGW32__)
-	data = _aligned_malloc(size, alignment);
-#else
-	int res = posix_memalign(&data, alignment, size);
-	if (res != 0)
-		data = nullptr;
-#endif
-	return data;
-}
-
-void SGRalignedFree(void* data)
-{
-#if	defined(_MSC_VER) || defined(__MINGW32__)
-	_aligned_free(data);
-#else
-	free(data);
-#endif
-}
-
-
 float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
 {
 	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
@@ -89,11 +64,37 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 	return vertexAttributeDescriptions; 
 }
 
+
+
+SGR sgr_object1;
+
+SgrTime_t lastDraw = SgrTime::now();
+SgrDynamicUniformBufferObject rectangles;
+SgrUniformBufferObject ubo;
+
+void updateData() {
+	if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
+		glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
+		texCoord->x += 0.111;
+		if (texCoord->x >= 1)
+			texCoord->x = 0.055;
+
+		texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + rectangles.dynamicAlignment);
+		texCoord->x += 0.111;
+		if (texCoord->x >= 1)
+			texCoord->x = 0.055;
+
+		lastDraw = SgrTime::now();
+		sgr_object1.updateDynamicUniformBuffer(rectangles);
+	}
+
+	sgr_object1.updateUniformBuffer(ubo);
+};
+
 int main()
 {
 	// This source code is example for using SGR library
 
-	SGR sgr_object1;
 	
 	SgrErrCode resultSGRInit = sgr_object1.init();
 	if (resultSGRInit != sgrOK) {
@@ -153,7 +154,7 @@ int main()
 		glm::vec2 texSize;
 	};
 
-	SgrDynamicUniformBufferObject rectangles;
+
 	rectangles.instnaceCount = 2;
 	rectangles.instanceSize = sizeof(InstanceData);
 	MemoryManager::createDynamicUniformMemory(rectangles);
@@ -192,7 +193,6 @@ int main()
 
 	sgr_object1.updateDynamicUniformBuffer(rectangles);
 
-	SgrUniformBufferObject ubo;
 	ubo.view = glm::mat4(1.f);
 	ubo.view = glm::rotate(ubo.view, glm::radians(90.f), glm::vec3(0, 0, 1));
 	ubo.proj = glm::mat4(1.f);
@@ -201,28 +201,11 @@ int main()
 	sgr_object1.drawObject("rectangle", 0 * rectangles.dynamicAlignment);
 	sgr_object1.drawObject("rectangle", 1 * rectangles.dynamicAlignment);
 
-	SgrTime_t lastDraw = SgrTime::now();
+	sgr_object1.setUpdateFunction(updateData);
 	while (sgr_object1.isSGRRunning()) {
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
-
-		if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
-			glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
-			texCoord->x += 0.111;
-			if (texCoord->x >= 1)
-				texCoord->x = 0.055;
-
-			texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + rectangles.dynamicAlignment);
-			texCoord->x += 0.111;
-			if (texCoord->x >= 1)
-				texCoord->x = 0.055;
-
-			lastDraw = SgrTime::now();
-			sgr_object1.updateDynamicUniformBuffer(rectangles);
-		}
-
-		sgr_object1.updateUniformBuffer(ubo);
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

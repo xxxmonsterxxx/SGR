@@ -13,6 +13,12 @@ private:
 	uint32_t height;
 	std::string name;
 
+	SGR* _parrentSgr = nullptr;
+
+	float aspectRatioX = 1;
+	float aspectRatioY = 1;
+	void setAspectRatio(uint8_t x, uint8_t y);
+
 	GLFWwindow* window; // render window. Now we have only one window to graphic render, but in future it could be some.
 
 	/**
@@ -33,6 +39,10 @@ private:
 	 * \return
 	 */
 	SgrErrCode init(GLFWwindow* newWindow, const char* windowName);
+	void setSgrPtr(SGR* parrentSGR) { _parrentSgr = parrentSGR; }
+
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	void requestUpdateSwapChain();
 
 	void destroy();
 
@@ -50,4 +60,5 @@ public:
 	static WindowManager* get();
 	bool windowResized = false;
 	bool windowMinimized = false;
+	SGR* getParrentSGRptr() { return _parrentSgr; }
 };

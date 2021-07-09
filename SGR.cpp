@@ -93,6 +93,8 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 		return resultInitSemaphores;
 
 	sgrRunning = true;
+	startRunning = SgrTime::now();
+	windowManager->setSgrPtr(this);
 
 	return sgrOK;
 }
@@ -119,8 +121,15 @@ SgrErrCode SGR::initSGRWindow(GLFWwindow* newWindow, const char* windowName)
 	return resultCreateWindow;
 }
 
+void SGR::setAspectRatio(uint8_t x, uint8_t y)
+{
+	windowManager->setAspectRatio(x, y);
+}
+
 SgrErrCode SGR::drawFrame()
 {
+	drawDataUpdate();
+
 	if (!commandManager->buffersEnded)
 		commandManager->endInitCommandBuffers();
 

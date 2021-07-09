@@ -32,7 +32,13 @@ public:
 	~SGR(); 
 
 	bool isSGRRunning();
+
+	void (*drawDataUpdate)() = nullptr;
+	void setUpdateFunction(void (*dataUpdateFunc)()) { drawDataUpdate = dataUpdateFunc; }
+
 	SgrErrCode drawFrame();
+
+	void setAspectRatio(uint8_t x, uint8_t y);
 
 	/**
 	 * Init SGR and create window automatically or with arguments.
@@ -80,6 +86,7 @@ private:
 	const uint8_t enginePatch = 1;
 
 	bool sgrRunning;
+	SgrTime_t startRunning;
 
 	std::string applicationName;
 	uint8_t appVersionMajor;
@@ -87,7 +94,7 @@ private:
 
 	WindowManager* windowManager;
 	bool manualWindow;
-	GLFWwindow* window;
+	GLFWwindow* window = nullptr;
 
 	VkInstance vulkanInstance;
 

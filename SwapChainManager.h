@@ -7,6 +7,7 @@ class PhysicalDeviceManager;
 class CommandManager;
 class DescriptorManager;
 class TextureManager;
+class WindowManager;
 
 struct SgrSwapChainDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
@@ -33,6 +34,7 @@ class SwapChainManager {
 	friend class CommandManager;
 	friend class DescriptorManager;
 	friend class TextureManager;
+	friend class WindowManager;
 
 public:
 	static SwapChainManager* get();

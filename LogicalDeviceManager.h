@@ -34,6 +34,8 @@ private:
 
 	static LogicalDeviceManager* instance;
 
+	void destroy();
+
 	VkDevice logicalDevice;
 
 	VkQueue graphicsQueue;

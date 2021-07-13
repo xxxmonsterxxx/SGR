@@ -66,3 +66,9 @@ SgrErrCode RenderPassManager::destroyRenderPass()
     vkDestroyRenderPass(LogicalDeviceManager::instance->logicalDevice, renderPass, nullptr);
     return sgrOK;
 }
+
+void RenderPassManager::destroy()
+{
+    destroyRenderPass();
+    delete instance;
+}

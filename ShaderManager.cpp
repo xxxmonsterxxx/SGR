@@ -45,11 +45,24 @@ SgrErrCode ShaderManager::createShaders(std::string name, std::string vertexShad
 
 SgrErrCode ShaderManager::destroyShaders(std::string name)
 {
-    return sgrOK;
+    VkDevice device = LogicalDeviceManager::get()->getLogicalDevice();
+    for (size_t i = 0; i < objectShaders.size(); i++) {
+        if (objectShaders[i].name == name) {
+            vkDestroyShaderModule(device, objectShaders[i].vkShaders.vertex, nullptr);
+            vkDestroyShaderModule(device, objectShaders[i].vkShaders.fragment, nullptr);
+            objectShaders.erase(objectShaders.begin() + i);
+            return sgrOK;
+        }
+    }
+    return sgrShaderToDeleteNotFound;
 }
 
 SgrErrCode ShaderManager::destroyAllShaders()
 {
+    for (auto shader : objectShaders) {
+        destroyShaders(shader.name);
+    }
+    
     return sgrOK;
 }
 
@@ -63,4 +76,10 @@ ShaderManager::SgrShader ShaderManager::getShadersByName(std::string name)
     SgrShader emptyShaders;
     emptyShaders.name = "empty";
     return emptyShaders;
+}
+
+void ShaderManager::destroy()
+{
+    destroyAllShaders();
+    delete instance;
 }

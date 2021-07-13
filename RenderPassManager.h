@@ -24,6 +24,8 @@ private:
 
 	SgrErrCode init();
 	SgrErrCode destroyRenderPass();
+
+	void destroy();
 public:
 	static RenderPassManager* get();
 };

@@ -62,3 +62,9 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     vkGetDeviceQueue(logicalDevice, sgrDevice.fixedPresentQueue.value(), 0, &presentQueue);
     return sgrOK;
 }
+
+void LogicalDeviceManager::destroy()
+{
+    vkDestroyDevice(logicalDevice, nullptr);
+    delete instance;
+}

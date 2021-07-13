@@ -101,9 +101,24 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 SgrErrCode SGR::destroy()
 {
-	vkDeviceWaitIdle(logicalDeviceManager->logicalDevice);
+	VkDevice device = logicalDeviceManager->logicalDevice;
+
+	vkDeviceWaitIdle(device);
+
+	for (uint8_t i = 0; i < maxFrameInFlight; i++) {
+		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+    	vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+		vkDestroyFence(device, inFlightFences[i], nullptr);
+	}
+
+	shaderManager->destroy();
+	commandManager->destroy();
+	renderPassManager->destroy();
+	swapChainManager->destroy(vulkanInstance);
+	logicalDeviceManager->destroy();
+	physicalDeviceManager->destroy();
+	vkDestroyInstance(vulkanInstance, nullptr);
 	windowManager->destroy();
-	glfwTerminate();
 
 	return sgrOK;
 }

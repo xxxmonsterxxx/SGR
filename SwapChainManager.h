@@ -13,6 +13,11 @@ struct SgrSwapChainDetails {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
+
+	void destroy() {
+		this->formats.clear();
+		this->presentModes.clear();
+	}
 };
 
 struct SgrImage {
@@ -38,7 +43,6 @@ class SwapChainManager {
 
 public:
 	static SwapChainManager* get();
-	static void destroy();
 
 	SgrSwapChainDetails querySwapChainDetails(VkPhysicalDevice device);
 	VkExtent2D getExtent();
@@ -51,6 +55,8 @@ private:
 	SwapChainManager& operator=(const SwapChainManager&) = delete;
 
 	static SwapChainManager* instance;
+
+	void destroy(VkInstance instance);
 
 	void setSwapChainDeviceCapabilities(VkPhysicalDevice device);
 	SgrErrCode initSwapChain();

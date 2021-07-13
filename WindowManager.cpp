@@ -86,4 +86,7 @@ void WindowManager::requestUpdateSwapChain()
 void WindowManager::destroy()
 {
 	glfwDestroyWindow(window);
+	glfwTerminate();
+	_parrentSgr = nullptr;
+	delete instance;
 }

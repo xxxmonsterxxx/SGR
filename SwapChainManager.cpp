@@ -22,8 +22,21 @@ SwapChainManager* SwapChainManager::get()
     }
 }
 
-void SwapChainManager::destroy()
+void SwapChainManager::destroy(VkInstance vKInstance)
 {
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    for (size_t i = 0; i < framebuffers.size(); i++) {
+        vkDestroyFramebuffer(device, framebuffers[i], nullptr);
+    }
+    
+    for (size_t i = 0; i < imageViews.size(); i++) {
+        vkDestroyImageView(device, imageViews[i], nullptr);
+    }
+
+    images.clear();
+    details.destroy();
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
+    vkDestroySurfaceKHR(vKInstance, surface, nullptr);
     delete instance;
 }
 

@@ -165,3 +165,10 @@ std::vector<std::string>* PhysicalDeviceManager::getEnabledExtensions()
 {
     return &enabledExtensions;
 }
+
+void PhysicalDeviceManager::destroy()
+{
+    enabledExtensions.clear();
+    physicalDevices.clear();
+    delete instance;
+}

@@ -54,6 +54,8 @@ private:
 										 std::vector<std::string> requiredExtensions,
 										 VkSurfaceKHR surface);
 
+	void destroy();
+
 	PhysicalDeviceManager();
 	~PhysicalDeviceManager();
 	PhysicalDeviceManager(const PhysicalDeviceManager&) = delete;

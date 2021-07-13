@@ -90,5 +90,6 @@ enum SgrErrCode
 	sgrMissingObject,
 	sgrMissingPipeline,
 	sgrMissingDescriptorInfo,
-	sgrUnknownVkDescriptorType
+	sgrUnknownVkDescriptorType,
+	sgrShaderToDeleteNotFound
 };

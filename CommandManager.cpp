@@ -208,3 +208,13 @@ void CommandManager::endSingleTimeCommands(VkCommandBuffer cmdBuffer)
 
     vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, 1, &cmdBuffer);
 }
+
+void CommandManager::destroy()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    commands.clear();
+    freeCommandBuffers();
+    commandBuffers.clear();
+    vkDestroyCommandPool(device, commandPool, nullptr);
+    delete instance;
+}

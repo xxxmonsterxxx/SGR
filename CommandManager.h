@@ -48,4 +48,6 @@ private:
 
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer cmdBuffer);
+
+	void destroy();
 };

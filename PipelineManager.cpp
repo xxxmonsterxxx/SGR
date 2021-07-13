@@ -40,13 +40,13 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = objectShaders.shaders.vertex;
+    vertShaderStageInfo.module = objectShaders.vkShaders.vertex;
     vertShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = objectShaders.shaders.fragment;
+    fragShaderStageInfo.module = objectShaders.vkShaders.fragment;
     fragShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };

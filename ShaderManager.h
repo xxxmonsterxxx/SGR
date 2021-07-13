@@ -23,7 +23,7 @@ private:
 
 	struct SgrShader {
 		std::string name;
-		SgrShaderPack shaders;
+		SgrShaderPack vkShaders;
 	};
 
 	std::vector<SgrShader> objectShaders;
@@ -32,6 +32,8 @@ private:
 	SgrErrCode destroyShaders(std::string name);
 	SgrErrCode destroyAllShaders();
 	SgrShader getShadersByName(std::string name);
+
+	void destroy();
 
 public:
 	static ShaderManager* get();

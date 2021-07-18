@@ -111,395 +111,368 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named SGR_test
+# Target rules for targets named SGR
 
 # Build rule for target.
-SGR_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 SGR_test
-.PHONY : SGR_test
+SGR: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 SGR
+.PHONY : SGR
 
 # fast build rule for target.
-SGR_test/fast:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/build
-.PHONY : SGR_test/fast
+SGR/fast:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/build
+.PHONY : SGR/fast
 
-CommandManager.o: CommandManager.cpp.o
+src/CommandManager.o: src/CommandManager.cpp.o
 
-.PHONY : CommandManager.o
-
-# target to build an object file
-CommandManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/CommandManager.cpp.o
-.PHONY : CommandManager.cpp.o
-
-CommandManager.i: CommandManager.cpp.i
-
-.PHONY : CommandManager.i
-
-# target to preprocess a source file
-CommandManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/CommandManager.cpp.i
-.PHONY : CommandManager.cpp.i
-
-CommandManager.s: CommandManager.cpp.s
-
-.PHONY : CommandManager.s
-
-# target to generate assembly for a file
-CommandManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/CommandManager.cpp.s
-.PHONY : CommandManager.cpp.s
-
-DescriptorManager.o: DescriptorManager.cpp.o
-
-.PHONY : DescriptorManager.o
+.PHONY : src/CommandManager.o
 
 # target to build an object file
-DescriptorManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/DescriptorManager.cpp.o
-.PHONY : DescriptorManager.cpp.o
+src/CommandManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/CommandManager.cpp.o
+.PHONY : src/CommandManager.cpp.o
 
-DescriptorManager.i: DescriptorManager.cpp.i
+src/CommandManager.i: src/CommandManager.cpp.i
 
-.PHONY : DescriptorManager.i
+.PHONY : src/CommandManager.i
 
 # target to preprocess a source file
-DescriptorManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/DescriptorManager.cpp.i
-.PHONY : DescriptorManager.cpp.i
+src/CommandManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/CommandManager.cpp.i
+.PHONY : src/CommandManager.cpp.i
 
-DescriptorManager.s: DescriptorManager.cpp.s
+src/CommandManager.s: src/CommandManager.cpp.s
 
-.PHONY : DescriptorManager.s
+.PHONY : src/CommandManager.s
 
 # target to generate assembly for a file
-DescriptorManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/DescriptorManager.cpp.s
-.PHONY : DescriptorManager.cpp.s
+src/CommandManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/CommandManager.cpp.s
+.PHONY : src/CommandManager.cpp.s
 
-FileManager.o: FileManager.cpp.o
+src/DescriptorManager.o: src/DescriptorManager.cpp.o
 
-.PHONY : FileManager.o
+.PHONY : src/DescriptorManager.o
 
 # target to build an object file
-FileManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/FileManager.cpp.o
-.PHONY : FileManager.cpp.o
+src/DescriptorManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/DescriptorManager.cpp.o
+.PHONY : src/DescriptorManager.cpp.o
 
-FileManager.i: FileManager.cpp.i
+src/DescriptorManager.i: src/DescriptorManager.cpp.i
 
-.PHONY : FileManager.i
+.PHONY : src/DescriptorManager.i
 
 # target to preprocess a source file
-FileManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/FileManager.cpp.i
-.PHONY : FileManager.cpp.i
+src/DescriptorManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/DescriptorManager.cpp.i
+.PHONY : src/DescriptorManager.cpp.i
 
-FileManager.s: FileManager.cpp.s
+src/DescriptorManager.s: src/DescriptorManager.cpp.s
 
-.PHONY : FileManager.s
+.PHONY : src/DescriptorManager.s
 
 # target to generate assembly for a file
-FileManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/FileManager.cpp.s
-.PHONY : FileManager.cpp.s
+src/DescriptorManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/DescriptorManager.cpp.s
+.PHONY : src/DescriptorManager.cpp.s
 
-LogicalDeviceManager.o: LogicalDeviceManager.cpp.o
+src/FileManager.o: src/FileManager.cpp.o
 
-.PHONY : LogicalDeviceManager.o
+.PHONY : src/FileManager.o
 
 # target to build an object file
-LogicalDeviceManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/LogicalDeviceManager.cpp.o
-.PHONY : LogicalDeviceManager.cpp.o
+src/FileManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/FileManager.cpp.o
+.PHONY : src/FileManager.cpp.o
 
-LogicalDeviceManager.i: LogicalDeviceManager.cpp.i
+src/FileManager.i: src/FileManager.cpp.i
 
-.PHONY : LogicalDeviceManager.i
+.PHONY : src/FileManager.i
 
 # target to preprocess a source file
-LogicalDeviceManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/LogicalDeviceManager.cpp.i
-.PHONY : LogicalDeviceManager.cpp.i
+src/FileManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/FileManager.cpp.i
+.PHONY : src/FileManager.cpp.i
 
-LogicalDeviceManager.s: LogicalDeviceManager.cpp.s
+src/FileManager.s: src/FileManager.cpp.s
 
-.PHONY : LogicalDeviceManager.s
+.PHONY : src/FileManager.s
 
 # target to generate assembly for a file
-LogicalDeviceManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/LogicalDeviceManager.cpp.s
-.PHONY : LogicalDeviceManager.cpp.s
+src/FileManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/FileManager.cpp.s
+.PHONY : src/FileManager.cpp.s
 
-MemoryManager.o: MemoryManager.cpp.o
+src/LogicalDeviceManager.o: src/LogicalDeviceManager.cpp.o
 
-.PHONY : MemoryManager.o
+.PHONY : src/LogicalDeviceManager.o
 
 # target to build an object file
-MemoryManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/MemoryManager.cpp.o
-.PHONY : MemoryManager.cpp.o
+src/LogicalDeviceManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/LogicalDeviceManager.cpp.o
+.PHONY : src/LogicalDeviceManager.cpp.o
 
-MemoryManager.i: MemoryManager.cpp.i
+src/LogicalDeviceManager.i: src/LogicalDeviceManager.cpp.i
 
-.PHONY : MemoryManager.i
+.PHONY : src/LogicalDeviceManager.i
 
 # target to preprocess a source file
-MemoryManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/MemoryManager.cpp.i
-.PHONY : MemoryManager.cpp.i
+src/LogicalDeviceManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/LogicalDeviceManager.cpp.i
+.PHONY : src/LogicalDeviceManager.cpp.i
 
-MemoryManager.s: MemoryManager.cpp.s
+src/LogicalDeviceManager.s: src/LogicalDeviceManager.cpp.s
 
-.PHONY : MemoryManager.s
+.PHONY : src/LogicalDeviceManager.s
 
 # target to generate assembly for a file
-MemoryManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/MemoryManager.cpp.s
-.PHONY : MemoryManager.cpp.s
+src/LogicalDeviceManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/LogicalDeviceManager.cpp.s
+.PHONY : src/LogicalDeviceManager.cpp.s
 
-PhysicalDeviceManager.o: PhysicalDeviceManager.cpp.o
+src/MemoryManager.o: src/MemoryManager.cpp.o
 
-.PHONY : PhysicalDeviceManager.o
+.PHONY : src/MemoryManager.o
 
 # target to build an object file
-PhysicalDeviceManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PhysicalDeviceManager.cpp.o
-.PHONY : PhysicalDeviceManager.cpp.o
+src/MemoryManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/MemoryManager.cpp.o
+.PHONY : src/MemoryManager.cpp.o
 
-PhysicalDeviceManager.i: PhysicalDeviceManager.cpp.i
+src/MemoryManager.i: src/MemoryManager.cpp.i
 
-.PHONY : PhysicalDeviceManager.i
+.PHONY : src/MemoryManager.i
 
 # target to preprocess a source file
-PhysicalDeviceManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PhysicalDeviceManager.cpp.i
-.PHONY : PhysicalDeviceManager.cpp.i
+src/MemoryManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/MemoryManager.cpp.i
+.PHONY : src/MemoryManager.cpp.i
 
-PhysicalDeviceManager.s: PhysicalDeviceManager.cpp.s
+src/MemoryManager.s: src/MemoryManager.cpp.s
 
-.PHONY : PhysicalDeviceManager.s
+.PHONY : src/MemoryManager.s
 
 # target to generate assembly for a file
-PhysicalDeviceManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PhysicalDeviceManager.cpp.s
-.PHONY : PhysicalDeviceManager.cpp.s
+src/MemoryManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/MemoryManager.cpp.s
+.PHONY : src/MemoryManager.cpp.s
 
-PipelineManager.o: PipelineManager.cpp.o
+src/PhysicalDeviceManager.o: src/PhysicalDeviceManager.cpp.o
 
-.PHONY : PipelineManager.o
+.PHONY : src/PhysicalDeviceManager.o
 
 # target to build an object file
-PipelineManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PipelineManager.cpp.o
-.PHONY : PipelineManager.cpp.o
+src/PhysicalDeviceManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PhysicalDeviceManager.cpp.o
+.PHONY : src/PhysicalDeviceManager.cpp.o
 
-PipelineManager.i: PipelineManager.cpp.i
+src/PhysicalDeviceManager.i: src/PhysicalDeviceManager.cpp.i
 
-.PHONY : PipelineManager.i
+.PHONY : src/PhysicalDeviceManager.i
 
 # target to preprocess a source file
-PipelineManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PipelineManager.cpp.i
-.PHONY : PipelineManager.cpp.i
+src/PhysicalDeviceManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PhysicalDeviceManager.cpp.i
+.PHONY : src/PhysicalDeviceManager.cpp.i
 
-PipelineManager.s: PipelineManager.cpp.s
+src/PhysicalDeviceManager.s: src/PhysicalDeviceManager.cpp.s
 
-.PHONY : PipelineManager.s
+.PHONY : src/PhysicalDeviceManager.s
 
 # target to generate assembly for a file
-PipelineManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/PipelineManager.cpp.s
-.PHONY : PipelineManager.cpp.s
+src/PhysicalDeviceManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PhysicalDeviceManager.cpp.s
+.PHONY : src/PhysicalDeviceManager.cpp.s
 
-RenderPassManager.o: RenderPassManager.cpp.o
+src/PipelineManager.o: src/PipelineManager.cpp.o
 
-.PHONY : RenderPassManager.o
+.PHONY : src/PipelineManager.o
 
 # target to build an object file
-RenderPassManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/RenderPassManager.cpp.o
-.PHONY : RenderPassManager.cpp.o
+src/PipelineManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PipelineManager.cpp.o
+.PHONY : src/PipelineManager.cpp.o
 
-RenderPassManager.i: RenderPassManager.cpp.i
+src/PipelineManager.i: src/PipelineManager.cpp.i
 
-.PHONY : RenderPassManager.i
+.PHONY : src/PipelineManager.i
 
 # target to preprocess a source file
-RenderPassManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/RenderPassManager.cpp.i
-.PHONY : RenderPassManager.cpp.i
+src/PipelineManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PipelineManager.cpp.i
+.PHONY : src/PipelineManager.cpp.i
 
-RenderPassManager.s: RenderPassManager.cpp.s
+src/PipelineManager.s: src/PipelineManager.cpp.s
 
-.PHONY : RenderPassManager.s
+.PHONY : src/PipelineManager.s
 
 # target to generate assembly for a file
-RenderPassManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/RenderPassManager.cpp.s
-.PHONY : RenderPassManager.cpp.s
+src/PipelineManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/PipelineManager.cpp.s
+.PHONY : src/PipelineManager.cpp.s
 
-SGR.o: SGR.cpp.o
+src/RenderPassManager.o: src/RenderPassManager.cpp.o
 
-.PHONY : SGR.o
+.PHONY : src/RenderPassManager.o
 
 # target to build an object file
-SGR.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SGR.cpp.o
-.PHONY : SGR.cpp.o
+src/RenderPassManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/RenderPassManager.cpp.o
+.PHONY : src/RenderPassManager.cpp.o
 
-SGR.i: SGR.cpp.i
+src/RenderPassManager.i: src/RenderPassManager.cpp.i
 
-.PHONY : SGR.i
+.PHONY : src/RenderPassManager.i
 
 # target to preprocess a source file
-SGR.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SGR.cpp.i
-.PHONY : SGR.cpp.i
+src/RenderPassManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/RenderPassManager.cpp.i
+.PHONY : src/RenderPassManager.cpp.i
 
-SGR.s: SGR.cpp.s
+src/RenderPassManager.s: src/RenderPassManager.cpp.s
 
-.PHONY : SGR.s
+.PHONY : src/RenderPassManager.s
 
 # target to generate assembly for a file
-SGR.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SGR.cpp.s
-.PHONY : SGR.cpp.s
+src/RenderPassManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/RenderPassManager.cpp.s
+.PHONY : src/RenderPassManager.cpp.s
 
-ShaderManager.o: ShaderManager.cpp.o
+src/SGR.o: src/SGR.cpp.o
 
-.PHONY : ShaderManager.o
+.PHONY : src/SGR.o
 
 # target to build an object file
-ShaderManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/ShaderManager.cpp.o
-.PHONY : ShaderManager.cpp.o
+src/SGR.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SGR.cpp.o
+.PHONY : src/SGR.cpp.o
 
-ShaderManager.i: ShaderManager.cpp.i
+src/SGR.i: src/SGR.cpp.i
 
-.PHONY : ShaderManager.i
+.PHONY : src/SGR.i
 
 # target to preprocess a source file
-ShaderManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/ShaderManager.cpp.i
-.PHONY : ShaderManager.cpp.i
+src/SGR.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SGR.cpp.i
+.PHONY : src/SGR.cpp.i
 
-ShaderManager.s: ShaderManager.cpp.s
+src/SGR.s: src/SGR.cpp.s
 
-.PHONY : ShaderManager.s
+.PHONY : src/SGR.s
 
 # target to generate assembly for a file
-ShaderManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/ShaderManager.cpp.s
-.PHONY : ShaderManager.cpp.s
+src/SGR.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SGR.cpp.s
+.PHONY : src/SGR.cpp.s
 
-SwapChainManager.o: SwapChainManager.cpp.o
+src/ShaderManager.o: src/ShaderManager.cpp.o
 
-.PHONY : SwapChainManager.o
+.PHONY : src/ShaderManager.o
 
 # target to build an object file
-SwapChainManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SwapChainManager.cpp.o
-.PHONY : SwapChainManager.cpp.o
+src/ShaderManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/ShaderManager.cpp.o
+.PHONY : src/ShaderManager.cpp.o
 
-SwapChainManager.i: SwapChainManager.cpp.i
+src/ShaderManager.i: src/ShaderManager.cpp.i
 
-.PHONY : SwapChainManager.i
+.PHONY : src/ShaderManager.i
 
 # target to preprocess a source file
-SwapChainManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SwapChainManager.cpp.i
-.PHONY : SwapChainManager.cpp.i
+src/ShaderManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/ShaderManager.cpp.i
+.PHONY : src/ShaderManager.cpp.i
 
-SwapChainManager.s: SwapChainManager.cpp.s
+src/ShaderManager.s: src/ShaderManager.cpp.s
 
-.PHONY : SwapChainManager.s
+.PHONY : src/ShaderManager.s
 
 # target to generate assembly for a file
-SwapChainManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/SwapChainManager.cpp.s
-.PHONY : SwapChainManager.cpp.s
+src/ShaderManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/ShaderManager.cpp.s
+.PHONY : src/ShaderManager.cpp.s
 
-TextureManager.o: TextureManager.cpp.o
+src/SwapChainManager.o: src/SwapChainManager.cpp.o
 
-.PHONY : TextureManager.o
+.PHONY : src/SwapChainManager.o
 
 # target to build an object file
-TextureManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/TextureManager.cpp.o
-.PHONY : TextureManager.cpp.o
+src/SwapChainManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SwapChainManager.cpp.o
+.PHONY : src/SwapChainManager.cpp.o
 
-TextureManager.i: TextureManager.cpp.i
+src/SwapChainManager.i: src/SwapChainManager.cpp.i
 
-.PHONY : TextureManager.i
+.PHONY : src/SwapChainManager.i
 
 # target to preprocess a source file
-TextureManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/TextureManager.cpp.i
-.PHONY : TextureManager.cpp.i
+src/SwapChainManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SwapChainManager.cpp.i
+.PHONY : src/SwapChainManager.cpp.i
 
-TextureManager.s: TextureManager.cpp.s
+src/SwapChainManager.s: src/SwapChainManager.cpp.s
 
-.PHONY : TextureManager.s
+.PHONY : src/SwapChainManager.s
 
 # target to generate assembly for a file
-TextureManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/TextureManager.cpp.s
-.PHONY : TextureManager.cpp.s
+src/SwapChainManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/SwapChainManager.cpp.s
+.PHONY : src/SwapChainManager.cpp.s
 
-WindowManager.o: WindowManager.cpp.o
+src/TextureManager.o: src/TextureManager.cpp.o
 
-.PHONY : WindowManager.o
+.PHONY : src/TextureManager.o
 
 # target to build an object file
-WindowManager.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/WindowManager.cpp.o
-.PHONY : WindowManager.cpp.o
+src/TextureManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/TextureManager.cpp.o
+.PHONY : src/TextureManager.cpp.o
 
-WindowManager.i: WindowManager.cpp.i
+src/TextureManager.i: src/TextureManager.cpp.i
 
-.PHONY : WindowManager.i
+.PHONY : src/TextureManager.i
 
 # target to preprocess a source file
-WindowManager.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/WindowManager.cpp.i
-.PHONY : WindowManager.cpp.i
+src/TextureManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/TextureManager.cpp.i
+.PHONY : src/TextureManager.cpp.i
 
-WindowManager.s: WindowManager.cpp.s
+src/TextureManager.s: src/TextureManager.cpp.s
 
-.PHONY : WindowManager.s
+.PHONY : src/TextureManager.s
 
 # target to generate assembly for a file
-WindowManager.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/WindowManager.cpp.s
-.PHONY : WindowManager.cpp.s
+src/TextureManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/TextureManager.cpp.s
+.PHONY : src/TextureManager.cpp.s
 
-main.o: main.cpp.o
+src/WindowManager.o: src/WindowManager.cpp.o
 
-.PHONY : main.o
+.PHONY : src/WindowManager.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/WindowManager.cpp.o:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/WindowManager.cpp.o
+.PHONY : src/WindowManager.cpp.o
 
-main.i: main.cpp.i
+src/WindowManager.i: src/WindowManager.cpp.i
 
-.PHONY : main.i
+.PHONY : src/WindowManager.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/WindowManager.cpp.i:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/WindowManager.cpp.i
+.PHONY : src/WindowManager.cpp.i
 
-main.s: main.cpp.s
+src/WindowManager.s: src/WindowManager.cpp.s
 
-.PHONY : main.s
+.PHONY : src/WindowManager.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/SGR_test.dir/build.make CMakeFiles/SGR_test.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/WindowManager.cpp.s:
+	$(MAKE) -f CMakeFiles/SGR.dir/build.make CMakeFiles/SGR.dir/src/WindowManager.cpp.s
+.PHONY : src/WindowManager.cpp.s
 
 # Help Target
 help:
@@ -509,49 +482,46 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... SGR_test"
-	@echo "... CommandManager.o"
-	@echo "... CommandManager.i"
-	@echo "... CommandManager.s"
-	@echo "... DescriptorManager.o"
-	@echo "... DescriptorManager.i"
-	@echo "... DescriptorManager.s"
-	@echo "... FileManager.o"
-	@echo "... FileManager.i"
-	@echo "... FileManager.s"
-	@echo "... LogicalDeviceManager.o"
-	@echo "... LogicalDeviceManager.i"
-	@echo "... LogicalDeviceManager.s"
-	@echo "... MemoryManager.o"
-	@echo "... MemoryManager.i"
-	@echo "... MemoryManager.s"
-	@echo "... PhysicalDeviceManager.o"
-	@echo "... PhysicalDeviceManager.i"
-	@echo "... PhysicalDeviceManager.s"
-	@echo "... PipelineManager.o"
-	@echo "... PipelineManager.i"
-	@echo "... PipelineManager.s"
-	@echo "... RenderPassManager.o"
-	@echo "... RenderPassManager.i"
-	@echo "... RenderPassManager.s"
-	@echo "... SGR.o"
-	@echo "... SGR.i"
-	@echo "... SGR.s"
-	@echo "... ShaderManager.o"
-	@echo "... ShaderManager.i"
-	@echo "... ShaderManager.s"
-	@echo "... SwapChainManager.o"
-	@echo "... SwapChainManager.i"
-	@echo "... SwapChainManager.s"
-	@echo "... TextureManager.o"
-	@echo "... TextureManager.i"
-	@echo "... TextureManager.s"
-	@echo "... WindowManager.o"
-	@echo "... WindowManager.i"
-	@echo "... WindowManager.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... SGR"
+	@echo "... src/CommandManager.o"
+	@echo "... src/CommandManager.i"
+	@echo "... src/CommandManager.s"
+	@echo "... src/DescriptorManager.o"
+	@echo "... src/DescriptorManager.i"
+	@echo "... src/DescriptorManager.s"
+	@echo "... src/FileManager.o"
+	@echo "... src/FileManager.i"
+	@echo "... src/FileManager.s"
+	@echo "... src/LogicalDeviceManager.o"
+	@echo "... src/LogicalDeviceManager.i"
+	@echo "... src/LogicalDeviceManager.s"
+	@echo "... src/MemoryManager.o"
+	@echo "... src/MemoryManager.i"
+	@echo "... src/MemoryManager.s"
+	@echo "... src/PhysicalDeviceManager.o"
+	@echo "... src/PhysicalDeviceManager.i"
+	@echo "... src/PhysicalDeviceManager.s"
+	@echo "... src/PipelineManager.o"
+	@echo "... src/PipelineManager.i"
+	@echo "... src/PipelineManager.s"
+	@echo "... src/RenderPassManager.o"
+	@echo "... src/RenderPassManager.i"
+	@echo "... src/RenderPassManager.s"
+	@echo "... src/SGR.o"
+	@echo "... src/SGR.i"
+	@echo "... src/SGR.s"
+	@echo "... src/ShaderManager.o"
+	@echo "... src/ShaderManager.i"
+	@echo "... src/ShaderManager.s"
+	@echo "... src/SwapChainManager.o"
+	@echo "... src/SwapChainManager.i"
+	@echo "... src/SwapChainManager.s"
+	@echo "... src/TextureManager.o"
+	@echo "... src/TextureManager.i"
+	@echo "... src/TextureManager.s"
+	@echo "... src/WindowManager.o"
+	@echo "... src/WindowManager.i"
+	@echo "... src/WindowManager.s"
 .PHONY : help
 
 

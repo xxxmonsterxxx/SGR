@@ -33,6 +33,10 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	emptyObject.name = "empty";
 	objects.push_back(emptyObject);
 
+	SgrObjectInstance emptyInstance;
+	emptyInstance.name = "empty";
+	instances.push_back(emptyInstance);
+
 	currentFrame = 0;
 }
 
@@ -93,7 +97,8 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 		return resultInitSemaphores;
 
 	sgrRunning = true;
-	startRunning = SgrTime::now();
+	startRunningTime = SgrTime::now();
+	lastFrameUpdateTime = SgrTime::now();
 	windowManager->setSgrPtr(this);
 
 	return sgrOK;
@@ -143,6 +148,9 @@ void SGR::setAspectRatio(uint8_t x, uint8_t y)
 
 SgrErrCode SGR::drawFrame()
 {
+	if (getSgrTimeDuration(lastFrameUpdateTime, SgrTime::now()) < (1.f / fpsDesired))
+		return sgrOK;
+
 	drawDataUpdate();
 
 	if (!commandManager->buffersEnded)
@@ -220,6 +228,8 @@ SgrErrCode SGR::drawFrame()
 	}
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
+
+	lastFrameUpdateTime = SgrTime::now();
 
 	return sgrOK;
 }
@@ -311,7 +321,7 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 }
 
 SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									 std::string shaderVert, std::string shaderFrag,
+									 std::string shaderVert, std::string shaderFrag, SgrBuffer* dynamicUBO,
 									 std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
@@ -327,6 +337,7 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 		return resultAllocateMemoryBuffer;
 
 	// create index buffer
+	newObject.indicesCount = indices.size();
 	size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
 	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
@@ -342,6 +353,8 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 	if (objectShaders.name == "empty")
 		return sgrMissingShaders;
 
+	newObject.dynamicUBO = dynamicUBO;
+
 	DescriptorManager::SgrDescriptorInfo newDescriptorInfo;
 	newDescriptorInfo.name = name;
 	newDescriptorInfo.vertexBindingDescr = bindingDescriptions;
@@ -356,6 +369,19 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 	return sgrOK;
 }
 
+SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment)
+{
+	if (findObjectByName(geometry).name == "empty")
+		return sgrUnknownGeometry;
+
+	SgrObjectInstance newInstance;
+	newInstance.name = name;
+	newInstance.geometry = geometry;
+	newInstance.uboDataAlignment = dynamicUBOalignment;
+	instances.push_back(newInstance);
+	return sgrOK;
+}
+
 SGR::SgrObject& SGR::findObjectByName(std::string name)
 {
 	for (size_t i = 0; i < objects.size(); i++) {
@@ -366,10 +392,19 @@ SGR::SgrObject& SGR::findObjectByName(std::string name)
 	return objects[0];
 }
 
-SgrErrCode SGR::setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO)
+const SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
+{
+	for (size_t i = 0; i < instances.size(); i++) {
+		if (instances[i].name == name)
+			return instances[i];
+	}
+
+	return instances[0];
+}
+
+SgrErrCode SGR::setupUniformBuffer(SgrBuffer* uboBuffer)
 {
 	UBO = uboBuffer;
-	dynamicUBO = instanceUBO;
 	return sgrOK;
 }
 
@@ -379,13 +414,17 @@ void SGR::unbindAllMeshesAndPiplines()
 		objects[i].meshDataAndPiplineBinded = false;
 }
 
-SgrErrCode SGR::drawObject(std::string objName, uint32_t dynamicUBOAlignment)
+SgrErrCode SGR::drawObject(std::string instanceName)
 {
-	SgrObject& objectToDraw = findObjectByName(objName);
+	const SgrObjectInstance& instance = findInstanceByName(instanceName);
+	if (instance.name == "empty") 
+		return sgrMissingInstance;
+
+	SgrObject& objectToDraw = findObjectByName(instance.geometry);
 	if (objectToDraw.name == "empty")
 		return sgrMissingObject;
 
-	PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(objName);
+	PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(instance.geometry);
 	if (objectPipeline->name == "empty")
 		return sgrMissingPipeline;
 
@@ -397,30 +436,31 @@ SgrErrCode SGR::drawObject(std::string objName, uint32_t dynamicUBOAlignment)
 		objectToDraw.meshDataAndPiplineBinded = true;
 	}
 
-	DescriptorManager::SgrDescriptorInfo descrInfo = descriptorManager->getDescriptorInfoByName(objName);
-	if (descrInfo.name == "empty")
-		return sgrMissingDescriptorInfo;
+	DescriptorManager::SgrDescriptorSets descrSets = descriptorManager->getDescriptorSetsByName(instanceName);
+	if (descrSets.name == "empty")
+		return sgrMissingDescriptorSets;
 
-	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(dynamicUBOAlignment) };
+	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(instance.uboDataAlignment) };
 
 	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrInfo.descriptorSets[i], 0, 1, dynamicOffset);
+		commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
 
-	commandManager->drawIndexed(6, 1, 0, 0, 0);
+	commandManager->drawIndexed(objectToDraw.indicesCount, 1, 0, 0, 0);
 
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynUBO)
+SgrErrCode SGR::updateDynamicUniformBuffer(std::string objectName, SgrDynamicUniformBufferObject dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
-	MemoryManager::copyDataToBuffer(dynamicUBO, dynUBO.data);
+	SgrObject obj = findObjectByName(objectName);
+	MemoryManager::copyDataToBuffer(obj.dynamicUBO, dynUBO.data);
 
 	VkMappedMemoryRange mappedMemoryRange{};
 	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-	mappedMemoryRange.memory = dynamicUBO->bufferMemory;
-	mappedMemoryRange.size = dynamicUBO->size;
+	mappedMemoryRange.memory = obj.dynamicUBO->bufferMemory;
+	mappedMemoryRange.size = obj.dynamicUBO->size;
 	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
 	return sgrOK;
 }
@@ -433,5 +473,11 @@ SgrErrCode SGR::updateUniformBuffer(SgrUniformBufferObject obj)
 
 SgrErrCode SGR::writeDescriptorSets(std::string name, std::vector<void*> data)
 {
-	return descriptorManager->updateDescriptorSets(name, data);
+	std::string geometry = findInstanceByName(name).geometry;
+	return descriptorManager->updateDescriptorSets(name, descriptorManager->getDescriptorInfoByName(geometry).name, data);
+}
+
+float SGR::getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
+{
+	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
 }

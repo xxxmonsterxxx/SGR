@@ -77,7 +77,7 @@ SgrErrCode CommandManager::initCommandBuffers()
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = SwapChainManager::get()->extent;
 
-        VkClearValue clearColor = { 0.5f, 0.5f, 0.5f, 1.0f };
+        VkClearValue clearColor = { 1.f, 1.f, 1.f, 1.0f };
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
 

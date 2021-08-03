@@ -21,26 +21,32 @@ private:
 
 		std::vector<VkVertexInputBindingDescription> vertexBindingDescr;
 		std::vector<VkVertexInputAttributeDescription> vertexAttributeDescr;
-
 		std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding;
 		std::vector<VkDescriptorSetLayout> setLayouts;
-		VkDescriptorPool descriptorPool;
-		std::vector<VkDescriptorSet> descriptorSets;
 	};
 
 	std::vector<SgrDescriptorInfo> descriptorInfos;
 
-	SgrErrCode addNewDescriptorInfo(SgrDescriptorInfo& descrInfo);
-	SgrErrCode updateDescriptorSets(std::string name, std::vector<void*> data);
+	struct SgrDescriptorSets {
+		std::string name;
+		VkDescriptorPool descriptorPool;
+		std::vector<VkDescriptorSet> descriptorSets;
+	};
 
-	SgrDescriptorInfo getDescriptorInfoByName(std::string name);
+	std::vector<SgrDescriptorSets> allDescriptorSets;
+
+	SgrErrCode addNewDescriptorInfo(SgrDescriptorInfo& descrInfo);
+	SgrErrCode updateDescriptorSets(std::string instanceName, std::string infoName, std::vector<void*> data);
+
+	const SgrDescriptorInfo getDescriptorInfoByName(std::string name);
+	const SgrDescriptorSets getDescriptorSetsByName(std::string name);
 
 public:
 	static DescriptorManager* get();
 
 protected:
 	SgrErrCode createDescriptorSetLayout(SgrDescriptorInfo& descrInfo);
-	SgrErrCode createDescriptorPool(SgrDescriptorInfo& descrInfo);
-	SgrErrCode createDescriptorSets(SgrDescriptorInfo& descrInfo);
-	std::vector<std::vector<VkWriteDescriptorSet>> createDescriptorSetWrites(SgrDescriptorInfo& descrInfo);
+	SgrErrCode createDescriptorPool(SgrDescriptorInfo& descrInfo, VkDescriptorPool& descrPool);
+	SgrErrCode createDescriptorSets(std::string name, SgrDescriptorInfo& descrInfo);
+	std::vector<std::vector<VkWriteDescriptorSet>> createDescriptorSetWrites(const std::vector<VkDescriptorSet>& descriptorSets, SgrDescriptorInfo& descrInfo);
 };

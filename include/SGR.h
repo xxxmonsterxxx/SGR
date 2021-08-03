@@ -22,11 +22,18 @@ public:
 		std::string name;
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
+		uint16_t indicesCount;
+		SgrBuffer* dynamicUBO;
 		bool meshDataAndPiplineBinded = false;
 	};
 
+	struct SgrObjectInstance {
+		std::string name;
+		std::string geometry;
+		uint32_t uboDataAlignment;
+	};
+
 	SgrBuffer* UBO;
-	SgrBuffer* dynamicUBO;
 
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
 	~SGR(); 
@@ -67,18 +74,24 @@ public:
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
 	SgrErrCode addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									std::string shaderVert, std::string shaderFrag,
+									std::string shaderVert, std::string shaderFrag, SgrBuffer* dynamicUBO,
 									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding);
+	SgrErrCode addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment);
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
-	SgrErrCode setupUniformBuffers(SgrBuffer* uboBuffer, SgrBuffer* instanceUBO);
-	SgrErrCode updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynamicUBO);
+	SgrErrCode setupUniformBuffer(SgrBuffer* uboBuffer);
+	SgrErrCode updateDynamicUniformBuffer(std::string objectName, SgrDynamicUniformBufferObject dynamicUBO);
 	SgrErrCode updateUniformBuffer(SgrUniformBufferObject obj);
 
-	SgrErrCode drawObject(std::string objName, uint32_t dynamicUBOAlignment);
+	SgrErrCode drawObject(std::string instanceName);
 	void unbindAllMeshesAndPiplines();
+
+	const SgrObjectInstance& findInstanceByName(std::string name);
+	SgrObject& findObjectByName(std::string name);
+
+	float getSgrTimeDuration(SgrTime_t start, SgrTime_t end);
 
 private:
 	const uint8_t engineVersionMajor = 0;
@@ -86,7 +99,9 @@ private:
 	const uint8_t enginePatch = 1;
 
 	bool sgrRunning;
-	SgrTime_t startRunning;
+	SgrTime_t startRunningTime;
+	SgrTime_t lastFrameUpdateTime;
+	uint8_t fpsDesired = 60;
 
 	std::string applicationName;
 	uint8_t appVersionMajor;
@@ -118,6 +133,7 @@ private:
 	uint32_t instanceUBOAlignment;
 
 	std::vector<SgrObject> objects;
+	std::vector<SgrObjectInstance> instances;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -127,6 +143,4 @@ private:
 	SgrErrCode initSyncObjects();
 
 	SgrErrCode initVulkanInstance();
-
-	SgrObject& findObjectByName(std::string name);
 };

@@ -16,10 +16,13 @@ bld/
 # Visual Studio Code directory
 .vscode/
 
-#CMake system
+# CMake system
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 
-#Apple cache
+# Apple cache
 *.DS_Store
+
+# MakeFile
+Makefile

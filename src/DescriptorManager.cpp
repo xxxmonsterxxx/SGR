@@ -33,7 +33,7 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
     return sgrOK;
 }
 
-SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo)
+SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo, VkDescriptorPool& descrPool)
 {
     uint32_t swapChainImageCount = SwapChainManager::instance->imageCount;
     std::vector<VkDescriptorPoolSize> poolSizes;
@@ -51,41 +51,51 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo)
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
  
-    if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrInfo.descriptorPool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrPool) != VK_SUCCESS) {
         return sgrInitDefaultUBODescriptorPoolError;
+	}
 
     return sgrOK;
 }
 
-SgrErrCode DescriptorManager::createDescriptorSets(SgrDescriptorInfo& descrInfo)
+SgrErrCode DescriptorManager::createDescriptorSets(std::string name, SgrDescriptorInfo& descrInfo)
 {
+	SgrDescriptorSets newSets{};
+	SgrErrCode resultCreateDescriptorPool = createDescriptorPool(descrInfo, newSets.descriptorPool);
+	if (resultCreateDescriptorPool != sgrOK)
+		return resultCreateDescriptorPool;
+
     uint32_t swapChainImageCount = SwapChainManager::instance->imageCount;
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descrInfo.descriptorPool;
+    allocInfo.descriptorPool = newSets.descriptorPool;
     allocInfo.descriptorSetCount = swapChainImageCount;
     allocInfo.pSetLayouts = descrInfo.setLayouts.data();
-    descrInfo.descriptorSets.resize(swapChainImageCount);
-    if (vkAllocateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, &allocInfo, descrInfo.descriptorSets.data()) != VK_SUCCESS)
-        return sgrInitDescriptorSetsError;
+	newSets.descriptorSets.resize(swapChainImageCount);
+    if (vkAllocateDescriptorSets(LogicalDeviceManager::instance->logicalDevice, &allocInfo, newSets.descriptorSets.data()) != VK_SUCCESS)
+		return sgrInitDescriptorSetsError;
+
+	newSets.name = name;
+	allDescriptorSets.push_back(newSets);
     return sgrOK;
 }
 
 SgrErrCode DescriptorManager::addNewDescriptorInfo(SgrDescriptorInfo& descrInfo)
 {
     createDescriptorSetLayout(descrInfo);
-    createDescriptorPool(descrInfo);
-    createDescriptorSets(descrInfo);
-
     descriptorInfos.push_back(descrInfo);
     return sgrOK;
 }
 
-SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector<void*> data)
+SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::string infoName, std::vector<void*> data)
 {
+	SgrDescriptorInfo info = getDescriptorInfoByName(infoName);
+	if (info.name == "empty")
+		return sgrDescriptorsWithUnknownInfo;
+
     size_t i = 0;
-    for (; i < descriptorInfos.size(); ) {
-        if (descriptorInfos[i].name != name) {
+    for (; i <  allDescriptorSets.size(); ) {
+        if (allDescriptorSets[i].name != name) {
             i++;
             continue;
         }
@@ -93,10 +103,14 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
             break;
     }
 
-    if (i == descriptorInfos.size() + 1)
-        return sgrDescrUpdateError;
+	if (i == allDescriptorSets.size()) {
+		SgrErrCode resultCreateDescriptorSets = createDescriptorSets(name, info);
+		if (resultCreateDescriptorSets != sgrOK) {
+			return resultCreateDescriptorSets;
+		}
+	}
 
-    std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites = createDescriptorSetWrites(descriptorInfos[i]);
+    std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites = createDescriptorSetWrites(getDescriptorSetsByName(name).descriptorSets, info);
 
     for (size_t j = 0; j < descriptorWrites.size(); j++) {
 
@@ -144,15 +158,15 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::vector
     return sgrOK;
 }
 
-std::vector<std::vector<VkWriteDescriptorSet>> DescriptorManager::createDescriptorSetWrites(SgrDescriptorInfo& descrInfo)
+std::vector<std::vector<VkWriteDescriptorSet>> DescriptorManager::createDescriptorSetWrites(const std::vector<VkDescriptorSet>& descriptorSets, SgrDescriptorInfo& descrInfo)
 {
     std::vector<std::vector<VkWriteDescriptorSet>> descriptorWrites;
-    for (size_t i = 0; i < descrInfo.descriptorSets.size(); i++) {
+    for (size_t i = 0; i < descriptorSets.size(); i++) {
         std::vector<VkWriteDescriptorSet> descriptorWritesForSet;
         for (size_t j = 0; j < descrInfo.setLayoutBinding.size(); j++) {
             VkWriteDescriptorSet newDescriptorWriteSet{};
             newDescriptorWriteSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            newDescriptorWriteSet.dstSet = descrInfo.descriptorSets[i];
+            newDescriptorWriteSet.dstSet = descriptorSets[i];
             newDescriptorWriteSet.dstArrayElement = 0;
             newDescriptorWriteSet.descriptorCount = descrInfo.setLayoutBinding[j].descriptorCount;
             newDescriptorWriteSet.dstBinding = descrInfo.setLayoutBinding[j].binding;
@@ -167,7 +181,7 @@ std::vector<std::vector<VkWriteDescriptorSet>> DescriptorManager::createDescript
 }
 
 
-DescriptorManager::SgrDescriptorInfo DescriptorManager::getDescriptorInfoByName(std::string name)
+const DescriptorManager::SgrDescriptorInfo DescriptorManager::getDescriptorInfoByName(std::string name)
 {
     for (size_t i = 0; i < descriptorInfos.size(); i++) {
         if (descriptorInfos[i].name == name)
@@ -177,4 +191,16 @@ DescriptorManager::SgrDescriptorInfo DescriptorManager::getDescriptorInfoByName(
     SgrDescriptorInfo emptyDescriptorInfo;
     emptyDescriptorInfo.name = "empty";
     return emptyDescriptorInfo;
+}
+
+const DescriptorManager::SgrDescriptorSets DescriptorManager::getDescriptorSetsByName(std::string name)
+{
+	for (size_t i = 0; i < allDescriptorSets.size(); i++) {
+        if (allDescriptorSets[i].name == name)
+            return allDescriptorSets[i];
+    }
+
+    SgrDescriptorSets emptyDescriptorSets;
+    emptyDescriptorSets.name = "empty";
+    return emptyDescriptorSets;
 }

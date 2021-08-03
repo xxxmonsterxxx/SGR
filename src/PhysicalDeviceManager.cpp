@@ -34,7 +34,7 @@ SgrErrCode PhysicalDeviceManager::init(VkInstance instance)
     devices.resize(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    printf("\nFinded %d devices:",deviceCount);
+    printf("\nFound %d devices:",deviceCount);
     for (auto device : devices) {
         VkPhysicalDeviceProperties deviceProp;
         vkGetPhysicalDeviceProperties(device, &deviceProp);

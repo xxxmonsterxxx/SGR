@@ -1,5 +1,5 @@
-#include "SGR.h"
-#include "iostream"
+#include <SGR.h>
+#include <iostream>
 
 float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
 {

@@ -320,8 +320,14 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 	return sgrOK;
 }
 
+SgrErrCode SGR::setupDynamicUniformBuffer(SgrBuffer* dynUBOBuffer)
+{
+	dynamicUBO = dynUBOBuffer;
+	return sgrOK;
+}
+
 SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									 std::string shaderVert, std::string shaderFrag, SgrBuffer* dynamicUBO,
+									 std::string shaderVert, std::string shaderFrag,
 									 std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
@@ -352,8 +358,6 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 	ShaderManager::SgrShader objectShaders = shaderManager->getShadersByName(name);
 	if (objectShaders.name == "empty")
 		return sgrMissingShaders;
-
-	newObject.dynamicUBO = dynamicUBO;
 
 	DescriptorManager::SgrDescriptorInfo newDescriptorInfo;
 	newDescriptorInfo.name = name;
@@ -450,17 +454,16 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateDynamicUniformBuffer(std::string objectName, SgrDynamicUniformBufferObject dynUBO)
+SgrErrCode SGR::updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
-	SgrObject obj = findObjectByName(objectName);
-	MemoryManager::copyDataToBuffer(obj.dynamicUBO, dynUBO.data);
+	MemoryManager::copyDataToBuffer(dynamicUBO, dynUBO.data);
 
 	VkMappedMemoryRange mappedMemoryRange{};
 	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-	mappedMemoryRange.memory = obj.dynamicUBO->bufferMemory;
-	mappedMemoryRange.size = obj.dynamicUBO->size;
+	mappedMemoryRange.memory = dynamicUBO->bufferMemory;
+	mappedMemoryRange.size = dynamicUBO->size;
 	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
 	return sgrOK;
 }

@@ -80,7 +80,7 @@ void updateData() {
 			texCoord->x = 0.055;
 
 		lastDraw = SgrTime::now();
-		sgr_object1.updateDynamicUniformBuffer("rectangle",rectangles);
+		sgr_object1.updateDynamicUniformBuffer(rectangles);
 	}
 
 	sgr_object1.updateUniformBuffer(ubo);
@@ -114,8 +114,17 @@ int main()
 		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 	};
 
+	std::string objectName1 = "triangle";
+	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
+	std::vector<Sgr2DVertex> obMeshVertices1 = {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}}
+	};
+
 	std::string obShaderVert = "shaders/vertex.spv";
 	std::string obShaderFrag = "shaders/fragment.spv";
+	std::string obShaderFragColor = "shaders/colorFragment.spv";
 
 	SgrUniformBufferObject objectsUBO;
 	std::string ob1Texture = "textures/man.png";
@@ -143,10 +152,15 @@ int main()
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, instanceUBO, bindInpDescr, attDescr, setLayoutBinding);
+	sgr_object1.setupDynamicUniformBuffer(instanceUBO);
+
+	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
+	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, bindInpDescr, attDescr, setLayoutBinding);
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
 
 	SgrBuffer* uboBuffer = nullptr;
 	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrUniformBufferObject));
@@ -165,7 +179,7 @@ int main()
 
 
 	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);
-	sgr_object1.addObjectInstance("tree","rectangle",1*rectangles.dynamicAlignment);
+	sgr_object1.addObjectInstance("tree","triangle",1*rectangles.dynamicAlignment);
 
 	std::vector<void*> objectData;
 	objectData.push_back((void*)(uboBuffer));
@@ -203,7 +217,7 @@ int main()
 	texSize->x = 2.f;
 	texSize->y = 2.f;
 
-	sgr_object1.updateDynamicUniformBuffer("rectangle", rectangles);
+	sgr_object1.updateDynamicUniformBuffer(rectangles);
 
 	ubo.view = glm::mat4(1.f);
 	// ubo.view = glm::rotate(ubo.view, glm::radians(90.f), glm::vec3(0, 0, 1));

@@ -23,7 +23,6 @@ public:
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
 		uint16_t indicesCount;
-		SgrBuffer* dynamicUBO;
 		bool meshDataAndPiplineBinded = false;
 	};
 
@@ -34,6 +33,7 @@ public:
 	};
 
 	SgrBuffer* UBO;
+	SgrBuffer* dynamicUBO;
 
 	SGR(std::string appName = "Simple graphic application", uint8_t appVersionMajor = 1, uint8_t appVersionMinor = 0);
 	~SGR(); 
@@ -74,7 +74,7 @@ public:
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
 	SgrErrCode addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									std::string shaderVert, std::string shaderFrag, SgrBuffer* dynamicUBO,
+									std::string shaderVert, std::string shaderFrag,
 									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding);
@@ -82,8 +82,10 @@ public:
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
 	SgrErrCode setupUniformBuffer(SgrBuffer* uboBuffer);
-	SgrErrCode updateDynamicUniformBuffer(std::string objectName, SgrDynamicUniformBufferObject dynamicUBO);
 	SgrErrCode updateUniformBuffer(SgrUniformBufferObject obj);
+
+	SgrErrCode setupDynamicUniformBuffer(SgrBuffer* dynUBOBuffer);
+	SgrErrCode updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynamicUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
 	void unbindAllMeshesAndPiplines();

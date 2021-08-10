@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
-set(LIBRARY_BUILD_TYPE STATIC)
+set(LIBRARY_BUILD_TYPE SHARED)
 
 # srg include folder
 include_directories(include)

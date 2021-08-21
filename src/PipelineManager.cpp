@@ -26,12 +26,13 @@ PipelineManager* PipelineManager::get()
 
 SgrErrCode PipelineManager::createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo)
 {
-    SgrPipeline newPipline;
-    newPipline.name = name;
-    SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, newPipline);
+	SgrPipeline newPipeline;
+	newPipeline.name = name;
+    SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, newPipeline);
     if (resultCreatePipeline != sgrOK)
         return resultCreatePipeline;
-    pipelines.push_back(newPipline);
+	pipelines.push_back(newPipeline);
+
     return sgrOK;
 }
 
@@ -122,7 +123,9 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     pipelineLayoutInfo.pSetLayouts = descriptorInfo.setLayouts.data();
 
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
-    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &sgrPipeline.pipelineLayout) != VK_SUCCESS)
+
+	VkPipelineLayout* newLayout = new VkPipelineLayout;
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, newLayout) != VK_SUCCESS)
         return sgrInitPipelineLayoutError;
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -135,13 +138,17 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = sgrPipeline.pipelineLayout;
+    pipelineInfo.layout = *newLayout;
     pipelineInfo.renderPass = RenderPassManager::instance->renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &sgrPipeline.pipeline) != VK_SUCCESS)
+	VkPipeline* newPipeline = new VkPipeline;
+    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, newPipeline) != VK_SUCCESS)
         return sgrInitPipelineError;
+
+	sgrPipeline.pipeline = newPipeline;
+	sgrPipeline.pipelineLayout = newLayout;
 
     return sgrOK;
 }
@@ -149,8 +156,8 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
 SgrErrCode PipelineManager::destroyAllPipelines()
 {
     for (size_t i = 0; i < pipelines.size(); i++) {
-        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, pipelines[i].pipeline, nullptr);
-        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, pipelines[i].pipelineLayout, nullptr);
+        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, *pipelines[i].pipeline, nullptr);
+        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, *pipelines[i].pipelineLayout, nullptr);
     }
 
     return sgrOK;

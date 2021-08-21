@@ -154,32 +154,21 @@ int main()
 
 	sgr_object1.setupDynamicUniformBuffer(instanceUBO);
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
-
-	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
-
 	SgrBuffer* uboBuffer = nullptr;
 	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrUniformBufferObject));
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
+
+	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, bindInpDescr, attDescr, setLayoutBinding);
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
 	
 	SgrImage* texture1 = nullptr;
 	SgrErrCode resultCreateTextureImage = TextureManager::createTextureImage(ob1Texture, texture1);
 	if (resultCreateTextureImage != sgrOK)
 		return resultCreateTextureImage;
 
-	SgrImage* texture2 = nullptr;
-	resultCreateTextureImage = TextureManager::createTextureImage(ob2Texture, texture2);
-	if (resultCreateTextureImage != sgrOK)
-		return resultCreateTextureImage;
-
-
 	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);
-	sgr_object1.addObjectInstance("tree","triangle",1*rectangles.dynamicAlignment);
 
 	std::vector<void*> objectData;
 	objectData.push_back((void*)(uboBuffer));
@@ -187,12 +176,28 @@ int main()
 	objectData.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("man", objectData);
 
+	if (sgr_object1.drawObject("man") != sgrOK)
+		return 100;
+
+	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, bindInpDescr, attDescr, setLayoutBinding);
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
+
+	SgrImage* texture2 = nullptr;
+	resultCreateTextureImage = TextureManager::createTextureImage(ob2Texture, texture2);
+	if (resultCreateTextureImage != sgrOK)
+		return resultCreateTextureImage;
+
+	sgr_object1.addObjectInstance("tree","triangle",1*rectangles.dynamicAlignment);
+
 	std::vector<void*>objectData2;
 	objectData2.push_back((void*)(uboBuffer));
 	objectData2.push_back((void*)(texture2));
 	objectData2.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("tree", objectData2);
 
+	if (sgr_object1.drawObject("tree") != sgrOK)
+		return 200;
 
 	sgr_object1.setupUniformBuffer(uboBuffer);
 
@@ -224,15 +229,11 @@ int main()
 	ubo.proj = glm::mat4(1.f);
 	sgr_object1.updateUniformBuffer(ubo);
 
-	if (sgr_object1.drawObject("man") != sgrOK)
-		return 100;
-
-	if (sgr_object1.drawObject("tree") != sgrOK)
-		return 200;
 
 	sgr_object1.setUpdateFunction(updateData);
 	while (sgr_object1.isSGRRunning()) {
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
+
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
 	}

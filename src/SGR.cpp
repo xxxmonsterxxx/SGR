@@ -3,6 +3,8 @@
 #include "ShaderManager.h"
 #include "PipelineManager.h"
 
+#include <unistd.h>
+
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
 	manualWindow = false;
@@ -98,7 +100,6 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 
 	sgrRunning = true;
 	startRunningTime = SgrTime::now();
-	lastFrameUpdateTime = SgrTime::now();
 	windowManager->setSgrPtr(this);
 
 	return sgrOK;
@@ -148,8 +149,7 @@ void SGR::setAspectRatio(uint8_t x, uint8_t y)
 
 SgrErrCode SGR::drawFrame()
 {
-	if (getSgrTimeDuration(lastFrameUpdateTime, SgrTime::now()) < (1.f / fpsDesired))
-		return sgrOK;
+	SgrTime_t startDrawFrameTime = SgrTime::now();
 
 	drawDataUpdate();
 
@@ -229,7 +229,11 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	lastFrameUpdateTime = SgrTime::now();
+	float drawFrameTime = getSgrTimeDuration(startDrawFrameTime,SgrTime::now());
+
+	if (drawFrameTime < 1.f/fpsDesired) {
+		usleep((1.f/fpsDesired - drawFrameTime)*1000000);
+	}
 
 	return sgrOK;
 }
@@ -483,4 +487,13 @@ SgrErrCode SGR::writeDescriptorSets(std::string name, std::vector<void*> data)
 float SGR::getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
 {
 	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
+}
+
+bool SGR::setFPSDesired(uint8_t fps)
+{
+	if (fps == 0)
+		return false;
+
+	fpsDesired = fps;
+	return true;
 }

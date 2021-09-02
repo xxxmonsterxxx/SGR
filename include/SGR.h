@@ -95,6 +95,8 @@ public:
 
 	float getSgrTimeDuration(SgrTime_t start, SgrTime_t end);
 
+	bool setFPSDesired(uint8_t fps);
+
 private:
 	const uint8_t engineVersionMajor = 0;
 	const uint8_t engineVersionMinor = 1;

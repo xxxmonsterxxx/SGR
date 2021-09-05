@@ -73,8 +73,8 @@ public:
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
-	SgrErrCode addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									std::string shaderVert, std::string shaderFrag,
+	SgrErrCode addNewObjectGeometry(std::string name, std::vector<SgrVertex> vertices, std::vector<uint16_t> indices,
+									std::string shaderVert, std::string shaderFrag, bool filled,
 									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding);

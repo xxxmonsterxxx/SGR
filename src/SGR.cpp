@@ -330,8 +330,8 @@ SgrErrCode SGR::setupDynamicUniformBuffer(SgrBuffer* dynUBOBuffer)
 	return sgrOK;
 }
 
-SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> vertices, std::vector<uint16_t> indices,
-									 std::string shaderVert, std::string shaderFrag,
+SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> vertices, std::vector<uint16_t> indices,
+									 std::string shaderVert, std::string shaderFrag, bool filled,
 									 std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
@@ -370,7 +370,7 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<Sgr2DVertex> 
 	newDescriptorInfo.setLayoutBinding = setDescriptorSetsLayoutBinding;
 	descriptorManager->addNewDescriptorInfo(newDescriptorInfo);
 
-	pipelineManager->createAndAddPipeline(name, objectShaders, newDescriptorInfo);
+	pipelineManager->createAndAddPipeline(name, objectShaders, newDescriptorInfo, filled);
 
 	objects.push_back(newObject);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -23,8 +24,8 @@
 using SgrTime = std::chrono::high_resolution_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;
 
-struct Sgr2DVertex {
-	glm::vec2 position;
+struct SgrVertex {
+	glm::vec3 position;
 	glm::vec3 color;
 };
 

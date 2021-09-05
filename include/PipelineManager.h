@@ -21,6 +21,7 @@ public:
 		std::string name = "empty";
 		VkPipelineLayout* pipelineLayout;
 		VkPipeline* pipeline;
+		bool filled;
 	};
 
 	static PipelineManager* get();
@@ -34,7 +35,7 @@ private:
 
 	std::vector<SgrPipeline> pipelines;
 
-	SgrErrCode createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo);
+	SgrErrCode createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo, bool filled);
 	SgrErrCode createPipeline(ShaderManager::SgrShader objectShaders, 
 							  DescriptorManager::SgrDescriptorInfo descriptorInfo,
 							  SgrPipeline& sgrPipeline);

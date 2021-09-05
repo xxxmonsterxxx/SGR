@@ -1,5 +1,6 @@
 #include <SGR.h>
 #include <iostream>
+#include <unistd.h>
 
 float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
 {
@@ -37,7 +38,7 @@ std::vector<VkVertexInputBindingDescription> createBindingDescr()
 {
 	VkVertexInputBindingDescription vertexBindingDescription;
 	vertexBindingDescription.binding = 0;
-	vertexBindingDescription.stride = sizeof(Sgr2DVertex);
+	vertexBindingDescription.stride = sizeof(SgrVertex);
 	vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 	std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions{ vertexBindingDescription };
@@ -49,14 +50,14 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 	VkVertexInputAttributeDescription positionDescr;
 	positionDescr.binding = 0;
 	positionDescr.location = 0;
-	positionDescr.format = VK_FORMAT_R32G32_SFLOAT;
-	positionDescr.offset = offsetof(Sgr2DVertex, position);
+	positionDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+	positionDescr.offset = offsetof(SgrVertex, position);
 
 	VkVertexInputAttributeDescription colorDescr;
 	colorDescr.binding = 0;
 	colorDescr.location = 1;
 	colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
-	colorDescr.offset = offsetof(Sgr2DVertex, color);
+	colorDescr.offset = offsetof(SgrVertex, color);
 
 	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 	vertexAttributeDescriptions.push_back(positionDescr);
@@ -68,6 +69,7 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 
 SGR sgr_object1;
 
+SgrTime_t frame_dr;
 SgrTime_t lastDraw = SgrTime::now();
 SgrDynamicUniformBufferObject rectangles;
 SgrUniformBufferObject ubo;
@@ -77,13 +79,16 @@ void updateData() {
 		glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
 		texCoord->x += 0.111;
 		if (texCoord->x >= 1)
-			texCoord->x = 0.055;
+			texCoord->x = 0.166;
+
+		// glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
+		// *model = glm::translate(*model, glm::vec3(0, 0, -0.09));
 
 		lastDraw = SgrTime::now();
-		sgr_object1.updateDynamicUniformBuffer(rectangles);
 	}
 
 	sgr_object1.updateUniformBuffer(ubo);
+	sgr_object1.updateDynamicUniformBuffer(rectangles);
 };
 
 int main()
@@ -107,27 +112,28 @@ int main()
 
 	std::string objectName = "rectangle";
 	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
-	std::vector<Sgr2DVertex> obMeshVertices = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	std::vector<SgrVertex> obMeshVertices = {
+		{{-0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f,  0}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.5f,   0}, {1.0f, 0.0f, 0.0f}},
+		{{-0.5f, 0.5f,  0}, {1.0f, 0.0f, 0.0f}}
 	};
 
 	std::string objectName1 = "triangle";
 	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
-	std::vector<Sgr2DVertex> obMeshVertices1 = {
-		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}}
+	std::vector<SgrVertex> obMeshVertices1 = {
+		{{-0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},	
+		{{0.5f, 0.5f, 0}, {1.0f, 0.0f, 0.0f}}
 	};
 
-	std::string obShaderVert = "shaders/vertex.spv";
-	std::string obShaderFrag = "shaders/fragment.spv";
-	std::string obShaderFragColor = "shaders/colorFragment.spv";
+	std::string obShaderVert = "shaders/vertInstanceSh.spv";
+	std::string obShaderFrag = "shaders/fragTextureSh.spv";
+	std::string obShaderFragColor = "shaders/fragColorSh.spv";
 
 	SgrUniformBufferObject objectsUBO;
 	std::string ob1Texture = "textures/man.png";
+	std::string roadT = "textures/road.png";
 	std::string ob2Texture = "textures/tree.png";
 
 	// new object layout creating done. Next step - setup this data to SGR and add command to draw.
@@ -144,7 +150,7 @@ int main()
 		glm::vec2 texSize;
 	};
 
-	rectangles.instnaceCount = 2;
+	rectangles.instnaceCount = 3;
 	rectangles.instanceSize = sizeof(InstanceData);
 	MemoryManager::createDynamicUniformMemory(rectangles);
 	SgrBuffer* instanceUBO = nullptr;
@@ -159,12 +165,17 @@ int main()
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, bindInpDescr, attDescr, setLayoutBinding);
+	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 	
 	SgrImage* texture1 = nullptr;
 	SgrErrCode resultCreateTextureImage = TextureManager::createTextureImage(ob1Texture, texture1);
+	if (resultCreateTextureImage != sgrOK)
+		return resultCreateTextureImage;
+
+	SgrImage* road = nullptr;
+	resultCreateTextureImage = TextureManager::createTextureImage(roadT, road);
 	if (resultCreateTextureImage != sgrOK)
 		return resultCreateTextureImage;
 
@@ -176,10 +187,9 @@ int main()
 	objectData.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("man", objectData);
 
-	if (sgr_object1.drawObject("man") != sgrOK)
-		return 100;
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, bindInpDescr, attDescr, setLayoutBinding);
+
+	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
@@ -199,12 +209,30 @@ int main()
 	if (sgr_object1.drawObject("tree") != sgrOK)
 		return 200;
 
+	//-------
+
+	sgr_object1.addObjectInstance("road","rectangle",2*rectangles.dynamicAlignment);
+
+	std::vector<void*> objectData3;
+	objectData3.push_back((void*)(uboBuffer));
+	objectData3.push_back((void*)(road));
+	objectData3.push_back((void*)(instanceUBO));
+	sgr_object1.writeDescriptorSets("road", objectData3);
+
+
+	if (sgr_object1.drawObject("man") != sgrOK)
+		return 100;
+
+	if (sgr_object1.drawObject("road") != sgrOK)
+		return 100;
+
+	//------------
+
 	sgr_object1.setupUniformBuffer(uboBuffer);
 
 	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
 	*model = glm::mat4(1.f);
-	*model = glm::translate(*model, glm::vec3(-0.2f, 0.35f, 0.f));
-	*model = glm::scale(*model,glm::vec3(0.3f,0.3f,1.f));
+	*model = glm::translate(*model, glm::vec3(-0.5, 0, -2));
 	glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
 	texCoord->x = 0.055;
 	texCoord->y = 0.125;
@@ -222,16 +250,27 @@ int main()
 	texSize->x = 2.f;
 	texSize->y = 2.f;
 
-	sgr_object1.updateDynamicUniformBuffer(rectangles);
+	model = (glm::mat4*)((uint64_t)rectangles.data + 2*rectangles.dynamicAlignment);
+	*model = glm::mat4(1.f);
+	*model = glm::translate(*model,glm::vec3(0,0,-3));
+	*model = glm::scale(*model,glm::vec3(1.f,1.f,1.f));
+	texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + 2*rectangles.dynamicAlignment);
+	texCoord->x = 0.5f;
+	texCoord->y = 0.5f;
+	texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4) + 2*rectangles.dynamicAlignment);
+	texSize->x = 2.f;
+	texSize->y = 2.f;
 
-	ubo.view = glm::mat4(1.f);
-	// ubo.view = glm::rotate(ubo.view, glm::radians(90.f), glm::vec3(0, 0, 1));
-	ubo.proj = glm::mat4(1.f);
+	sgr_object1.updateDynamicUniformBuffer(rectangles);
+	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
+	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
 	sgr_object1.updateUniformBuffer(ubo);
 
-
 	sgr_object1.setUpdateFunction(updateData);
-	while (sgr_object1.isSGRRunning()) {
+	while (1) {
+		if (!sgr_object1.isSGRRunning())
+			break;
+
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
 
 		if (resultDrawFrame != sgrOK)

@@ -12,18 +12,14 @@ layout (binding = 2) uniform UboInstance {
     vec2 spriteSize;  // size of sprite in spritesheet
 } uboInstance;
 
-layout(location = 0) in vec2 inPosition;
+layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inColor;
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
-vec2 pointCoordToTexCoord(vec2 pointCoord) {
-    return (pointCoord + vec2(1,1)) * 0.5;
-}
-
 void main() {
-    gl_Position = ubo.view * ubo.proj * uboInstance.model * vec4(inPosition, 0.0, 1.0);
+    gl_Position =  ubo.proj * ubo.view * uboInstance.model * vec4(inPosition, 1.0);
 
     fragColor = inColor;
 

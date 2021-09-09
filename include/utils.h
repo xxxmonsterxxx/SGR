@@ -95,5 +95,6 @@ enum SgrErrCode
 	sgrShaderToDeleteNotFound,
 	sgrUnknownGeometry,
 	sgrDescriptorsWithUnknownInfo,
-	sgrMissingInstance
+	sgrMissingInstance,
+	sgrSupportedFormatsNotFound,
 };

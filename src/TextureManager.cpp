@@ -62,7 +62,7 @@ SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*&
 
     MemoryManager::destroyBuffer(stagingBuffer);
 
-    SgrErrCode resultCreateImageView = SwapChainManager::createImageView(image->vkImage, image->format, &image->view);
+    SgrErrCode resultCreateImageView = SwapChainManager::createImageView(image->vkImage, image->format, VK_IMAGE_ASPECT_COLOR_BIT, &image->view);
     if (resultCreateImageView != sgrOK)
         return resultCreateImageView;
 

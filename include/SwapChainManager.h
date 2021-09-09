@@ -47,6 +47,9 @@ public:
 	SgrSwapChainDetails querySwapChainDetails(VkPhysicalDevice device);
 	VkExtent2D getExtent();
 	VkFormat getImageFormat();
+	SgrErrCode getDepthFormat(VkFormat& depthFormat);
+
+	SgrErrCode findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features, VkFormat& resFormat);
 
 private:
 	SwapChainManager();
@@ -69,9 +72,10 @@ private:
 
 	SgrErrCode initSurface(VkInstance instance, GLFWwindow* window);
 	SgrErrCode createImageViews();
+	SgrErrCode createDepthResources();
 	void setupSwapChainProperties();
 
-	static SgrErrCode createImageView(VkImage image, VkFormat format, VkImageView* imageView);
+	static SgrErrCode createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
 	static SgrErrCode createImage(SgrImage*& image);
 	static SgrErrCode transitionImageLayout(SgrImage* image, VkImageLayout oldLayout, VkImageLayout newLayout);
 
@@ -79,6 +83,7 @@ private:
 	SgrSwapChainDetails details;
 	uint32_t imageCount;
 	std::vector<VkImage> images;
+	SgrImage* depthImage;
 	VkFormat imageFormat;
 	VkExtent2D extent;
 	std::vector<VkImageView> imageViews;

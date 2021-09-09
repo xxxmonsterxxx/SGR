@@ -81,8 +81,8 @@ void updateData() {
 		if (texCoord->x >= 1)
 			texCoord->x = 0.166;
 
-		// glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
-		// *model = glm::translate(*model, glm::vec3(0, 0, -0.09));
+		glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
+		*model = glm::translate(*model, glm::vec3(0, 0, -0.09));
 
 		lastDraw = SgrTime::now();
 	}
@@ -232,7 +232,7 @@ int main()
 
 	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
 	*model = glm::mat4(1.f);
-	*model = glm::translate(*model, glm::vec3(-0.5, 0, -2));
+	*model = glm::translate(*model, glm::vec3(0, 0, 0));
 	glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
 	texCoord->x = 0.055;
 	texCoord->y = 0.125;

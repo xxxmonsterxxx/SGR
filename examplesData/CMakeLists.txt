@@ -28,4 +28,6 @@ if (VULKAN_FOUND)
     target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} glfw ${SGR_LIB})
 endif (VULKAN_FOUND)
 
+file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 ###########################################################################

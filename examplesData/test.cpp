@@ -51,17 +51,10 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 	positionDescr.binding = 0;
 	positionDescr.location = 0;
 	positionDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
-	positionDescr.offset = offsetof(SgrVertex, position);
-
-	VkVertexInputAttributeDescription colorDescr;
-	colorDescr.binding = 0;
-	colorDescr.location = 1;
-	colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
-	colorDescr.offset = offsetof(SgrVertex, color);
+	positionDescr.offset = 0;
 
 	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 	vertexAttributeDescriptions.push_back(positionDescr);
-	vertexAttributeDescriptions.push_back(colorDescr);
 	return vertexAttributeDescriptions; 
 }
 
@@ -112,29 +105,25 @@ int main()
 
 	std::string objectName = "rectangle";
 	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
-	std::vector<SgrVertex> obMeshVertices = {
-		{{-0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f,  0}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f,   0}, {1.0f, 0.0f, 0.0f}},
-		{{-0.5f, 0.5f,  0}, {1.0f, 0.0f, 0.0f}}
-	};
+	std::vector<SgrVertex> obMeshVertices = {{-0.5f, -0.5f, 0},
+											 {0.5f, -0.5f,  0},
+											 {0.5f, 0.5f,   0},
+											 {-0.5f, 0.5f,  0}};
 
 	std::string objectName1 = "triangle";
 	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
-	std::vector<SgrVertex> obMeshVertices1 = {
-		{{-0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0}, {1.0f, 0.0f, 0.0f}},	
-		{{0.5f, 0.5f, 0}, {1.0f, 0.0f, 0.0f}}
-	};
+	std::vector<SgrVertex> obMeshVertices1 = {{-0.5f, -0.5f, 0},
+											  {0.5f, -0.5f,  0},	
+											  {0.5f, 0.5f,   0}};
 
-	std::string obShaderVert = "shaders/vertInstanceSh.spv";
-	std::string obShaderFrag = "shaders/fragTextureSh.spv";
-	std::string obShaderFragColor = "shaders/fragColorSh.spv";
+	std::string obShaderVert = "Resources/shaders/vertInstanceSh.spv";
+	std::string obShaderFrag = "Resources/shaders/fragTextureSh.spv";
+	std::string obShaderFragColor = "Resources/shaders/fragColorSh.spv";
 
 	SgrUniformBufferObject objectsUBO;
-	std::string ob1Texture = "textures/man.png";
-	std::string roadT = "textures/road.png";
-	std::string ob2Texture = "textures/tree.png";
+	std::string ob1Texture = "Resources/textures/man.png";
+	std::string roadT = "Resources/textures/road.png";
+	std::string ob2Texture = "Resources/textures/tree.png";
 
 	// new object layout creating done. Next step - setup this data to SGR and add command to draw.
 
@@ -148,6 +137,7 @@ int main()
 		glm::mat4 model;
 		glm::vec2 texCoord;
 		glm::vec2 texSize;
+		glm::vec3 color;
 	};
 
 	rectangles.instnaceCount = 3;
@@ -189,7 +179,7 @@ int main()
 
 
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
+	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
@@ -242,13 +232,12 @@ int main()
 
 	model = (glm::mat4*)((uint64_t)rectangles.data + rectangles.dynamicAlignment);
 	*model = glm::mat4(1.f);
+	*model = glm::translate(*model,glm::vec3(0,0,-3));
 	*model = glm::scale(*model,glm::vec3(1.f,1.f,1.f));
-	texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + rectangles.dynamicAlignment);
-	texCoord->x = 0.5f;
-	texCoord->y = 0.5f;
-	texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4) + rectangles.dynamicAlignment);
-	texSize->x = 2.f;
-	texSize->y = 2.f;
+	glm::vec3* color = (glm::vec3*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::vec2) + sizeof(glm::mat4) + 1*rectangles.dynamicAlignment);
+	color->r = 0;
+	color->g = 0;
+	color->b = 1;
 
 	model = (glm::mat4*)((uint64_t)rectangles.data + 2*rectangles.dynamicAlignment);
 	*model = glm::mat4(1.f);

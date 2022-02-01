@@ -23,11 +23,7 @@
 
 using SgrTime = std::chrono::high_resolution_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;
-
-struct SgrVertex {
-	glm::vec3 position;
-	glm::vec3 color;
-};
+using SgrVertex = glm::vec3;
 
 struct SgrUniformBufferObject {
 	glm::mat4 view = glm::mat4(1.f);

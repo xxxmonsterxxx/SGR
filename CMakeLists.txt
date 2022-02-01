@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
+message("Build Simple Graphic Renderer v"${VERSION})
+
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
 # srg include folder
 include_directories(include)
-
-SET(RELEASE FALSE)
-SET(VERSION "0.4.0")
 
 SET(SOURCE  src/CommandManager.cpp
 			src/DescriptorManager.cpp
@@ -45,10 +44,12 @@ if (VULKAN_FOUND)
 	target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
 endif (VULKAN_FOUND)
 
+set(BUILD_DEST build/SGR-v${VERSION})
+
 if (RELEASE)
-	file(COPY include DESTINATION build/${VERSION})
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY build/${VERSION}/lib/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY build/${VERSION}/lib/static)
+	file(COPY include DESTINATION ${BUILD_DEST})
+	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib/shared)
+	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib/static)
 else (RELEASE)
 	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY build/shared)
 	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY build/static)

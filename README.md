@@ -1,32 +1,53 @@
-# Simple Graphics Renderer
+# *Simple Graphics Renderer*
 
-![Image of project](https://i.postimg.cc/52B9yHT0/Logo-5.png)
+![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
 
-How to use?
+### *How to use?*
+___
 
-You could build this, but other option is to download release built version as static or shared library.
-In additional to this you should to download (or include as submodule of git project) and include to your project follows libraries:
-GLM (https://github.com/g-truc/glm)
-STB (https://github.com/nothings/stb)
-Vulkan (https://www.lunarg.com/vulkan-sdk)
-GLFW (https://github.com/glfw/glfw)
+There is possibility to build library from source code, but other
+option is to download release built version as static or shared
+[library](https://github.com/xxxmonsterxxx/SGR/releases). It's necessary to download (or
+include as submodule of git project) and include to your
+project follows libraries:
 
-How to build?
+- **GLM** (https://github.com/g-truc/glm)
+- **STB** (https://github.com/nothings/stb)
+- **Vulkan** (https://www.lunarg.com/vulkan-sdk)
+- **GLFW** (https://github.com/glfw/glfw)
 
-For build you need only Vulkan and GLFW libraries.
+Set path to `SGR-vX.X.X/include` as include path and
+`SGR-vX.X.X/lib/static` or shared as external libraries
+for your projects.
 
-Each build can be multithreaded, after "cmake" command will be generated message with max number of your threads.
+Manual documentation is currently unavailable. :cry:
+[:arrow_down:Contacts](#Contacts)
+
+### *How to build?*
+___
+
+For build need to install **Vulkan** and **GLFW** libraries.
+Each build can be multithreaded, after "cmake"
+command will be generated message with max number
+of your threads.
 
 MacOS & Linux & Windows build is the same:
+```bash
+	cmake . -DRELEASE=TRUE -DVERSION=1.0.0 #if build for debug -> -DRELEASE=FALSE
+	make -j16 #number of your cores will be generated after "cmake"
+```
 
-:cmake .
+For test of engine run build and launch the application:
+```bash
+	cd examplesData
+	cmake .
+	make
+	cd build
+	./SGR_test
+```
+___
 
-:make
-
-For test of engine you can build run and follow:
-
-:cd examplesData
-
-:cmake .
-
-:make
+### Contacts
+*Mikhail Polestchuk*    
+*Email - [arsenal-mihail@mail.ru]*    
+*Belarus, Minsk, 2022(c)*

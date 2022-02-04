@@ -21,8 +21,8 @@
 
 #include <chrono>
 
-using SgrTime = std::chrono::_V2::high_resolution_clock;
-using SgrTime_t = std::chrono::_V2::system_clock::time_point;
+using SgrTime = std::chrono::steady_clock;
+using SgrTime_t = std::chrono::steady_clock::time_point;
 using SgrVertex = glm::vec3;
 
 struct SgrUniformBufferObject {

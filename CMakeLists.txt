@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-message("Build Simple Graphic Renderer v"${VERSION})
+message("Build Simple Graphic Renderer")
 
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
@@ -29,8 +29,6 @@ add_library(SGR_ST STATIC ${SOURCE})
 add_library(SGR SHARED ${SOURCE})
 
 
-
-
 # include libraries
 set(GLM_INC_DIR modules/glm)
 set(STB_INC_DIR modules/stb)
@@ -46,9 +44,15 @@ if (VULKAN_FOUND)
 	target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
 endif (VULKAN_FOUND)
 
-set(BUILD_DEST build/SGR-v${VERSION})
 
 if (RELEASE)
+	# get current git tag
+	execute_process(COMMAND git describe --tags
+	OUTPUT_VARIABLE VERSION
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	set(BUILD_DEST build/SGR-${VERSION})
+
 	file(COPY include DESTINATION ${BUILD_DEST})
 	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib/shared)
 	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib/static)

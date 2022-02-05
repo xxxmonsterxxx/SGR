@@ -8,7 +8,10 @@ include_directories(include)
 SET(RELEASE FALSE)
 SET(VERSION "0.4.0")
 
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
+if (NOT RELEASE)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	message("NOT RELEASE")
+endif (NOT RELEASE)
 
 SET(SOURCE  src/CommandManager.cpp
 			src/DescriptorManager.cpp

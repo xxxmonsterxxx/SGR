@@ -34,10 +34,6 @@ WindowManager* WindowManager::get()
 
 SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName)
 {
-	windowWidth = 800;
-	windowHeight = 800;
-	windowName = "SGR";
-
 	if (windowWidth != 0)
 		this->width = windowWidth;
 	if (windowHeight != 0)

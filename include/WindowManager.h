@@ -9,9 +9,9 @@ class WindowManager {
 
 private:
 	// default size of renderer's window
-	uint32_t width;
-	uint32_t height;
-	std::string name;
+	uint32_t width = 800;
+	uint32_t height = 800;
+	std::string name = "SGR";
 
 	SGR* _parrentSgr = nullptr;
 

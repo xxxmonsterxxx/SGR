@@ -8,6 +8,8 @@ include_directories(include)
 SET(RELEASE FALSE)
 SET(VERSION "0.4.0")
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+
 SET(SOURCE  src/CommandManager.cpp
 			src/DescriptorManager.cpp
 			src/FileManager.cpp

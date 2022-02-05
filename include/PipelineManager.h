@@ -19,8 +19,8 @@ class PipelineManager {
 public:
 	struct SgrPipeline {
 		std::string name = "empty";
-		VkPipelineLayout* pipelineLayout;
-		VkPipeline* pipeline;
+		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+		VkPipeline pipeline = VK_NULL_HANDLE;
 	};
 
 	static PipelineManager* get();
@@ -32,7 +32,7 @@ private:
 	PipelineManager operator=(PipelineManager&) = delete;
 	static PipelineManager* instance;
 
-	std::vector<SgrPipeline> pipelines;
+	std::vector<SgrPipeline*> pipelines;
 
 	SgrErrCode createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo);
 	SgrErrCode createPipeline(ShaderManager::SgrShader objectShaders, 

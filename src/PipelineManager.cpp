@@ -7,8 +7,8 @@ PipelineManager* PipelineManager::instance = nullptr;
 
 PipelineManager::PipelineManager() 
 {
-    SgrPipeline emptyPipeline;
-    emptyPipeline.name = "empty";
+    SgrPipeline* emptyPipeline = new SgrPipeline;
+    emptyPipeline->name = "empty";
     pipelines.push_back(emptyPipeline);
 }
 
@@ -26,9 +26,9 @@ PipelineManager* PipelineManager::get()
 
 SgrErrCode PipelineManager::createAndAddPipeline(std::string name, ShaderManager::SgrShader objectShaders, DescriptorManager::SgrDescriptorInfo descriptorInfo)
 {
-	SgrPipeline newPipeline;
-	newPipeline.name = name;
-    SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, newPipeline);
+	SgrPipeline* newPipeline = new SgrPipeline;
+	newPipeline->name = name;
+    SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, *newPipeline);
     if (resultCreatePipeline != sgrOK)
         return resultCreatePipeline;
 	pipelines.push_back(newPipeline);
@@ -124,8 +124,7 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
 
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
 
-	VkPipelineLayout* newLayout = new VkPipelineLayout;
-    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, newLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &sgrPipeline.pipelineLayout) != VK_SUCCESS)
         return sgrInitPipelineLayoutError;
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -138,26 +137,22 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = *newLayout;
+    pipelineInfo.layout = sgrPipeline.pipelineLayout;
     pipelineInfo.renderPass = RenderPassManager::instance->renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	VkPipeline* newPipeline = new VkPipeline;
-    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, newPipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &sgrPipeline.pipeline) != VK_SUCCESS)
         return sgrInitPipelineError;
-
-	sgrPipeline.pipeline = newPipeline;
-	sgrPipeline.pipelineLayout = newLayout;
 
     return sgrOK;
 }
 
 SgrErrCode PipelineManager::destroyAllPipelines()
 {
-    for (size_t i = 0; i < pipelines.size(); i++) {
-        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, *pipelines[i].pipeline, nullptr);
-        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, *pipelines[i].pipelineLayout, nullptr);
+    for (size_t i = 1; i < pipelines.size(); i++) { // start with first because 0-th element is always empty (e.g. architecture)
+        vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, pipelines[i]->pipeline, nullptr);
+        vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, pipelines[i]->pipelineLayout, nullptr);
     }
 
     return sgrOK;
@@ -167,10 +162,10 @@ SgrErrCode PipelineManager::reinitAllPipelines()
 {
     size_t oldPipelineNum = pipelines.size();
     for (size_t i = 0; i < oldPipelineNum; i++) {
-        if (pipelines[i].name == "empty")
+        if (pipelines[i]->name == "empty")
             continue;
 
-        SgrErrCode resultCreatePipline = createPipeline(ShaderManager::instance->getShadersByName(pipelines[i].name), DescriptorManager::instance->getDescriptorInfoByName(pipelines[i].name), pipelines[i]);
+        SgrErrCode resultCreatePipline = createPipeline(ShaderManager::instance->getShadersByName(pipelines[i]->name), DescriptorManager::instance->getDescriptorInfoByName(pipelines[i]->name), *pipelines[i]);
         if (resultCreatePipline != sgrOK)
             return sgrReinitPipelineError;
     }
@@ -181,10 +176,10 @@ SgrErrCode PipelineManager::reinitAllPipelines()
 PipelineManager::SgrPipeline* PipelineManager::getPipelineByName(std::string name)
 {
     for (size_t i = 0; i < pipelines.size(); i++) {
-        if (pipelines[i].name == name)
-            return &pipelines[i];
+        if (pipelines[i]->name == name)
+            return pipelines[i];
     }
 
-    return &pipelines[0];
+    return pipelines[0];
 }
 

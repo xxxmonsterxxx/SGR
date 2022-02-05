@@ -437,7 +437,7 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 		return sgrMissingPipeline;
 
 	if (!objectToDraw.meshDataAndPiplineBinded) {
-		commandManager->bindPipeline(objectPipeline->pipeline);
+		commandManager->bindPipeline(&objectPipeline->pipeline);
 		std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
 		commandManager->bindVertexBuffer(vertices);
 		commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
@@ -451,7 +451,7 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(instance.uboDataAlignment) };
 
 	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
+		commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
 
 	commandManager->drawIndexed(objectToDraw.indicesCount, 1, 0, 0, 0);
 

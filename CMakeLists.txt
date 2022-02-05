@@ -7,6 +7,10 @@ project(SGR DESCRIPTION "Simple Graphics Renderer")
 # srg include folder
 include_directories(include)
 
+if (NOT RELEASE)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif (NOT RELEASE)
+
 SET(SOURCE  src/CommandManager.cpp
 			src/DescriptorManager.cpp
 			src/FileManager.cpp

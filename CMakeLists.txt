@@ -4,6 +4,10 @@ message("Build Simple Graphic Renderer v"${VERSION})
 
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
+# compiler options
+set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
+
 # srg include folder
 include_directories(include)
 
@@ -29,9 +33,7 @@ add_library(SGR_ST STATIC ${SOURCE})
 add_library(SGR SHARED ${SOURCE})
 
 
-# compiler options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++17")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc -ObjC++")
+
 
 # include libraries
 set(GLM_INC_DIR modules/glm)

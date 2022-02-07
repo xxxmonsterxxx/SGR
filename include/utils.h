@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <cstdint>
-#include <string>
+#include <string.h>
 #include <vector>
 #include <optional>
 #include <utility>
@@ -21,7 +21,7 @@
 
 #include <chrono>
 
-using SgrTime = std::chrono::high_resolution_clock;
+using SgrTime = std::chrono::steady_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;
 using SgrVertex = glm::vec3;
 
@@ -94,3 +94,14 @@ enum SgrErrCode
 	sgrMissingInstance,
 	sgrSupportedFormatsNotFound,
 };
+
+#if __APPLE__
+	#include <mach-o/dyld.h>
+	#include <CoreFoundation/CFBundle.h>
+#endif
+
+#if __linux__
+	#include <unistd.h>
+#endif
+
+std::string getExecutablePath();

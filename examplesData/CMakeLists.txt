@@ -1,11 +1,12 @@
 ##########################################################################
 
-project(SGR_test)
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++17")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc -ObjC++")
-set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
+project(SGR_test)
+
+# compiler options
+set(CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
 
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
@@ -15,10 +16,29 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 get_filename_component(SGR_FOLDER ../ ABSOLUTE)
 
 file(GLOB SOURCES ${SGR_FOLDER}/examplesData/test.cpp)
-add_executable(${PROJECT_NAME} ${SOURCES})
 
-set(GLM_INC_DIR ~/Programming/Library/glm)
-set(STB_INC_DIR ~/repos/stb)
+if (NOT RELEASE)
+	set(RELEASE false)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif (NOT RELEASE)
+
+add_definitions(-DNDBUG=${RELEASE})
+
+if (APPLE AND RELEASE)
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES})
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+											BUNDLE True
+											MACOSX_BUNDLE_ICON_FILE "ico.icns"
+											MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+											MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
+											MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
+	)
+else (APPLE AND RELEASE)
+	add_executable(${PROJECT_NAME} ${SOURCES})
+endif(APPLE AND RELEASE)
+
+set(GLM_INC_DIR ${SGR_FOLDER}/modules/glm)
+set(STB_INC_DIR ${SGR_FOLDER}/modules/stb)
 
 find_library(SGR_LIB SGR ${SGR_FOLDER}/build/shared/)
 
@@ -28,6 +48,11 @@ if (VULKAN_FOUND)
     target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} glfw ${SGR_LIB})
 endif (VULKAN_FOUND)
 
-file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+if (APPLE AND RELEASE)
+	file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/)
+	file(COPY "Resources/textures/ico.icns" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/Resources/)
+else (APPLE AND RELEASE)
+	file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif(APPLE AND RELEASE)
 
 ###########################################################################

@@ -4,14 +4,27 @@ message("Build Simple Graphic Renderer v"${VERSION})
 
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
+# compiler options
+set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
+
 # srg include folder
 include_directories(include)
 
 if (NOT RELEASE)
+	set(RELEASE false)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+else (NOT RELEASE)
+	
 endif (NOT RELEASE)
 
-SET(SOURCE  src/CommandManager.cpp
+add_definitions(-DNDBUG=${RELEASE}) # set release or not status
+
+include_directories(include) # srg include folder
+
+# define all source files - in future need to set by default (all *.cpp files)
+SET(SOURCE  src/utils.cpp
+			src/CommandManager.cpp
 			src/DescriptorManager.cpp
 			src/FileManager.cpp
 			src/LogicalDeviceManager.cpp
@@ -29,9 +42,7 @@ add_library(SGR_ST STATIC ${SOURCE})
 add_library(SGR SHARED ${SOURCE})
 
 
-# compiler options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++17")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc -ObjC++")
+
 
 # include libraries
 set(GLM_INC_DIR modules/glm)
@@ -46,9 +57,11 @@ if (VULKAN_FOUND)
     include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
     target_link_libraries (SGR ${Vulkan_LIBRARIES} glfw)
 	target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
+else (VULKAN_FOUND)
+	message(STATUS "Vulkan not found, please install Vulkan using Library readme")
 endif (VULKAN_FOUND)
 
-set(BUILD_DEST build/SGR-v${VERSION})
+set(BUILD_DEST build/SGR-v${VERSION}) # set build destination
 
 if (RELEASE)
 	file(COPY include DESTINATION ${BUILD_DEST})

@@ -1,6 +1,5 @@
 #include <SGR.h>
 #include <iostream>
-#include <unistd.h>
 
 float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
 {
@@ -106,24 +105,26 @@ int main()
 	std::string objectName = "rectangle";
 	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
 	std::vector<SgrVertex> obMeshVertices = {{-0.5f, -0.5f, 0},
-											 {0.5f, -0.5f,  0},
-											 {0.5f, 0.5f,   0},
+											 { 0.5f, -0.5f, 0},
+											 { 0.5f, 0.5f,  0},
 											 {-0.5f, 0.5f,  0}};
 
 	std::string objectName1 = "triangle";
 	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
 	std::vector<SgrVertex> obMeshVertices1 = {{-0.5f, -0.5f, 0},
-											  {0.5f, -0.5f,  0},	
-											  {0.5f, 0.5f,   0}};
+											  { 0.5f, -0.5f, 0},	
+											  { 0.5f, 0.5f,  0}};
 
-	std::string obShaderVert = "Resources/shaders/vertInstanceSh.spv";
-	std::string obShaderFrag = "Resources/shaders/fragTextureSh.spv";
-	std::string obShaderFragColor = "Resources/shaders/fragColorSh.spv";
+	std::string resourcePath = getExecutablePath() + "/Resources";
+
+	std::string obShaderVert = resourcePath + "/shaders/vertInstanceSh.spv";
+	std::string obShaderFrag = resourcePath + "/shaders/fragTextureSh.spv";
+	std::string obShaderFragColor = resourcePath + "/shaders/fragColorSh.spv";
 
 	SgrUniformBufferObject objectsUBO;
-	std::string ob1Texture = "Resources/textures/man.png";
-	std::string roadT = "Resources/textures/road.png";
-	std::string ob2Texture = "Resources/textures/tree.png";
+	std::string ob1Texture = resourcePath + "/textures/man.png";
+	std::string roadT = resourcePath + "/textures/road.png";
+	std::string ob2Texture = resourcePath + "/textures/tree.png";
 
 	// new object layout creating done. Next step - setup this data to SGR and add command to draw.
 

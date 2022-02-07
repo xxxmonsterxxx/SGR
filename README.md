@@ -9,8 +9,7 @@ There is possibility to build library from source code, but other
 option is to download release built version as static or shared
 [library](https://github.com/xxxmonsterxxx/SGR/releases). It's necessary to download (or
 include as submodule of git project) and include to your
-project follows libraries:
-
+project follows libraries:    
 - **GLM** (https://github.com/g-truc/glm)
 - **STB** (https://github.com/nothings/stb)
 - **Vulkan** (https://www.lunarg.com/vulkan-sdk)
@@ -31,19 +30,26 @@ Each build can be multithreaded, after "cmake"
 command will be generated message with max number
 of your threads.
 
+#### *Environement:*
+
+**Linux** (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you)    
+- install vulkan [SDK](https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html)
+- `sudo apt install cmake` - install [CMake](https://cmake.org/) tools
+- `sudo apt-get install libglfw3-dev` - install [GLFW](https://www.glfw.org/)
+
 MacOS & Linux & Windows build is the same:
 ```bash
-	cmake . -DRELEASE=TRUE -DVERSION=1.0.0 #if build for debug -> -DRELEASE=FALSE
-	make -j16 #number of your cores will be generated after "cmake"
+cmake . -DRELEASE=TRUE -DVERSION=1.0.0 #if build for debug -> -DRELEASE=FALSE
+make -j16 #number of your cores will be generated after "cmake"
 ```
 
 For test of engine run build and launch the application:
 ```bash
-	cd examplesData
-	cmake .
-	make
-	cd build
-	./SGR_test
+cd examplesData
+cmake .
+make
+cd build
+./SGR_test
 ```
 ___
 

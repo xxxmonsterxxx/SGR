@@ -94,3 +94,14 @@ enum SgrErrCode
 	sgrMissingInstance,
 	sgrSupportedFormatsNotFound,
 };
+
+#if __APPLE__
+	#include <mach-o/dyld.h>
+	#include <CoreFoundation/CFBundle.h>
+#endif
+
+#if __linux__
+	#include <unistd.h>
+#endif
+
+std::string getExecutablePath();

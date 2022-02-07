@@ -5,24 +5,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "attach and debug",
-            "type": "lldb",
-            "request": "attach",
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
             "program": "${workspaceFolder}/examplesData/build/SGR_test",
-            "args": [],
             "stopAtEntry": false,
-            "environment": [],
+            "cwd": "${fileDirname}",
             "externalConsole": false,
-			"setupCommands": [
+            "MIMode": "gdb",
+            "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
+                },
+                {
+                    "description":  "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
                 }
             ]
         },
-		{
-            "name": "launch and debug",
+        {
+            "name": "launch and debug OSX",
             "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/examplesData/build/SGR_test",
@@ -38,7 +43,7 @@
                     "ignoreFailures": true
                 }
             ]
-        },
+        }
     ]
 	
 }

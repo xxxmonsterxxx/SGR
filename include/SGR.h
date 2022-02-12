@@ -99,8 +99,8 @@ public:
 
 private:
 	const uint8_t engineVersionMajor = 0;
-	const uint8_t engineVersionMinor = 1;
-	const uint8_t enginePatch = 1;
+	const uint8_t engineVersionMinor = 6;
+	const uint8_t enginePatch = 0;
 
 	bool sgrRunning;
 	SgrTime_t startRunningTime;

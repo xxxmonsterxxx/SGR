@@ -3,6 +3,7 @@
 // Simple Graphic Renderer (SGR) based on Vulkan library and GLFW.
 // Mikhail Polestchuk, 2021, april.
 
+#include "version.h"
 #include "utils.h"
 
 #include "WindowManager.h"
@@ -98,9 +99,9 @@ public:
 	bool setFPSDesired(uint8_t fps);
 
 private:
-	const uint8_t engineVersionMajor = 0;
-	const uint8_t engineVersionMinor = 6;
-	const uint8_t enginePatch = 0;
+	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;
+	const uint8_t engineVersionMinor = SGR_VERSION_MINOR;
+	const uint8_t enginePatch 		 = SGR_VERSION_PATCH;
 
 	bool sgrRunning;
 	SgrTime_t startRunningTime;

@@ -1,4 +1,4 @@
-# *Simple Graphics Renderer*
+# ***Simple Graphics Renderer***
 
 ![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
 
@@ -32,15 +32,26 @@ of your threads.
 
 #### *Environement:*
 
-**Linux** (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you)    
+**Linux** (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you)
 - install vulkan [SDK](https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html)
 - `sudo apt install cmake` - install [CMake](https://cmake.org/) tools
 - `sudo apt-get install libglfw3-dev` - install [GLFW](https://www.glfw.org/)
 
-MacOS & Linux & Windows build is the same:
+**MacOS**
+- install1
+- install2
+
+**Windows**
+- install1
+- install2
+
+MacOS & Linux build is the same:
 ```bash
-cmake . -DRELEASE=TRUE -DVERSION=1.0.0 #if build for debug -> -DRELEASE=FALSE
-make -j16 #number of your cores will be generated after "cmake"
+./build.sh -option #for options descriptions use -h
+```
+
+Windows:
+```
 ```
 
 For test of engine run build and launch the application:

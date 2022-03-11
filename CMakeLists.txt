@@ -1,20 +1,23 @@
 ##########################################################################
 
-cmake_minimum_required(VERSION 3.10)
-
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
-#######################################
+cmake_minimum_required(VERSION 3.10)
 
-if (RELEASE AND NOT VERSION)
-	message(FATAL_ERROR "Release version was not setted! Use -DVERSION=X.Y.Z")
-endif (RELEASE AND NOT VERSION)
+##########################################################################
 
-if (NOT VERSION)
-	message("Build Simple Graphics Renderer in debug mode")
-else (NOT VERSION)
-	message("Build Simple Graphics Renderer v"${VERSION})
-endif (NOT VERSION)
+file(STRINGS "./include/version.h" ver)
+
+string(REGEX MATCH "SGR_VERSION_MAJOR ([0-9]*)" _ ${ver})
+set(VMAJOR ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "SGR_VERSION_MINOR ([0-9]*)" _ ${ver})
+set(VMINOR ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "SGR_VERSION_PATCH ([0-9]*)" _ ${ver})
+set(VPATCH ${CMAKE_MATCH_1})
+
+set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
 #######################################
 
@@ -48,30 +51,17 @@ include_directories(include) # SGR include folder
 if (NOT RELEASE)
 	set(RELEASE false)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	message("Build Simple Graphics Renderer v"${VERSION} " in debug mode")
 else (NOT RELEASE)
-	
+	message("Build Simple Graphics Renderer v"${VERSION})
 endif (NOT RELEASE)
 
 add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 
-# define all source files - in future need to set by default (all *.cpp files)
-SET(SOURCE  src/utils.cpp
-			src/CommandManager.cpp
-			src/DescriptorManager.cpp
-			src/FileManager.cpp
-			src/LogicalDeviceManager.cpp
-			src/MemoryManager.cpp
-			src/PhysicalDeviceManager.cpp
-			src/PipelineManager.cpp
-			src/RenderPassManager.cpp
-			src/SGR.cpp
-			src/ShaderManager.cpp
-			src/SwapChainManager.cpp
-			src/TextureManager.cpp
-			src/WindowManager.cpp)
+file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 
-add_library(SGR_ST STATIC ${SOURCE})
-add_library(SGR SHARED ${SOURCE})
+add_library(SGR_ST STATIC ${SOURCES})
+add_library(SGR SHARED ${SOURCES})
 
 
 # include libraries
@@ -112,16 +102,16 @@ if (APPLE)
 endif (APPLE)
 
 # library prefix based on paltform
-
-set(RELEASE_BUILD_DEST build/SGR-v${VERSION}-${PLATFORM_NAME}) # set release build destination
+set(RELEASE_BUILD_DEST release/SGR-v${VERSION}-${PLATFORM_NAME}/v${VERSION}) # set release build destination
+set(DEBUG_BUILD_DEST debug) # set release build destination
 
 if (RELEASE)
 	file(COPY include DESTINATION ${RELEASE_BUILD_DEST})
 	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/shared)
 	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/static)
 else (RELEASE)
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY build/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY build/static)
+	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/shared)
+	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/static)
 endif (RELEASE)
 
 include(ProcessorCount)

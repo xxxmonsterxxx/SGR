@@ -324,7 +324,7 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 	return sgrOK;
 }
 
-SgrErrCode SGR::setupDynamicUniformBuffer(SgrBuffer* dynUBOBuffer)
+SgrErrCode SGR::setupInstancesUniformBufferObject(SgrBuffer* dynUBOBuffer)
 {
 	dynamicUBO = dynUBOBuffer;
 	return sgrOK;
@@ -410,7 +410,7 @@ const SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
 	return instances[0];
 }
 
-SgrErrCode SGR::setupUniformBuffer(SgrBuffer* uboBuffer)
+SgrErrCode SGR::setupGlobalUniformBufferObject(SgrBuffer* uboBuffer)
 {
 	UBO = uboBuffer;
 	return sgrOK;
@@ -458,7 +458,7 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynUBO)
+SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
@@ -472,7 +472,7 @@ SgrErrCode SGR::updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynUBO)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateUniformBuffer(SgrUniformBufferObject obj)
+SgrErrCode SGR::updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj)
 {
 	MemoryManager::copyDataToBuffer(UBO, &obj);
 	return sgrOK;

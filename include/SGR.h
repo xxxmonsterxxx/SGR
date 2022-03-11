@@ -82,11 +82,11 @@ public:
 	SgrErrCode addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment);
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
-	SgrErrCode setupUniformBuffer(SgrBuffer* uboBuffer);
-	SgrErrCode updateUniformBuffer(SgrUniformBufferObject obj);
+	SgrErrCode setupGlobalUniformBufferObject(SgrBuffer* uboBuffer);
+	SgrErrCode updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj);
 
-	SgrErrCode setupDynamicUniformBuffer(SgrBuffer* dynUBOBuffer);
-	SgrErrCode updateDynamicUniformBuffer(SgrDynamicUniformBufferObject dynamicUBO);
+	SgrErrCode setupInstancesUniformBufferObject(SgrBuffer* dynUBOBuffer);
+	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynamicUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
 	void unbindAllMeshesAndPiplines();

@@ -202,7 +202,7 @@ void MemoryManager::copyBufferToImage(SgrBuffer* buffer, SgrImage* image) {
     CommandManager::instance->endSingleTimeCommands(commandBuffer);
 }
 
-SgrErrCode MemoryManager::createDynamicUniformMemory(SgrDynamicUniformBufferObject& dynamicUBO)
+SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO)
 {
     if (dynamicUBO.data != nullptr)
         return sgrIncorrectPointer;

@@ -63,8 +63,8 @@ SGR sgr_object1;
 
 SgrTime_t frame_dr;
 SgrTime_t lastDraw = SgrTime::now();
-SgrDynamicUniformBufferObject rectangles;
-SgrUniformBufferObject ubo;
+SgrInstancesUniformBufferObject rectangles;
+SgrGlobalUniformBufferObject ubo;
 
 void updateData() {
 	if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
@@ -79,8 +79,8 @@ void updateData() {
 		lastDraw = SgrTime::now();
 	}
 
-	sgr_object1.updateUniformBuffer(ubo);
-	sgr_object1.updateDynamicUniformBuffer(rectangles);
+	sgr_object1.updateGlobalUniformBufferObject(ubo);
+	sgr_object1.updateInstancesUniformBufferObject(rectangles);
 };
 
 int main()
@@ -121,7 +121,7 @@ int main()
 	std::string obShaderFrag = resourcePath + "/shaders/fragTextureSh.spv";
 	std::string obShaderFragColor = resourcePath + "/shaders/fragColorSh.spv";
 
-	SgrUniformBufferObject objectsUBO;
+	SgrGlobalUniformBufferObject objectsUBO;
 	std::string ob1Texture = resourcePath + "/textures/man.png";
 	std::string roadT = resourcePath + "/textures/road.png";
 	std::string ob2Texture = resourcePath + "/textures/tree.png";
@@ -149,10 +149,10 @@ int main()
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
-	sgr_object1.setupDynamicUniformBuffer(instanceUBO);
+	sgr_object1.setupInstancesUniformBufferObject(instanceUBO);
 
 	SgrBuffer* uboBuffer = nullptr;
-	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrUniformBufferObject));
+	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject));
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
@@ -219,7 +219,7 @@ int main()
 
 	//------------
 
-	sgr_object1.setupUniformBuffer(uboBuffer);
+	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
 
 	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
 	*model = glm::mat4(1.f);
@@ -251,10 +251,10 @@ int main()
 	texSize->x = 2.f;
 	texSize->y = 2.f;
 
-	sgr_object1.updateDynamicUniformBuffer(rectangles);
+	sgr_object1.updateInstancesUniformBufferObject(rectangles);
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
-	sgr_object1.updateUniformBuffer(ubo);
+	sgr_object1.updateGlobalUniformBufferObject(ubo);
 
 	sgr_object1.setUpdateFunction(updateData);
 	while (1) {

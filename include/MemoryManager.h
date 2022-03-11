@@ -42,6 +42,6 @@ class MemoryManager {
 public:
 	static MemoryManager* get();
 	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
-	static SgrErrCode createDynamicUniformMemory(SgrDynamicUniformBufferObject& dynamicUBO);
+	static SgrErrCode createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO);
 	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 };

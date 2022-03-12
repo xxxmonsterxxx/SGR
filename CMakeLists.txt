@@ -51,9 +51,9 @@ include_directories(include) # SGR include folder
 if (NOT RELEASE)
 	set(RELEASE false)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
-	message("Build Simple Graphics Renderer v"${VERSION} " in debug mode")
+	message("Build Simple Graphics Renderer v" ${VERSION} " in debug mode")
 else (NOT RELEASE)
-	message("Build Simple Graphics Renderer v"${VERSION})
+	message("Build Simple Graphics Renderer v" ${VERSION})
 endif (NOT RELEASE)
 
 add_definitions(-DNDBUG=${RELEASE}) # set release or not status
@@ -117,6 +117,6 @@ endif (RELEASE)
 include(ProcessorCount)
 ProcessorCount(N)
 
-message("Ready to build on "${PLATFORM_NAME})
+message("Ready to build on " ${PLATFORM_NAME})
 
 ##########################################################################

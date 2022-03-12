@@ -118,7 +118,5 @@ include(ProcessorCount)
 ProcessorCount(N)
 
 message("Ready to build on "${PLATFORM_NAME})
-message("Please build using: make -j"  ${N})
-
 
 ##########################################################################

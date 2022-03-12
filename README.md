@@ -2,7 +2,7 @@
 
 ![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
 
-### *How to use?*
+### ***How to use?***
 ___
 
 There is possibility to build library from source code, but other
@@ -22,7 +22,7 @@ for your projects.
 Manual documentation is currently unavailable. :cry:
 [:arrow_down:Contacts](#Contacts)
 
-### *How to build?*
+### ***How to build?***
 ___
 
 For build need to install **Vulkan** and **GLFW** libraries.
@@ -30,12 +30,18 @@ Each build can be multithreaded, after "cmake"
 command will be generated message with max number
 of your threads.
 
-#### *Environement:*
+#### ***Environement:***
 
 **Linux** (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you)
 - install vulkan [SDK](https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html)
 - `sudo apt install cmake` - install [CMake](https://cmake.org/) tools
 - `sudo apt-get install libglfw3-dev` - install [GLFW](https://www.glfw.org/)
+
+**MacOS**   
+
+**Windows**   
+   
+#### ***Build:***
 
 **MacOS**
 - install1
@@ -65,6 +71,6 @@ cd build
 ___
 
 ### Contacts
-*Mikhail Polestchuk*    
+*Mikhail Polestchuk*   
 *Email - [arsenal-mihail@mail.ru]*    
 *Belarus, Minsk, 2022(c)*

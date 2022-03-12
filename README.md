@@ -32,28 +32,24 @@ of your threads.
 
 #### ***Environement:***
 
-**Linux** (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you)
+Linux (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you):
 - install vulkan [SDK](https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html)
 - `sudo apt install cmake` - install [CMake](https://cmake.org/) tools
 - `sudo apt-get install libglfw3-dev` - install [GLFW](https://www.glfw.org/)
 
-**MacOS**   
+MacOS
+- install1
+- install2
 
-**Windows**   
+Windows
+- install1
+- install2 
    
 #### ***Build:***
 
-**MacOS**
-- install1
-- install2
-
-**Windows**
-- install1
-- install2
-
 MacOS & Linux build is the same:
 ```bash
-./build.sh -option #for options descriptions use -h
+./build.sh #for options descriptions use -h
 ```
 
 Windows:

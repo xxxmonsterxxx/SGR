@@ -102,7 +102,7 @@ if (APPLE)
 endif (APPLE)
 
 # library prefix based on paltform
-set(RELEASE_BUILD_DEST release/SGR-v${VERSION}-${PLATFORM_NAME}/v${VERSION}) # set release build destination
+set(RELEASE_BUILD_DEST release/SGR-v${VERSION}-${PLATFORM_NAME}) # set release build destination
 set(DEBUG_BUILD_DEST debug) # set release build destination
 
 if (RELEASE)

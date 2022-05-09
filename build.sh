@@ -2,53 +2,62 @@
 
 # shell script for building and possible (re)installing
 
+echo
+echo "Welcome to Simple Graphics Library helper script"
+echo
+
 ############################################################
 # Help                                                     #
 ############################################################
 Help()
 {
-   # Display Help
-   echo
-   echo "Help for Simple Graphics Library build shell script."
-   echo
-   echo "options:"
-   echo "-h Help."
-   echo "-r Release build. By default build type is debug."
-   echo "-c Clear build."
-   echo
+   	# Display Help
+   	echo
+   	echo "given options:"
+	echo "-d : Debug build"
+   	echo "-r : Release build"
+   	echo "-c : Clear build"
+   	echo
 }
 
 ############################################################
 ############################################################
 
-type=debug #build type debug or release
-install=false #install library or not
+need_build=false # do we need build or not?
+install=false # install library or not
 
 # Get the options
-while getopts ":hrcif" flag
+while getopts ":rcifd" flag
 do
     case $flag in
-		h)	#Help message request
-			Help
+		d) 	# Build type is debug
+			need_build=true
+			build_type=debug;;
+        r) 	# Build type is release
+			need_build=true
+			build_type=release;;
+		c) 	rm -rf build
+			clean=true
+			echo "Build folder was cleared"
 			exit;;
-        r) 	#Build type is release
-			type=release;;
-		c) 	clean=true;;
 		i)	install=true;;
-		f)	if [ $clean ]
-			then
-				rm -rf build
-			fi;;
 	   \?)	# Invalid option
 			echo "Error: Invalid option - ${OPTARG}"
 			exit;;
     esac
 done
 
+if [ $need_build == false ]
+then
+	# Help message
+	Help
+	exit;
+fi
+
 mkdir build
 cd build
 
-case $type in
+case $build_type in
 	debug)		cmake .. -DRELEASE=FALSE ;;
 	release)	cmake .. -DRELEASE=TRUE ;;
 esac
@@ -60,7 +69,7 @@ else
 	cmake --build . -- -j
 fi
 
-if [ $type == release ]
+if [ $build_type == release ]
 then
 	cd release
 	rm -rf *.tar
@@ -71,8 +80,9 @@ then
 			cp -rf $entry/include/*.h /usr/local/include/SGR
 			cp -f $entry/lib/shared/* /usr/local/lib
 			tar -cf $entry.tar $entry
+			echo "Installed in /usr/local/include  /usr/local/lib"
 		fi
 	done
 fi
 
-#############
+############################################################

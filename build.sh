@@ -47,7 +47,7 @@ done
 
 if [ $need_build == false ]
 then
-	if [ $clean == true ]
+	if [ $clean ]
 	then
 		rm -rf build
 		echo "Build folder was cleared"

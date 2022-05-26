@@ -36,10 +36,8 @@ do
         r) 	# Build type is release
 			need_build=true
 			build_type=release;;
-		c) 	rm -rf build
-			clean=true
-			echo "Build folder was cleared"
-			exit;;
+		c) 	# Need to clean
+			clean=true;;
 		i)	install=true;;
 	   \?)	# Invalid option
 			echo "Error: Invalid option - ${OPTARG}"
@@ -49,9 +47,16 @@ done
 
 if [ $need_build == false ]
 then
-	# Help message
-	Help
-	exit;
+	if [ $clean == true ]
+	then
+		rm -rf build
+		echo "Build folder was cleared"
+		exit;
+	else
+		# Help message
+		Help
+		exit;
+	fi
 fi
 
 mkdir build

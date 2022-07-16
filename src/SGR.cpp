@@ -153,8 +153,10 @@ SgrErrCode SGR::drawFrame()
 
 	drawDataUpdate();
 
-	if (!commandManager->buffersEnded)
+	if (!commandManager->buffersEnded) {
+		buildDrawingCommands();
 		commandManager->endInitCommandBuffers();
+	}
 
 	if (windowManager->windowMinimized)
 		glfwWaitEvents();
@@ -386,6 +388,19 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 	newInstance.name = name;
 	newInstance.geometry = geometry;
 	newInstance.uboDataAlignment = dynamicUBOalignment;
+
+	if (instances.back().geometry == geometry) {
+		instances.push_back(newInstance);
+		return sgrOK;
+	} else {
+		for (size_t i = instances.size() - 1; i > 0; --i) {
+			if (instances[i].geometry == geometry) {
+				instances.emplace(instances.begin() + i + 1, newInstance);
+				return sgrOK;
+			}
+		}
+	}
+
 	instances.push_back(newInstance);
 	return sgrOK;
 }
@@ -400,7 +415,7 @@ SGR::SgrObject& SGR::findObjectByName(std::string name)
 	return objects[0];
 }
 
-const SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
+SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
 {
 	for (size_t i = 0; i < instances.size(); i++) {
 		if (instances[i].name == name)
@@ -424,7 +439,7 @@ void SGR::unbindAllMeshesAndPiplines()
 
 SgrErrCode SGR::drawObject(std::string instanceName)
 {
-	const SgrObjectInstance& instance = findInstanceByName(instanceName);
+	SgrObjectInstance& instance = findInstanceByName(instanceName);
 	if (instance.name == "empty") 
 		return sgrMissingInstance;
 
@@ -436,24 +451,11 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	if (objectPipeline->name == "empty")
 		return sgrMissingPipeline;
 
-	if (!objectToDraw.meshDataAndPiplineBinded) {
-		commandManager->bindPipeline(&objectPipeline->pipeline);
-		std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
-		commandManager->bindVertexBuffer(vertices);
-		commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
-		objectToDraw.meshDataAndPiplineBinded = true;
-	}
-
 	DescriptorManager::SgrDescriptorSets descrSets = descriptorManager->getDescriptorSetsByName(instanceName);
 	if (descrSets.name == "empty")
 		return sgrMissingDescriptorSets;
 
-	std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(instance.uboDataAlignment) };
-
-	for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
-		commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
-
-	commandManager->drawIndexed(objectToDraw.indicesCount, 1, 0, 0, 0);
+	instance.needToDraw = true;
 
 	return sgrOK;
 }
@@ -496,4 +498,45 @@ bool SGR::setFPSDesired(uint8_t fps)
 
 	fpsDesired = fps;
 	return true;
+}
+
+SgrErrCode SGR::buildDrawingCommands()
+{
+	for (size_t i = 0; i < instances.size(); i++) {
+		const SgrObjectInstance& instance = instances[i];
+		if (instance.name == "empty") 
+			continue;
+
+		if (!instance.needToDraw)
+			continue;
+
+		SgrObject& objectToDraw = findObjectByName(instance.geometry);
+		if (objectToDraw.name == "empty")
+			return sgrMissingObject;
+
+		PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(instance.geometry);
+		if (objectPipeline->name == "empty")
+			return sgrMissingPipeline;
+
+		if (!objectToDraw.meshDataAndPiplineBinded) {
+			commandManager->bindPipeline(&objectPipeline->pipeline);
+			std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
+			commandManager->bindVertexBuffer(vertices);
+			commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
+			objectToDraw.meshDataAndPiplineBinded = true;
+		}
+
+		DescriptorManager::SgrDescriptorSets descrSets = descriptorManager->getDescriptorSetsByName(instance.name);
+		if (descrSets.name == "empty")
+			return sgrMissingDescriptorSets;
+
+		std::vector<uint32_t> dynamicOffset = { static_cast<uint32_t>(instance.uboDataAlignment) };
+
+		for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
+			commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
+
+		commandManager->drawIndexed(objectToDraw.indicesCount, 1, 0, 0, 0);
+	}
+
+	return sgrOK;
 }

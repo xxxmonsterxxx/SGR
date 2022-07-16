@@ -30,7 +30,8 @@ public:
 	struct SgrObjectInstance {
 		std::string name;
 		std::string geometry;
-		uint32_t uboDataAlignment;
+		uint32_t 	uboDataAlignment;
+		bool		needToDraw = false;
 	};
 
 	SgrBuffer* UBO;
@@ -79,6 +80,7 @@ public:
 									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding);
+
 	SgrErrCode addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment);
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
@@ -89,9 +91,10 @@ public:
 	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynamicUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
+	
 	void unbindAllMeshesAndPiplines();
 
-	const SgrObjectInstance& findInstanceByName(std::string name);
+	SgrObjectInstance& findInstanceByName(std::string name);
 	SgrObject& findObjectByName(std::string name);
 
 	float getSgrTimeDuration(SgrTime_t start, SgrTime_t end);
@@ -148,4 +151,6 @@ private:
 	SgrErrCode initSyncObjects();
 
 	SgrErrCode initVulkanInstance();
+
+	SgrErrCode buildDrawingCommands();
 };

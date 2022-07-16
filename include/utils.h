@@ -93,6 +93,8 @@ enum SgrErrCode
 	sgrDescriptorsWithUnknownInfo,
 	sgrMissingInstance,
 	sgrSupportedFormatsNotFound,
+	sgrLoadFontPixelsError,
+	sgrIncorrectImagePixelFormat
 };
 
 #if __APPLE__

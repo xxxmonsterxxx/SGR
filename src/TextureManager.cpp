@@ -22,27 +22,35 @@ TextureManager* TextureManager::get()
 	return instance;
 }
 
-SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*& image)
+SgrErrCode TextureManager::createImage(void* pixels, const uint32_t width, const uint32_t height, VkFormat format , SgrImage*& image)
 {
-    image = new SgrImage;
-
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(image_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-    if (!pixels)
+	if (!pixels)
         return sgrLoadImageError;
+
+	uint8_t bytesInPixel;
+	switch (format) {
+		case VK_FORMAT_R8G8B8A8_SRGB:
+			bytesInPixel = 4;
+			break;
+		case VK_FORMAT_R8_UNORM:
+			bytesInPixel = 1;
+			break;
+		default:
+			return sgrIncorrectImagePixelFormat;
+	}
+
+	VkDeviceSize imageSize = width * height * bytesInPixel;
+
+	image = new SgrImage;
 
     SgrBuffer* stagingBuffer = nullptr;
     SgrErrCode resultInitStagingBufferWithData = MemoryManager::instance->createStagingBufferWithData(stagingBuffer, imageSize, pixels);
     if (resultInitStagingBufferWithData != sgrOK)
         return resultInitStagingBufferWithData;
 
-    stbi_image_free(pixels);
-
-    image->width = texWidth;
-    image->height = texHeight;
-    image->format = VK_FORMAT_R8G8B8A8_SRGB;
+    image->width = width;
+    image->height = height;
+    image->format = format;
     image->tiling = VK_IMAGE_TILING_OPTIMAL;
     image->usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     image->properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -71,6 +79,20 @@ SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*&
         return resultCreateSampler;
 
 	return sgrOK;
+}
+
+SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*& image)
+{
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load(image_path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	SgrErrCode result = createImage(pixels, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, image);
+    stbi_image_free(pixels);
+	return result;
+}
+
+SgrErrCode TextureManager::createFontTextureImage(void* fontPixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image)
+{
+	return createImage(fontPixels, fontWidth, fontHeight, VK_FORMAT_R8_UNORM, image);
 }
 
 SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)

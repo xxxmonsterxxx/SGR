@@ -74,6 +74,8 @@
 		"unordered_map": "cpp",
 		"utility": "cpp",
 		"vector": "cpp",
-		"compare": "cpp"
+		"compare": "cpp",
+		"concepts": "cpp",
+		"variant": "cpp"
 	}
 }

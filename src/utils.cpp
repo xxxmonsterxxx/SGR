@@ -42,5 +42,6 @@ std::string getExecutablePath()
 
 	char executablePath[PATH_MAX];
 	binaryPath.copy(executablePath, lastPathIndex, 0);
+	executablePath[lastPathIndex] = '\0';
 	return std::string(executablePath);
 }

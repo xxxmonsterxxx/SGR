@@ -6,9 +6,9 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 	#include "../modules/stb/stb_truetype.h"
 
-bool getFontData(unsigned char* &fontPixels, stbtt_bakedchar* &backedChars, uint32_t &width, uint32_t &height)
+bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedchar* &backedChars, uint32_t &width, uint32_t &height)
 {
-	FILE* font_ttf = fopen("Resources/fonts/times new roman.ttf", "rb");
+	FILE* font_ttf = fopen(font_path.c_str(), "rb");
 	if (!font_ttf) {
 		printf("Font file not found! :(\n");
 		return false;
@@ -232,7 +232,8 @@ int main()
 	unsigned char* fontPixels = nullptr;
 	stbtt_bakedchar* fontData;
 	uint32_t pixelsWidth, pixelsHeight;
-	getFontData(fontPixels, fontData, pixelsWidth, pixelsHeight);
+	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
+	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
 	resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
 
 	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);

@@ -11,11 +11,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exampleApplication)
 
 get_filename_component(SGR_FOLDER ../ ABSOLUTE)
 
-file(GLOB SOURCES ${SGR_FOLDER}/examplesData/test.cpp)
+file(GLOB SOURCES test.cpp)
 
 if (NOT RELEASE)
 	set(RELEASE false)
@@ -40,7 +40,11 @@ endif(APPLE AND RELEASE)
 set(GLM_INC_DIR ${SGR_FOLDER}/modules/glm)
 set(STB_INC_DIR ${SGR_FOLDER}/modules/stb)
 
-find_library(SGR_LIB SGR ${SGR_FOLDER}/build/shared/)
+if (NOT RELEASE)
+	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/debug/shared/)
+else (NOT RELEASE)
+	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/SGR-v0.7.0-MacOS/lib/shared/)
+endif (NOT RELEASE)
 
 if (VULKAN_FOUND)
     message(STATUS "Found Vulkan, Including and Linking now")

@@ -4,7 +4,9 @@
 # shell script for building and possible (re)installing
 
 echo
-echo "Welcome to Simple Graphics Library helper script"
+echo "##################################################"
+echo "Welcome to Simple Graphics Library helper script #"
+echo "##################################################"
 echo
 
 ############################################################
@@ -14,12 +16,14 @@ Help()
 {
    	# Display Help
    	echo
-   	echo "given options:"
-	echo "-d : Debug build"
-   	echo "-r : Release build"
-   	echo "-c : Clear build"
-	echo "-i : Install to the /usr/local/lib"
-	echo "-e : Build and run examples data"
+	echo "#####################################"
+   	echo "given options:                      #"
+	echo "-d : Debug build                    #"
+   	echo "-r : Release build                  #"
+   	echo "-c : Clear build                    #"
+	echo "-i : Install to the /usr/local/lib  #"
+	echo "-e : Build and run examples data    #"
+	echo "#####################################"
    	echo
 }
 
@@ -57,7 +61,9 @@ do
 			EXAMPLE_BUILD=true
 			;;
 	   \?)	# Invalid option
+	   		echo
 			echo "Error: Invalid option - ${OPTARG}"
+	   		echo
 			Help
 			exit
 			;;
@@ -77,9 +83,16 @@ then
 	if [ $CLEAN ]
 	then
 		rm -rf build
+		rm -rf examplesData/build
+		echo
 		echo "Build folder was cleared"
+		echo
 		exit;
 	fi
+	echo
+	echo "Cannot install without building"
+	echo
+	exit;
 fi
 
 mkdir build
@@ -111,10 +124,19 @@ then
 			cp -rf $entry/include/*.h /usr/local/include/SGR
 			cp -f $entry/lib/shared/* /usr/local/lib
 			tar -cf $entry.tar $entry
+			echo
 			echo "Installed in /usr/local/include  /usr/local/lib"
+			echo
 		fi
 	done
 	cd ..
+else
+	if [ $INSTALL == true ]
+	then
+		echo
+		echo "Cannot install not release build type"
+		echo
+	fi
 fi
 
 cd ..

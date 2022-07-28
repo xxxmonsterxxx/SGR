@@ -23,6 +23,7 @@ Help()
    	echo "-c : Clear build                    #"
 	echo "-i : Install to the /usr/local/lib  #"
 	echo "-e : Build and run examples data    #"
+	echo "-z : Remove library from installed  #"
 	echo "#####################################"
    	echo
 }
@@ -36,9 +37,28 @@ BUILD_TYPE=debug # release or debug
 CLEAN= # clean or not
 EXAMPLE_BUILD=false # need to build example project?
 OPTS_PRESENTED=false # options provided
+REMOVE_LIBRARY=false # remove library from folder where installed
+SYSTEM_TYPE="$(uname -s)"
+PATH_INC=
+PATH_LIB=
+
+echo
+echo "Your system is $SYSTEM_TYPE"
+echo
+
+case $SYSTEM_TYPE in 
+	Linux)
+		PATH_INC=/usr/include
+		PATH_LIB=/usr/lib
+		;;
+	Darwin)
+		PATH_INC=/usr/local/include
+		PATH_LIB=/usr/local/lib
+		;;
+esac
 
 # Get the options
-while getopts ":rcide" flag
+while getopts ":rcidez" flag
 do
 	OPTS_PRESENTED=true
     case $flag in
@@ -60,6 +80,9 @@ do
 			BUILD=true
 			EXAMPLE_BUILD=true
 			;;
+		z)	# Remove library
+			REMOVE_LIBRARY=true
+			;;
 	   \?)	# Invalid option
 	   		echo
 			echo "Error: Invalid option - ${OPTARG}"
@@ -77,6 +100,16 @@ then
 	exit
 fi
 
+# Remove library from /usr/**
+if [ $REMOVE_LIBRARY == true ]
+then
+	sudo rm -rf $PATH_INC/SGR
+	sudo rm -f $PATH_LIB/libSGR.*
+	echo
+	echo "Library was removed succesfull"
+	echo
+fi
+
 # Clean without build
 if [ $BUILD == false ]
 then
@@ -87,12 +120,14 @@ then
 		echo
 		echo "Build folder was cleared"
 		echo
-		exit;
 	fi
-	echo
-	echo "Cannot install without building"
-	echo
-	exit;
+	if [ $INSTALL == true ]
+	then
+		echo
+		echo "Cannot install without building"
+		echo
+	fi
+	exit
 fi
 
 mkdir build
@@ -120,12 +155,13 @@ then
 	for entry in `ls $search_dir`; do
 		if [ $INSTALL == true ]
 		then
-			mkdir /usr/local/include/SGR
-			cp -rf $entry/include/*.h /usr/local/include/SGR
-			cp -f $entry/lib/shared/* /usr/local/lib
+			sudo rm -rf $PATH_INC/SGR
+			sudo mkdir $PATH_INC/SGR
+			sudo cp -rf $entry/include/*.h $PATH_INC/SGR
+			sudo cp -f $entry/lib/shared/* $PATH_LIB
 			tar -cf $entry.tar $entry
 			echo
-			echo "Installed in /usr/local/include  /usr/local/lib"
+			echo "Installed in $PATH_INC and $PATH_LIB"
 			echo
 		fi
 	done

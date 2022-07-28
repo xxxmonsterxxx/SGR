@@ -175,7 +175,10 @@ int main()
 											  { 0.5f, -0.5f, 0},	
 											  { 0.5f, 0.5f,  0}};
 
-	std::string resourcePath = getExecutablePath() + "/Resources";
+	std::string executablePath = getExecutablePath();
+	if (executablePath.length() == 0)
+		return 11;
+	std::string resourcePath = executablePath + "/Resources";
 
 	std::string obShaderVert = resourcePath + "/shaders/vertInstanceSh.spv";
 	std::string obShaderFrag = resourcePath + "/shaders/fragTextureSh.spv";
@@ -201,7 +204,8 @@ int main()
 
 	rectangles.instnaceCount = 4;
 	rectangles.instanceSize = sizeof(InstanceData);
-	MemoryManager::createDynamicUniformMemory(rectangles);
+	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
+		return 0;
 	SgrBuffer* instanceUBO = nullptr;
 	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize);
 	if (resultCreateBuffer != sgrOK)

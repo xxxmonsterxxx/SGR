@@ -24,7 +24,8 @@ std::string getExecutablePath()
 
 	#if __linux__
 		// linux path to the executable
-		readlink("/proc/self/exe", ep, PATH_MAX);
+		if (readlink("/proc/self/exe", ep, PATH_MAX) == -1)
+			return std::string("");
 	#endif
 
 	#if __WIN64

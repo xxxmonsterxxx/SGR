@@ -41,10 +41,14 @@ set(GLM_INC_DIR ${SGR_FOLDER}/modules/glm)
 set(STB_INC_DIR ${SGR_FOLDER}/modules/stb)
 
 if (NOT RELEASE)
-	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/debug/shared/)
+	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/debug/shared/ NO_DEFAULT_PATH)
 else (NOT RELEASE)
-	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/SGR-v0.7.0-MacOS/lib/shared/)
+	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/SGR-v0.7.0-MacOS/lib/shared/ NO_DEFAULT_PATH)
 endif (NOT RELEASE)
+
+if (NOT SGR_LIB)
+	message(FATAL_ERROR "Builded SGR library in parrent folder not found")
+endif (NOT SGR_LIB)
 
 if (VULKAN_FOUND)
     message(STATUS "Found Vulkan, Including and Linking now")

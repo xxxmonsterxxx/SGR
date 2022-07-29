@@ -211,7 +211,12 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferOb
     size_t minUboAlignment = PhysicalDeviceManager::instance->pickedPhysicalDevice.props.limits.minUniformBufferOffsetAlignment;
     size_t desiredAlignment = dynamicUBO.instanceSize;
     if (minUboAlignment > 0) {
-        desiredAlignment = (desiredAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
+        desiredAlignment = desiredAlignment < minUboAlignment ? minUboAlignment : desiredAlignment;
+        // we need to seek more closer offset to value that equal to 2^n
+        size_t temp = 2;
+        while (temp <= desiredAlignment)
+            temp *= 2;
+        desiredAlignment = temp;
     }
 
     dynamicUBO.dynamicAlignment = desiredAlignment;
@@ -220,8 +225,10 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferOb
     dynamicUBO.data = _aligned_malloc(desiredAlignment*dynamicUBO.instnaceCount, dynamicUBO.dynamicAlignment);
 #else
     int res = posix_memalign(&dynamicUBO.data, dynamicUBO.dynamicAlignment, desiredAlignment * dynamicUBO.instnaceCount);
-    if (res != 0)
+    if (res != 0) {
         dynamicUBO.data = nullptr;
+        return sgrAllocateMemoryError;
+    }
 #endif
 
     dynamicUBO.dataSize = dynamicUBO.instnaceCount * dynamicUBO.dynamicAlignment;

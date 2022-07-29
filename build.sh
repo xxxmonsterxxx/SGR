@@ -159,11 +159,11 @@ then
 			sudo mkdir $PATH_INC/SGR
 			sudo cp -rf $entry/include/*.h $PATH_INC/SGR
 			sudo cp -f $entry/lib/shared/* $PATH_LIB
-			tar -cf $entry.tar $entry
 			echo
 			echo "Installed in $PATH_INC and $PATH_LIB"
 			echo
 		fi
+		tar -cf $entry.tar $entry
 	done
 	cd ..
 else

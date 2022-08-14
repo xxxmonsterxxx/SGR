@@ -40,24 +40,32 @@ endif (WIN32)
 
 #######################################
 
+if (RELEASE)
+	message("Build Simple Graphics Renderer v${VERSION}")
+else (RELEASE)
+	message("Build Simple Game Graphics Renderer in debug mode")
+	set(DEBUG TRUE)
+endif (RELEASE)
+
+#######################################
+
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
 
-#######################################
-
-include_directories(include) # SGR include folder
-
-if (NOT RELEASE)
-	set(RELEASE false)
+if (DEBUG)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
-	message("Build Simple Graphics Renderer v" ${VERSION} " in debug mode")
-else (NOT RELEASE)
-	message("Build Simple Graphics Renderer v" ${VERSION})
-endif (NOT RELEASE)
+endif (DEBUG)
 
 add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 
+#######################################
+
+add_definitions(-DNDBUG=${RELEASE}) # set release or not status
+
+#######################################
+
+include_directories(include) # SGR include folder
 file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 
 add_library(SGR_ST STATIC ${SOURCES})

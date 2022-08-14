@@ -43,7 +43,7 @@ set(STB_INC_DIR ${SGR_FOLDER}/modules/stb)
 if (NOT RELEASE)
 	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/debug/shared/ NO_DEFAULT_PATH)
 else (NOT RELEASE)
-	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/SGR-v0.7.0-MacOS/lib/shared/ NO_DEFAULT_PATH)
+	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/**/lib/shared/ NO_DEFAULT_PATH)
 endif (NOT RELEASE)
 
 if (NOT SGR_LIB)

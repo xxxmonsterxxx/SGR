@@ -18,8 +18,9 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 
-# Precompiled shaders
+# Precompiled shaders excluding examples
 *.spv
+!/examplesData/Resources/shaders/*
 
 # Apple cache
 *.DS_Store

@@ -35,8 +35,6 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	width = bitmapWidth;
 	height = bitmapHeight;
 	fontPixels = (unsigned char*)malloc(bitmapWidth*bitmapHeight);
-	unsigned char* fontPixels1 = (unsigned char*)malloc(bitmapWidth*bitmapHeight);
-	unsigned char fontPixels2[512*512];
 	const int char_number_to_bake = 96;
 	backedChars = (stbtt_bakedchar*)malloc(char_number_to_bake*sizeof(stbtt_bakedchar));
 
@@ -47,17 +45,15 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 }
 
 
-void getLetterFontData(char letter, stbtt_bakedchar* fontData, glm::vec2& fontCoord, glm::vec2& fontSize)
+void getLetterFontData(char letter, stbtt_bakedchar* fontData, glm::vec4& mesh, glm::vec4& text)
 {
 	stbtt_aligned_quad charData;
-	float xstart, ystart;
-	stbtt_GetBakedQuad(fontData, 512, 512, (uint32_t)letter - 32, &xstart, &ystart, &charData, 1);
+	float xstart=0, ystart=0;
+	stbtt_GetBakedQuad(fontData, 512, 512, letter - 32, &xstart, &ystart, &charData, 1);
 
-	float xFont = (charData.s1-charData.s0)*0.5f;
-	float yFont = (charData.t1-charData.t0)*0.5f;
-
-	fontCoord = glm::vec2(charData.s0+xFont,charData.t0+yFont);
-	fontSize = glm::vec2(charData.s1-charData.s0,charData.t1-charData.t0);
+	mesh = glm::vec4(charData.x0, charData.y0, charData.x1, charData.y1);
+	mesh*=2.f/512; // conversion from bitmap size to frame [-1; 1] size
+	text = glm::vec4(charData.s0, charData.t0, charData.s1, charData.t1);
 }
 
 
@@ -123,18 +119,28 @@ SGR sgr_object1;
 
 SgrTime_t frame_dr;
 SgrTime_t lastDraw = SgrTime::now();
+
+// data structure for instance uses shader presenter as "instance shader"
+struct InstanceData {
+	glm::mat4 model;
+	glm::vec2 deltaText;
+	glm::vec2 startMesh;
+	glm::vec2 startText;
+	glm::vec3 color;
+};
+
 SgrInstancesUniformBufferObject rectangles;
 SgrGlobalUniformBufferObject ubo;
 
 void updateData() {
 	if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
-		glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
+		InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
+		glm::vec2* texCoord = &iData->startText;
 		texCoord->x += 0.111;
 		if (texCoord->x >= 1)
-			texCoord->x = 0.166;
+			texCoord->x = 0;
 
-		glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
-		*model = glm::translate(*model, glm::vec3(0, 0, -0.09));
+		iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.09));
 
 		lastDraw = SgrTime::now();
 	}
@@ -166,14 +172,14 @@ int main()
 	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
 	std::vector<SgrVertex> obMeshVertices = {{-0.5f, -0.5f, 0},
 											 { 0.5f, -0.5f, 0},
-											 { 0.5f, 0.5f,  0},
-											 {-0.5f, 0.5f,  0}};
+											 { 0.5f,  0.5f, 0},
+											 {-0.5f,  0.5f, 0}};
 
 	std::string objectName1 = "triangle";
 	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
 	std::vector<SgrVertex> obMeshVertices1 = {{-0.5f, -0.5f, 0},
 											  { 0.5f, -0.5f, 0},	
-											  { 0.5f, 0.5f,  0}};
+											  { 0.5f,  0.5f, 0}};
 
 	std::string executablePath = getExecutablePath();
 	if (executablePath.length() == 0)
@@ -194,13 +200,6 @@ int main()
 	std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding = createDescriptorSetLayoutBinding();
 	std::vector<VkVertexInputBindingDescription> bindInpDescr = createBindingDescr();
 	std::vector<VkVertexInputAttributeDescription> attDescr = createAttrDescr();
-
-	struct InstanceData {
-		glm::mat4 model;
-		glm::vec2 texCoord;
-		glm::vec2 texSize;
-		glm::vec3 color;
-	};
 
 	rectangles.instnaceCount = 4;
 	rectangles.instanceSize = sizeof(InstanceData);
@@ -278,15 +277,29 @@ int main()
 	objectData3.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("road", objectData3);
 
-
-	sgr_object1.addObjectInstance("LetterH", "rectangle", 3*rectangles.dynamicAlignment);
+	glm::vec4 meshLetter;
+	glm::vec4 textLetter;
+	getLetterFontData('S', fontData,meshLetter,textLetter);
+	std::vector<SgrVertex> letterMesh = {{meshLetter.x, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.w, 0},
+										 {meshLetter.x, meshLetter.w, 0}};
+	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
+	glm::vec2 letStartMesh(meshLetter.x, meshLetter.y);
+	glm::vec2 letStartText(textLetter.x, textLetter.y);
+	glm::vec2 deltaText;
+	deltaText.x = (textLetter.z - textLetter.x) / (meshLetter.z - meshLetter.x);
+	deltaText.t = (textLetter.w - textLetter.y) / (meshLetter.w - meshLetter.y);
+	
+	sgr_object1.addObjectInstance("letter", "letterMesh", 3*rectangles.dynamicAlignment);
 
 	std::vector<void*> objectData4;
 	objectData4.push_back((void*)(uboBuffer));
 	objectData4.push_back((void*)(textImage));
 	objectData4.push_back((void*)(instanceUBO));
-	sgr_object1.writeDescriptorSets("LetterH", objectData4);
-
+	sgr_object1.writeDescriptorSets("letter", objectData4);
 
 	if (sgr_object1.drawObject("man") != sgrOK)
 		return 100;
@@ -297,55 +310,48 @@ int main()
 	if (sgr_object1.drawObject("road") != sgrOK)
 		return 300;
 
-	if (sgr_object1.drawObject("LetterH") != sgrOK)
+	if (sgr_object1.drawObject("letter") != sgrOK)
 		return 400;
 
-	//------------
 
 	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
 
-	glm::mat4* model = (glm::mat4*)((uint64_t)rectangles.data);
-	*model = glm::mat4(1.f);
-	*model = glm::translate(*model, glm::vec3(0, 0, 0));
-	glm::vec2* texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4));
-	texCoord->x = 0.055;
-	texCoord->y = 0.125;
-	glm::vec2* texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4));
-	texSize->x = 0.222;
-	texSize->y = 0.5;
 
-	model = (glm::mat4*)((uint64_t)rectangles.data + rectangles.dynamicAlignment);
-	*model = glm::mat4(1.f);
-	*model = glm::translate(*model,glm::vec3(0,0,-3));
-	*model = glm::scale(*model,glm::vec3(1.f,1.f,1.f));
-	glm::vec3* color = (glm::vec3*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::vec2) + sizeof(glm::mat4) + 1*rectangles.dynamicAlignment);
-	color->r = 0;
-	color->g = 0;
-	color->b = 1;
+// MAN
+	InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
+	iData->model = glm::mat4(1.f);
+	iData->model = glm::translate(iData->model, glm::vec3(0, 0, 0));
+	iData->startMesh = glm::vec2(-0.5,-0.5);
+	iData->startText = glm::vec2(0,0);
+	iData->deltaText.x = (0.111 - 0) / (0.5 - -0.5);
+	iData->deltaText.y = (0.250 - 0) / (0.5 - -0.5);
 
-	model = (glm::mat4*)((uint64_t)rectangles.data + 2*rectangles.dynamicAlignment);
-	*model = glm::mat4(1.f);
-	*model = glm::translate(*model,glm::vec3(-1,0,-5));
-	*model = glm::scale(*model,glm::vec3(1.f,1.f,1.f));
-	texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + 2*rectangles.dynamicAlignment);
-	texCoord->x = 0.5f;
-	texCoord->y = 0.5f;
-	texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4) + 2*rectangles.dynamicAlignment);
-	texSize->x = 2.f;
-	texSize->y = 2.f;
+// TRIANGLE
+	iData = (InstanceData*)((uint64_t)rectangles.data + 1*rectangles.dynamicAlignment);
+	iData->model = glm::mat4(1.f);
+	iData->model = glm::translate(iData->model,glm::vec3(1,0,-3));
+	iData->model = glm::scale(iData->model,glm::vec3(1.f,1.f,1.f));
+	iData->color.r = 0;
+	iData->color.g = 0;
+	iData->color.b = 1;
 
-	model = (glm::mat4*)((uint64_t)rectangles.data + 3*rectangles.dynamicAlignment);
-	*model = glm::mat4(1.f);
-	*model = glm::translate(*model,glm::vec3(1,0,-2));
-	*model = glm::scale(*model,glm::vec3(1.f,1.f,1.f));
-	texCoord = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::mat4) + 3*rectangles.dynamicAlignment);
-	glm::vec2 fontC,fontS;
-	getLetterFontData('s', fontData, fontC,fontS);
-	texCoord->x = fontC.x;
-	texCoord->y = fontC.y;
-	texSize = (glm::vec2*)((uint64_t)rectangles.data + sizeof(glm::vec2) + sizeof(glm::mat4) + 3*rectangles.dynamicAlignment);
-	texSize->x = fontS.x*2;
-	texSize->y = fontS.y*2;
+// ROAD
+	iData = (InstanceData*)((uint64_t)rectangles.data + 2*rectangles.dynamicAlignment);
+	iData->model = glm::mat4(1.f);
+	iData->model = glm::translate(iData->model,glm::vec3(-2,-2,-5));
+	iData->model = glm::scale(iData->model,glm::vec3(1.f,1.f,1.f));
+	iData->startMesh = glm::vec2(-0.5,-0.5);
+	iData->startText = glm::vec2(0,0);
+	iData->deltaText.x = (1 - 0) / (0.5 - -0.5);
+	iData->deltaText.y = (1 - 0) / (0.5 - -0.5);
+
+// LETTER
+	InstanceData* current = (InstanceData*)((uint64_t)rectangles.data + 3*rectangles.dynamicAlignment);
+	current->model = glm::mat4(1.f);
+	current->model = glm::translate(current->model,glm::vec3(0,1.5,-3));
+	current->startMesh = letStartMesh;
+	current->startText = letStartText;
+	current->deltaText = deltaText;
 
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));

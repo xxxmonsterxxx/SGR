@@ -8,9 +8,8 @@ layout(binding = 0) uniform UniformBufferObject {
 
 layout (binding = 2) uniform UboInstance {
 	mat4 model; 
-    vec2 deltaCoord; // direvative of countur
-    vec2 startMeshPoint; // left top point
-	vec2 startTextPoint; // left top point
+    vec2 spriteCenter; // center of sprite in spritesheet
+    vec2 spriteSize;  // size of sprite in spritesheet
 	vec3 color;
 } uboInstance;
 
@@ -24,5 +23,7 @@ void main() {
 
     fragColor = uboInstance.color;
 
-    fragTexCoord = vec2(uboInstance.startTextPoint.x + (inPosition.x - uboInstance.startMeshPoint.x)*uboInstance.deltaCoord.x, uboInstance.startTextPoint.y + (inPosition.y - uboInstance.startMeshPoint.y)*uboInstance.deltaCoord.y);
+    vec2 dTex = uboInstance.spriteSize * 0.5; // delta texture coord according delta point coord
+
+    fragTexCoord = vec2(inPosition.x * dTex.x + uboInstance.spriteCenter.x, inPosition.y * dTex.y + uboInstance.spriteCenter.y);
 }

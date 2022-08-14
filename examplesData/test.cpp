@@ -123,10 +123,10 @@ SgrTime_t lastDraw = SgrTime::now();
 // data structure for instance uses shader presenter as "instance shader"
 struct InstanceData {
 	glm::mat4 model;
+	glm::vec4 color;
 	glm::vec2 deltaText;
 	glm::vec2 startMesh;
 	glm::vec2 startText;
-	glm::vec3 color;
 };
 
 SgrInstancesUniformBufferObject rectangles;
@@ -329,11 +329,11 @@ int main()
 // TRIANGLE
 	iData = (InstanceData*)((uint64_t)rectangles.data + 1*rectangles.dynamicAlignment);
 	iData->model = glm::mat4(1.f);
-	iData->model = glm::translate(iData->model,glm::vec3(1,0,-3));
+	iData->model = glm::translate(iData->model,glm::vec3(1,-0.5,-3));
 	iData->model = glm::scale(iData->model,glm::vec3(1.f,1.f,1.f));
-	iData->color.r = 0;
+	iData->color.r = 1;
 	iData->color.g = 0;
-	iData->color.b = 1;
+	iData->color.b = 0;
 
 // ROAD
 	iData = (InstanceData*)((uint64_t)rectangles.data + 2*rectangles.dynamicAlignment);

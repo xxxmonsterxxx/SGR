@@ -101,6 +101,8 @@ public:
 
 	bool setFPSDesired(uint8_t fps);
 
+	SgrErrCode getWindow(GLFWwindow* &ptr);
+
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;
 	const uint8_t engineVersionMinor = SGR_VERSION_MINOR;

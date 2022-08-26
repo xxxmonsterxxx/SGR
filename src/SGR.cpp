@@ -540,3 +540,12 @@ SgrErrCode SGR::buildDrawingCommands()
 
 	return sgrOK;
 }
+
+SgrErrCode SGR::getWindow(GLFWwindow* &ptr)
+{
+	if (!window)
+		return sgrInitWindowError;
+
+	ptr = window;
+	return sgrOK;
+}

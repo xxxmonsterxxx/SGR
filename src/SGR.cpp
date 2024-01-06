@@ -294,8 +294,13 @@ SgrErrCode SGR::initVulkanInstance()
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
+	// since VulkanSDK 1.3.216 we should to add VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+	extensions.push_back("VK_KHR_portability_enumeration");
+	// possible???
+	// extensions.push_back("VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME");
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
+	createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 	createInfo.enabledLayerCount = 0;
 	createInfo.pNext = nullptr;
 

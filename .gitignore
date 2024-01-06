@@ -12,6 +12,7 @@ bld/
 
 # Visual Studio directory
 .vs/
+.vscode/
 
 # CMake system
 CMakeFiles/

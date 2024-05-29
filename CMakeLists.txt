@@ -77,7 +77,7 @@ set(GLM_INC_DIR modules/glm)
 set(STB_INC_DIR modules/stb)
 
 # find additional dependecies
-find_package(Vulkan REQUIRED)
+find_package(Vulkan 1.3.283.0 REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
 # define if glfw3 founded

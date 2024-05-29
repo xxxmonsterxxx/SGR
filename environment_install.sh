@@ -47,7 +47,7 @@ then
     else
         echo "Installing..."
         CLI_INSTALLED=TRUE
-        #xcode-select --install
+        xcode-select --install
     fi
 else
     echo "CLI already installed"
@@ -70,7 +70,7 @@ else
     else
         echo "Installing homebrew..."
         HOMEBREW_INSTALLED=TRUE
-        #/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
 fi
 echo
@@ -90,12 +90,12 @@ else
     else
         echo "Installing CMake..."
         CMAKE_INSTALLED=TRUE
-        #brew install cmake
+        brew install cmake
     fi
 fi
 echo
 
-#check cmake
+#check vulkan sdk
 VULKAN_SDK_INSTALLED=FALSE
 echo "3. Checking Vulkan SDK..."
 if [ !$(command -v vulkanvia &> /dev/null) ]
@@ -110,28 +110,28 @@ else
     else
         echo "Installing Vulkan SDK..."
         VULKAN_SDK_INSTALLED=TRUE
-        # wget https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
+        wget https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
 
 
-        # VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
-        # mount dmg
-        # sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+        VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
+        mount dmg
+        sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
 
 
         echo "3a. Export Vulkan SDK variables"
-        # #add to end of bashrc
-        # export VULKAN_SDK
-        # PATH="$PATH:$VULKAN_SDK/bin"
-        # export PATH
-        # DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:${DYLD_LIBRARY_PATH:-}"
-        # export DYLD_LIBRARY_PATH
-        # #echo "This script is now using VK_ADD_LAYER_PATH instead of VK_LAYER_PATH"
-        # VK_ADD_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
-        # export VK_ADD_LAYER_PATH
-        # VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-        # export VK_ICD_FILENAMES
-        # VK_DRIVER_FILES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-        # export VK_DRIVER_FILES
+        #add to end of bashrc
+        export VULKAN_SDK
+        PATH="$PATH:$VULKAN_SDK/bin"
+        export PATH
+        DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:${DYLD_LIBRARY_PATH:-}"
+        export DYLD_LIBRARY_PATH
+        #echo "This script is now using VK_ADD_LAYER_PATH instead of VK_LAYER_PATH"
+        VK_ADD_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
+        export VK_ADD_LAYER_PATH
+        VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+        export VK_ICD_FILENAMES
+        VK_DRIVER_FILES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+        export VK_DRIVER_FILES
 
         echo "3b. Checking Vulkan"
         if [ !$(command -v vulkanvia &> /dev/null) ]
@@ -139,33 +139,33 @@ else
             echo "Vulkan SDK installed correctly"
         fi
 
-        #rm -rf *.dmg
-        # remove
+        rm -rf *.dmg
+        remove
     fi
 fi
 echo
 
 
 #check glfw
-# GLFW_INSTALLED=FALSE
-# GLFW_INSTALLED_RETURN=$(command -v $(find / -name glfw) &> /dev/null)
-# echo "4. Checking GLFW..."
-# if [[ $GLFW_INSTALLED_RETURN == *"/glfw"* ]]
-# then
-#     echo "GLFW already installed."
-#     GLFW_INSTALLED=TRUE
-# else
-#     read -p "GLFW not installed, install now? (y/n) " RESP
-#     if [ "$RESP" = "n" ]
-#     then
-#         echo "Skipping."
-#     else
-#         echo "Installing GLFW..."
-#         GLFW_INSTALLED=TRUE
-#         #brew install glfw
-#     fi
-# fi
-# echo
+GLFW_INSTALLED=FALSE
+GLFW_INSTALLED_RETURN=$(brew list glfw 2>&1)
+echo "4. Checking GLFW..."
+if [[ $GLFW_INSTALLED_RETURN != Error:* ]]
+then
+    echo "GLFW already installed."
+    GLFW_INSTALLED=TRUE
+else
+    read -p "GLFW not installed, install now? (y/n) " RESP
+    if [ "$RESP" = "n" ]
+    then
+        echo "Skipping."
+    else
+        echo "Installing GLFW..."
+        GLFW_INSTALLED=TRUE
+        brew install glfw
+    fi
+fi
+echo
 
 echo
 echo "Environement install helper done:"

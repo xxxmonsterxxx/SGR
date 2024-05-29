@@ -160,7 +160,7 @@ then
 			cp -rf $entry/include/*.h $PATH_INC/SGR
 			cp -f $entry/lib/shared/* $PATH_LIB
 			echo
-			echo "Installed in $PATH_INC and $PATH_LIB"
+			echo "Installed in $PATH_INC/SGR and $PATH_LIB/SGR"
 			echo
 		fi
 		tar -cf $entry.tar $entry

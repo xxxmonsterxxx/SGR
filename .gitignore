@@ -13,6 +13,8 @@ bld/
 # Visual Studio directory
 .vs/
 .vscode/
+*.sln
+*.vcxproj*
 
 # CMake system
 CMakeFiles/

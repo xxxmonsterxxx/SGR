@@ -103,8 +103,8 @@ fi
 # Remove library from /usr/**
 if [ $REMOVE_LIBRARY == true ]
 then
-	sudo rm -rf $PATH_INC/SGR
-	sudo rm -f $PATH_LIB/libSGR.*
+	rm -rf $PATH_INC/SGR
+	rm -f $PATH_LIB/libSGR.*
 	echo
 	echo "Library was removed succesfull"
 	echo
@@ -155,10 +155,10 @@ then
 	for entry in `ls $search_dir`; do
 		if [ $INSTALL == true ]
 		then
-			sudo rm -rf $PATH_INC/SGR
-			sudo mkdir $PATH_INC/SGR
-			sudo cp -rf $entry/include/*.h $PATH_INC/SGR
-			sudo cp -f $entry/lib/shared/* $PATH_LIB
+			rm -rf $PATH_INC/SGR
+			mkdir $PATH_INC/SGR
+			cp -rf $entry/include/*.h $PATH_INC/SGR
+			cp -f $entry/lib/shared/* $PATH_LIB
 			echo
 			echo "Installed in $PATH_INC and $PATH_LIB"
 			echo

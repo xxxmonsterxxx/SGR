@@ -43,6 +43,12 @@ Windows
    
 #### ***Build:***
 
+For build library you should to export these paths.
+```
+export CMAKE_PREFIX_PATH=/usr/local/include/SGR  #for cmake package_find command
+export SGR_LIB=/usr/local/lib/libSGR.dylib
+```
+
 Windows:
 ```
 ```

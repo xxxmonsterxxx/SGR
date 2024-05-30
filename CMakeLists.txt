@@ -24,10 +24,6 @@ set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
 set(SGR_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfig.cmake")
 
-message("HELLOasdasd")
-message("${SGR_CONFIG_VERSION_FILE}")
-
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/SGRConfigVersion.cmake.in"
   "${SGR_CONFIG_VERSION_FILE}"

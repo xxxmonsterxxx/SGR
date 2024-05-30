@@ -157,7 +157,7 @@ then
 		then
 			rm -rf $PATH_INC/SGR
 			mkdir $PATH_INC/SGR
-			cp -rf $entry/include/*.h $PATH_INC/SGR
+			cp -rf $entry/include/* $PATH_INC/SGR
 			cp -f $entry/lib/shared/* $PATH_LIB
 			echo
 			echo "Installed in $PATH_INC/SGR and $PATH_LIB/SGR"

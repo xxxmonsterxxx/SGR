@@ -19,6 +19,27 @@ set(VPATCH ${CMAKE_MATCH_1})
 
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
+
+# Config version file generate 
+set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
+set(SGR_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfig.cmake")
+
+message("HELLOasdasd")
+message("${SGR_CONFIG_VERSION_FILE}")
+
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/SGRConfigVersion.cmake.in"
+  "${SGR_CONFIG_VERSION_FILE}"
+  @ONLY
+)
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/SGRConfig.cmake.in"
+  "${SGR_CONFIG_FILE}"
+  @ONLY
+)
+
 #######################################
 
 # platform detection
@@ -80,29 +101,9 @@ set(STB_INC_DIR modules/stb)
 find_package(Vulkan 1.3.283.0 REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-# define if glfw3 founded
-if (NOT glfw3_DIR)
-	set(GLFW3_FOUND FALSE)
-else (NOT glfw3_DIR)
-	set(GLFW3_FOUND TRUE)
-endif (NOT glfw3_DIR)
-
-# status info about external dependecies
-if (VULKAN_FOUND AND GLFW3_FOUND)
-    message(STATUS "Found Vulkan, Including and Linking now")
-	message(STATUS "Found GLFW3, Including and Linking now")
-    include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
-    target_link_libraries (SGR ${Vulkan_LIBRARIES} glfw)
-	target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
-else (VULKAN_FOUND AND GLFW3_FOUND)
-	if (NOT VULKAN_FOUND)
-		message(FATAL_ERROR "Vulkan not found, please install Vulkan using library README")
-	endif (NOT VULKAN_FOUND)
-
-	if (NOT GLFW3_FOUND)
-		message(FATAL_ERROR "GLFW3 not found, please install GLFW3 using library README")
-	endif (NOT GLFW3_FOUND)
-endif (VULKAN_FOUND AND GLFW3_FOUND)
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
+target_link_libraries (SGR ${Vulkan_LIBRARIES} glfw)
+target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
 
 # linking MacOSX framework libraries
 if (APPLE)

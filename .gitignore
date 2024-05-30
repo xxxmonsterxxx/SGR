@@ -30,3 +30,6 @@ cmake_install.cmake
 
 # MakeFile
 Makefile
+
+# Generated cmake config files
+include/*.cmake

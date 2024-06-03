@@ -167,17 +167,6 @@ else
 fi
 echo
 
-#setting environement variables
-if [ -f "$HOME/.zshrc" ]; then
-    echo "export CMAKE_PREFIX_PATH=/usr/local/include/SGR  #for cmake package_find command" >> "$HOME/.zshrc"
-    echo "export SGR_LIB=/usr/local/lib/libSGR.dylib" >> "$HOME/.zshrc"
-    source ~/.zshrc
-    echo "SDK environement added to .zshrc successfully."
-else
-    echo "Error: .zshrc file not found."
-    exit 1
-fi
-
 echo
 echo "Environement install helper done:"
 echo "CLI:          $CLI_INSTALLED"

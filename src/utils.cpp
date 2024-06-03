@@ -28,13 +28,9 @@ std::string getExecutablePath()
 			return std::string("");
 	#endif
 
-	#if __WIN64
-		test
-	#endif
-
 	std::string binaryPath(ep);
-	int lastPathIndex = binaryPath.length();
-	for (int i = binaryPath.length(); i > 0; i--) {
+	std::size_t lastPathIndex = binaryPath.length();
+	for (std::size_t i = binaryPath.length(); i > 0; i--) {
 		if (binaryPath[i] == '/') {
 			lastPathIndex = i;
 			break;

@@ -1,8 +1,8 @@
 ##########################################################################
 
-project(SGR DESCRIPTION "Simple Graphics Renderer")
-
 cmake_minimum_required(VERSION 3.10)
+
+project(SGR DESCRIPTION "Simple Graphics Renderer")
 
 ##########################################################################
 
@@ -20,7 +20,7 @@ set(VPATCH ${CMAKE_MATCH_1})
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
 
-# Config version file generate 
+# Config version file generate 
 set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
 set(SGR_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfig.cmake")
 
@@ -57,6 +57,10 @@ endif (WIN32)
 
 #######################################
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(RELEASE TRUE)
+endif()
+
 if (RELEASE)
 	message("Build Simple Graphics Renderer v${VERSION}")
 else (RELEASE)
@@ -68,15 +72,11 @@ endif (RELEASE)
 
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -03") #optimization
 
 if (DEBUG)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif (DEBUG)
-
-add_definitions(-DNDBUG=${RELEASE}) # set release or not status
-
-#######################################
 
 add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 
@@ -95,11 +95,17 @@ set(STB_INC_DIR modules/stb)
 
 # find additional dependecies
 find_package(Vulkan 1.3.283.0 REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+
+if (WIN32)
+	SET(glfw $ENV{GLFW3_LIBRARIES})
+	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+else (WIN32)
+	find_package(glfw3 3.3 REQUIRED)
+endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
-target_link_libraries (SGR ${Vulkan_LIBRARIES} glfw)
-target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
+target_link_libraries (SGR ${Vulkan_LIBRARIES} ${glfw})
+target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} ${glfw})
 
 # linking MacOSX framework libraries
 if (APPLE)

@@ -3,7 +3,9 @@
 #include "ShaderManager.h"
 #include "PipelineManager.h"
 
-#include <unistd.h>
+#if __linux__ || __APPLE__
+	#include <unistd.h>
+#endif
 
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
@@ -234,7 +236,13 @@ SgrErrCode SGR::drawFrame()
 	float drawFrameTime = getSgrTimeDuration(startDrawFrameTime,SgrTime::now());
 
 	if (drawFrameTime < 1.f/fpsDesired) {
-		usleep((1.f/fpsDesired - drawFrameTime)*1000000);
+		#if __linux__ || __APPLE__
+			usleep((1.f/fpsDesired - drawFrameTime)*1000000);
+		#endif
+
+		#if _WIN64
+			Sleep(DWORD((1.f / fpsDesired - drawFrameTime) * 1000));
+		#endif
 	}
 
 	return sgrOK;
@@ -354,7 +362,7 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> ve
 		return resultAllocateMemoryBuffer;
 
 	// create index buffer
-	newObject.indicesCount = indices.size();
+	newObject.indicesCount = (uint16_t)indices.size();
 	size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
 	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());

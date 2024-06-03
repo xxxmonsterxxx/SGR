@@ -33,3 +33,7 @@ Makefile
 
 # Generated cmake config files
 include/*.cmake
+
+# downloaded archives
+/*.zip
+/*.exe

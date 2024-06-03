@@ -111,8 +111,8 @@ void SwapChainManager::setupSwapChainProperties()
             static_cast<uint32_t>(height)
         };
 
-        actualExtent.width = std::max(caps.minImageExtent.width, std::min(caps.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(caps.minImageExtent.height, std::min(caps.maxImageExtent.height, actualExtent.height));
+        actualExtent.width = std::max<uint32_t>(caps.minImageExtent.width, std::min<uint32_t>(caps.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max<uint32_t>(caps.minImageExtent.height, std::min<uint32_t>(caps.maxImageExtent.height, actualExtent.height));
 
         extent = actualExtent;
     }

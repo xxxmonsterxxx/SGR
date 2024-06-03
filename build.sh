@@ -159,6 +159,18 @@ then
 			mkdir $PATH_INC/SGR
 			cp -rf $entry/include/* $PATH_INC/SGR
 			cp -f $entry/lib/shared/* $PATH_LIB
+
+			#setting environement variables
+			if [ -f "$HOME/.zshrc" ]; then
+				echo "export CMAKE_PREFIX_PATH=/usr/local/include/SGR:CMAKE_PREFIX_PATH #for cmake package_find command" >> "$HOME/.zshrc"
+				echo "export SGR_LIB=/usr/local/lib/libSGR.dylib" >> "$HOME/.zshrc"
+				source ~/.zshrc
+				echo "SDK environement added to .zshrc successfully."
+			else
+				echo "Error: .zshrc file not found."
+				exit 1
+			fi
+			
 			echo
 			echo "Installed in $PATH_INC/SGR and $PATH_LIB/SGR"
 			echo

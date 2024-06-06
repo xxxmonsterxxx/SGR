@@ -1,27 +1,36 @@
 ﻿{
   "configurations": [
     {
-      "name": "x64-Debug",
+      "name": "SGR-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "buildRoot": "${projectDir}\\build",
+      "installRoot": "${projectDir}\\build",
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "FALSE",
+          "type": "STRING"
+        }
+      ]
     },
     {
-      "name": "x64-Release",
+      "name": "SGR_test",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
-      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\examplesData\\build",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "TRUE",
+          "type": "STRING"
+        }
+      ]
     }
   ]
 }

@@ -58,25 +58,16 @@ endif (WIN32)
 #######################################
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	set(RELEASE TRUE)
-endif()
-
-if (RELEASE)
 	message("Build Simple Graphics Renderer v${VERSION}")
-else (RELEASE)
-	message("Build Simple Game Graphics Renderer in debug mode")
-	set(DEBUG TRUE)
-endif (RELEASE)
+else ()
+	message("Build Simple Game Graphics Renderer v${VERSION} in debug mode")
+endif()
 
 #######################################
 
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -03") #optimization
-
-if (DEBUG)
-	set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif (DEBUG)
 
 add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 
@@ -85,7 +76,7 @@ add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 include_directories(include) # SGR include folder
 file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 
-add_library(SGR_ST STATIC ${SOURCES})
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(SGR SHARED ${SOURCES})
 
 
@@ -105,25 +96,19 @@ endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
 target_link_libraries (SGR ${Vulkan_LIBRARIES} ${glfw})
-target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} ${glfw})
 
 # linking MacOSX framework libraries
 if (APPLE)
 	target_link_libraries(SGR "-framework CoreFoundation")
 endif (APPLE)
 
-# library prefix based on paltform
-set(RELEASE_BUILD_DEST release/SGR-v${VERSION}-${PLATFORM_NAME}) # set release build destination
-set(DEBUG_BUILD_DEST debug) # set release build destination
+set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}) # set build destination
 
-if (RELEASE)
-	file(COPY include DESTINATION ${RELEASE_BUILD_DEST})
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/static)
-else (RELEASE)
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/static)
-endif (RELEASE)
+set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+
+# ther is install process
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include DESTINATION ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION})
+install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION}/lib)
 
 include(ProcessorCount)
 ProcessorCount(N)
@@ -131,3 +116,7 @@ ProcessorCount(N)
 message("Ready to build on " ${PLATFORM_NAME})
 
 ##########################################################################
+
+if (BUILD_EXAMPLE)
+	add_subdirectory(examplesData)
+endif()

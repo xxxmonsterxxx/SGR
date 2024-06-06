@@ -6,61 +6,43 @@ project(SGR_test)
 
 # compiler options
 set(CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
 
-find_package(Vulkan REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+find_package(Vulkan 1.3.283.0 REQUIRED)
+
+if (WIN32)
+	SET(glfw $ENV{GLFW3_LIBRARIES})
+	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+else (WIN32)
+	find_package(glfw3 3.3 REQUIRED)
+endif (WIN32)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exampleApplication)
 
-get_filename_component(SGR_FOLDER ../ ABSOLUTE)
-
 file(GLOB SOURCES test.cpp)
 
-if (NOT RELEASE)
-	set(RELEASE false)
-	set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif (NOT RELEASE)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_definitions(-DNDBUG=${RELEASE})
+set(GLM_INC_DIR ../modules/glm)
+set(STB_INC_DIR ../modules/stb)
 
-if (APPLE AND RELEASE)
-	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES})
-	set_target_properties(${PROJECT_NAME} PROPERTIES
-											BUNDLE True
-											MACOSX_BUNDLE_ICON_FILE "ico.icns"
-											MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
-											MACOSX_BUNDLE_BUNDLE_VERSION "0.1"
-											MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1"
-	)
-else (APPLE AND RELEASE)
-	add_executable(${PROJECT_NAME} ${SOURCES})
-endif(APPLE AND RELEASE)
+find_library(SGR_LIB SGR ${CMAKE_SOURCE_DIR}/build/SGR-v${VERSION}/lib/ NO_DEFAULT_PATH)
 
-set(GLM_INC_DIR ${SGR_FOLDER}/modules/glm)
-set(STB_INC_DIR ${SGR_FOLDER}/modules/stb)
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include)
+target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} ${glfw} ${SGR_LIB})
 
-if (NOT RELEASE)
-	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/debug/shared/ NO_DEFAULT_PATH)
-else (NOT RELEASE)
-	find_library(SGR_LIB SGR ${SGR_FOLDER}/build/release/**/lib/shared/ NO_DEFAULT_PATH)
-endif (NOT RELEASE)
+file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-if (NOT SGR_LIB)
-	message(FATAL_ERROR "Builded SGR library in parrent folder not found")
-endif (NOT SGR_LIB)
+set(DLL_FILES ${CMAKE_SOURCE_DIR}/build/SGR-v${VERSION}/lib/SGR.dll)
 
-if (VULKAN_FOUND)
-    message(STATUS "Found Vulkan, Including and Linking now")
-    include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include)
-    target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} glfw ${SGR_LIB})
-endif (VULKAN_FOUND)
+add_custom_target(CopyDlls ALL
+    COMMENT "Copying dynamic libraries to output directory"
+    DEPENDS ${DLL_FILES}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${DLL_FILES}
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
 
-if (APPLE AND RELEASE)
-	file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/)
-	file(COPY "Resources/textures/ico.icns" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app/Contents/Resources/)
-else (APPLE AND RELEASE)
-	file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endif(APPLE AND RELEASE)
+add_dependencies(${PROJECT_NAME} CopyDlls)
+
 
 ###########################################################################

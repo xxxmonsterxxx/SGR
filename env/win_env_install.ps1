@@ -42,7 +42,7 @@ if ($result) {
         [System.Environment]::SetEnvironmentVariable("DYLD_LIBRARY_PATH", "${env:VULKAN_SDK}\lib;${env:DYLD_LIBRARY_PATH}", [System.EnvironmentVariableTarget]::User)
 
         Write-Host "1b. Checking Vulkan"
-        $result = Get-Command vkcube -ErrorAction SilentlyContinue
+        $result = Get-Command ${env:VULKAN_SDK}\bin\vkcube -ErrorAction SilentlyContinue
         if ($result) {
             Write-Host "Vulkan SDK was installed correctly"
             $vulkan_sdk_installed = $true

@@ -106,7 +106,7 @@ set(STB_INC_DIR modules/stb)
 find_package(Vulkan 1.3.283.0 REQUIRED)
 
 if (WIN32)
-	SET(glfw $ENV{GLFW3_LIBRARIES})
+	find_library(glfw glfw3 $ENV{GLFW3_LIBRARIES} NO_DEFAULT_PATH)
 	include_directories($ENV{GLFW3_INCLUDE_DIRS})
 	target_link_libraries (SGR ${glfw})
 else (WIN32)

@@ -16,6 +16,21 @@
       ]
     },
     {
+      "name": "SGR-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\build",
+      "installRoot": "C:\\Libs\\SGR",
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "FALSE",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
       "name": "SGR_test",
       "generator": "Ninja",
       "configurationType": "Debug",

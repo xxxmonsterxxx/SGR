@@ -73,7 +73,14 @@ endif()
 
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
-set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
+
+if (WIN32)
+	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2") #optimization
+else ()
+	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
+endif ()
+
+
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
 	add_definitions(-DNDBUG=FALSE)
@@ -128,10 +135,12 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_SOURCE_DIR}/b
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/build/include/SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
-add_custom_command(TARGET SGR
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} --install .
-)
+if (NOT WIN32)
+	add_custom_command(TARGET SGR
+		POST_BUILD
+		COMMAND ${CMAKE_COMMAND} --install .
+	)
+endif ()
 
 include(ProcessorCount)
 ProcessorCount(N)

@@ -1,5 +1,11 @@
 #pragma once
 
+
+#if _WIN64
+#include "Windows.h"
+#define PATH_MAX MAX_PATH
+#endif
+
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>

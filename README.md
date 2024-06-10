@@ -2,12 +2,16 @@
 
 ![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
 
+### ***Introduction***
+
+*This library is a wrapper for the Vulkan API, allowing its use without deep diving into Vulkan itself. It handles simple and basic initialization and allows rendering custom 2D/3D objects with basic textures, spritesheets, and fonts for text rendering. Designed for cross-platform use.*
+
 ### ***How to use?***
 ___
 
 There is possibility to build library from source code, but other
-option is to download release built version as static or shared
-[library](https://github.com/xxxmonsterxxx/SGR/releases). It's necessary to download (or
+option is to [download](https://github.com/xxxmonsterxxx/SGR/releases) release built version as static or shared
+library. It's necessary to download (or
 include as submodule of git project) and include to your
 project follows libraries:    
 - **GLM** (https://github.com/g-truc/glm)
@@ -25,21 +29,13 @@ Manual documentation is currently unavailable. :cry:
 ### ***How to build?***
 ___
 
-For build need to install **Vulkan** and **GLFW** libraries.
-Each build can be multithreaded, after "cmake"
-command will be generated message with max number
-of your threads.
+#### ***Using helpers:***
+There is a environement install script - [environement_install.sh](https://github.com/xxxmonsterxxx/SGR/blob/master/environement_install.sh). It will install: Brew, Vulkan, GLFW. Then you can run [build.sh](https://github.com/xxxmonsterxxx/SGR/blob/master/build.sh) script to building release, install, debug and example application.
 
 #### ***Environement:***
+Unix-like systems:
 
-Linux (Check if your package system provides GLFW 3.3.6 or another version new enough to be useful to you):
-- install vulkan [SDK](https://vulkan.lunarg.com/doc/view/latest/linux/getting_started_ubuntu.html)
-- `sudo apt install cmake` - install [CMake](https://cmake.org/) tools
-- `sudo apt-get install libglfw3-dev` - install [GLFW](https://www.glfw.org/)
-
-MacOS
-- install1
-- install2
+Just use helper scripts.
 
 Windows
 - install1
@@ -47,9 +43,10 @@ Windows
    
 #### ***Build:***
 
-MacOS & Linux build is the same:
-```bash
-./build.sh #for options descriptions use -h
+For build library you should to export these paths.
+```
+export CMAKE_PREFIX_PATH=/usr/local/include/SGR  #for cmake package_find command
+export SGR_LIB=/usr/local/lib/libSGR.dylib
 ```
 
 Windows:
@@ -58,12 +55,12 @@ Windows:
 
 For test of engine run build and launch the application:
 ```bash
-cd examplesData
-cmake .
-make
-cd build
-./SGR_test
+./build.sh -de
 ```
+
+#### ***References:***
+1. [Simple Game Engine](https://github.com/xxxmonsterxxx/SGE) - Game engine based on this SGR library
+2. [Vulkan tutorial](https://vulkan-tutorial.com/)
 ___
 
 ### Contacts

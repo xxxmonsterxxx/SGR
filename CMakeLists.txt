@@ -1,8 +1,8 @@
 ##########################################################################
 
-project(SGR DESCRIPTION "Simple Graphics Renderer")
-
 cmake_minimum_required(VERSION 3.10)
+
+project(SGR DESCRIPTION "Simple Graphics Renderer")
 
 ##########################################################################
 
@@ -18,6 +18,29 @@ string(REGEX MATCH "SGR_VERSION_PATCH ([0-9]*)" _ ${ver})
 set(VPATCH ${CMAKE_MATCH_1})
 
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
+
+
+if (BUILD_EXAMPLE)
+	add_subdirectory(examplesData)
+	return()
+endif()
+
+
+# Config version file generate
+set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
+set(SGR_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfig.cmake")
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/SGRConfigVersion.cmake.in"
+  "${SGR_CONFIG_VERSION_FILE}"
+  @ONLY
+)
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/SGRConfig.cmake.in"
+  "${SGR_CONFIG_FILE}"
+  @ONLY
+)
 
 #######################################
 
@@ -40,35 +63,31 @@ endif (WIN32)
 
 #######################################
 
-if (RELEASE)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	message("Build Simple Graphics Renderer v${VERSION}")
-else (RELEASE)
-	message("Build Simple Game Graphics Renderer in debug mode")
-	set(DEBUG TRUE)
-endif (RELEASE)
+else ()
+	message("Build Simple Graphics Renderer v${VERSION} in debug mode")
+endif()
 
 #######################################
 
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3") #optimization
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
 
-if (DEBUG)
-	set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif (DEBUG)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
+	add_definitions(-DNDBUG=FALSE)
+else ()
+	add_definitions(-DNDBUG=TRUE)
+endif ()
 
-add_definitions(-DNDBUG=${RELEASE}) # set release or not status
-
-#######################################
-
-add_definitions(-DNDBUG=${RELEASE}) # set release or not status
 
 #######################################
 
 include_directories(include) # SGR include folder
 file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 
-add_library(SGR_ST STATIC ${SOURCES})
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(SGR SHARED ${SOURCES})
 
 
@@ -77,50 +96,42 @@ set(GLM_INC_DIR modules/glm)
 set(STB_INC_DIR modules/stb)
 
 # find additional dependecies
-find_package(Vulkan REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
+find_package(Vulkan 1.3.283.0 REQUIRED)
 
-# define if glfw3 founded
-if (NOT glfw3_DIR)
-	set(GLFW3_FOUND FALSE)
-else (NOT glfw3_DIR)
-	set(GLFW3_FOUND TRUE)
-endif (NOT glfw3_DIR)
+if (WIN32)
+	SET(glfw $ENV{GLFW3_LIBRARIES})
+	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+	target_link_libraries (SGR ${glfw})
+else (WIN32)
+	find_package(glfw3 3.3 REQUIRED)
+	target_link_libraries (SGR glfw)
+endif (WIN32)
 
-# status info about external dependecies
-if (VULKAN_FOUND AND GLFW3_FOUND)
-    message(STATUS "Found Vulkan, Including and Linking now")
-	message(STATUS "Found GLFW3, Including and Linking now")
-    include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
-    target_link_libraries (SGR ${Vulkan_LIBRARIES} glfw)
-	target_link_libraries (SGR_ST ${Vulkan_LIBRARIES} glfw)
-else (VULKAN_FOUND AND GLFW3_FOUND)
-	if (NOT VULKAN_FOUND)
-		message(FATAL_ERROR "Vulkan not found, please install Vulkan using library README")
-	endif (NOT VULKAN_FOUND)
-
-	if (NOT GLFW3_FOUND)
-		message(FATAL_ERROR "GLFW3 not found, please install GLFW3 using library README")
-	endif (NOT GLFW3_FOUND)
-endif (VULKAN_FOUND AND GLFW3_FOUND)
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${GLFW3_INCLUDE_DIRS})
+target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries
 if (APPLE)
 	target_link_libraries(SGR "-framework CoreFoundation")
 endif (APPLE)
 
-# library prefix based on paltform
-set(RELEASE_BUILD_DEST release/SGR-v${VERSION}-${PLATFORM_NAME}) # set release build destination
-set(DEBUG_BUILD_DEST debug) # set release build destination
+set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}) # set build destination
 
-if (RELEASE)
-	file(COPY include DESTINATION ${RELEASE_BUILD_DEST})
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${RELEASE_BUILD_DEST}/lib/static)
-else (RELEASE)
-	set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/shared)
-	set_target_properties(SGR_ST PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DEBUG_BUILD_DEST}/static)
-endif (RELEASE)
+set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+
+# install process
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION})
+endif ()
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_SOURCE_DIR}/build/include/SGR)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/build/include/SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+
+add_custom_command(TARGET SGR
+	POST_BUILD
+	COMMAND ${CMAKE_COMMAND} --install .
+)
 
 include(ProcessorCount)
 ProcessorCount(N)

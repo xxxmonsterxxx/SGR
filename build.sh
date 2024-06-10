@@ -31,6 +31,16 @@ Help()
 ############################################################
 ############################################################
 
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_PATH="$( cd -P "$( dirname "$SOURCE" )" && pwd )/$(basename "$SOURCE")"
+SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+
 BUILD=false # do we need build or not?
 INSTALL=false # install library or not
 BUILD_TYPE=debug # release or debug
@@ -41,6 +51,7 @@ REMOVE_LIBRARY=false # remove library from folder where installed
 SYSTEM_TYPE="$(uname -s)"
 PATH_INC=
 PATH_LIB=
+USER_CONFIG_FILE=
 
 echo
 echo "Your system is $SYSTEM_TYPE"
@@ -50,10 +61,12 @@ case $SYSTEM_TYPE in
 	Linux)
 		PATH_INC=/usr/include
 		PATH_LIB=/usr/lib
+		USER_CONFIG_FILE="$HOME/.bashrc"
 		;;
 	Darwin)
 		PATH_INC=/usr/local/include
 		PATH_LIB=/usr/local/lib
+		USER_CONFIG_FILE="$HOME/.zshrc"
 		;;
 esac
 
@@ -103,8 +116,8 @@ fi
 # Remove library from /usr/**
 if [ $REMOVE_LIBRARY == true ]
 then
-	sudo rm -rf $PATH_INC/SGR
-	sudo rm -f $PATH_LIB/libSGR.*
+	rm -rf $PATH_INC/SGR
+	rm -f $PATH_LIB/libSGR.*
 	echo
 	echo "Library was removed succesfull"
 	echo
@@ -135,8 +148,8 @@ cd build
 
 # Choose build type
 case $BUILD_TYPE in
-	debug)		cmake .. -DRELEASE=FALSE ;;
-	release)	cmake .. -DRELEASE=TRUE ;;
+	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug --install-prefix $SCRIPT_DIR/build/ ;;
+	release)	cmake .. -DCMAKE_BUILD_TYPE=Release --install-prefix /usr/local/;;
 esac
 
 # Need to clean?
@@ -145,6 +158,11 @@ then
 	cmake --build . --CLEAN-first -- -j
 else
 	cmake --build . -- -j
+	if [ $EXAMPLE_BUILD == true ]
+	then
+		cmake .. -DBUILD_EXAMPLE=TRUE
+		cmake --build . -- -j
+	fi
 fi
 
 # If build type is release (with/out install option)
@@ -155,13 +173,18 @@ then
 	for entry in `ls $search_dir`; do
 		if [ $INSTALL == true ]
 		then
-			sudo rm -rf $PATH_INC/SGR
-			sudo mkdir $PATH_INC/SGR
-			sudo cp -rf $entry/include/*.h $PATH_INC/SGR
-			sudo cp -f $entry/lib/shared/* $PATH_LIB
-			echo
-			echo "Installed in $PATH_INC and $PATH_LIB"
-			echo
+			#setting environement variables
+			if [ -f  ]; then
+				if ! grep -q 'export CMAKE_PREFIX_PATH=/usr/local/include/SGR:CMAKE_PREFIX_PATH' $USER_CONFIG_FILE; then
+					echo >> $USER_CONFIG_FILE
+					echo 'export CMAKE_PREFIX_PATH=/usr/local/include/SGR:CMAKE_PREFIX_PATH #for cmake package_find command' >> $USER_CONFIG_FILE
+				fi
+				
+				if ! grep -q 'export SGR_LIB=/usr/local/lib/libSGR.dylib' $USER_CONFIG_FILE; then
+					echo 'export SGR_LIB=/usr/local/lib/libSGR.dylib' >> $USER_CONFIG_FILE
+				fi
+				echo "SDK environement added to user config file successfully."
+			fi
 		fi
 		tar -cf $entry.tar $entry
 	done
@@ -181,12 +204,7 @@ cd ..
 # Example build and run if requested
 if [ $EXAMPLE_BUILD == true ]
 then
-	cd examplesData
-	mkdir build
-	cd build
-	cmake ..
-	cmake --build . -- -j
-	./exampleApplication/SGR_test
+	./build/exampleApplication/SGR_test
 fi
 
 ############################################################

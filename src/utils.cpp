@@ -28,14 +28,21 @@ std::string getExecutablePath()
 			return std::string("");
 	#endif
 
-	#if __WIN64
-		test
+	#if _WIN64
+		HMODULE hModule = GetModuleHandle(nullptr);
+		if (GetModuleFileName(hModule, ep, MAX_PATH) == 0) {
+			return std::string("");
+		}
 	#endif
 
+	char slash = '/';
+#if _WIN64
+	slash = '\\';
+#endif
 	std::string binaryPath(ep);
-	int lastPathIndex = binaryPath.length();
-	for (int i = binaryPath.length(); i > 0; i--) {
-		if (binaryPath[i] == '/') {
+	std::size_t lastPathIndex = binaryPath.length();
+	for (std::size_t i = binaryPath.length(); i > 0; i--) {
+		if (binaryPath[i] == slash) {
 			lastPathIndex = i;
 			break;
 		}

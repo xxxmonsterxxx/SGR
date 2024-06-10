@@ -12,6 +12,9 @@ bld/
 
 # Visual Studio directory
 .vs/
+.vscode/
+*.sln
+*.vcxproj*
 
 # CMake system
 CMakeFiles/
@@ -27,3 +30,10 @@ cmake_install.cmake
 
 # MakeFile
 Makefile
+
+# Generated cmake config files
+include/*.cmake
+
+# downloaded archives
+/*.zip
+/*.exe

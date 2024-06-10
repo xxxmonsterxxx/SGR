@@ -1,0 +1,36 @@
+﻿{
+  "configurations": [
+    {
+      "name": "SGR-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\build",
+      "installRoot": "${projectDir}\\build",
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "FALSE",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "SGR_test",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\examplesData\\build",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "TRUE",
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}

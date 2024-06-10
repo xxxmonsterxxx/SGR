@@ -20,7 +20,13 @@ set(VPATCH ${CMAKE_MATCH_1})
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
 
-# Config version file generate 
+if (BUILD_EXAMPLE)
+	add_subdirectory(examplesData)
+	return()
+endif()
+
+
+# Config version file generate
 set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
 set(SGR_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfig.cmake")
 
@@ -60,16 +66,21 @@ endif (WIN32)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	message("Build Simple Graphics Renderer v${VERSION}")
 else ()
-	message("Build Simple Game Graphics Renderer v${VERSION} in debug mode")
+	message("Build Simple Graphics Renderer v${VERSION} in debug mode")
 endif()
 
 #######################################
 
 # compiler options
 set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
-set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -03") #optimization
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
 
-add_definitions(-DNDBUG=${RELEASE}) # set release or not status
+if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
+	add_definitions(-DNDBUG=FALSE)
+else ()
+	add_definitions(-DNDBUG=TRUE)
+endif ()
+
 
 #######################################
 
@@ -90,12 +101,14 @@ find_package(Vulkan 1.3.283.0 REQUIRED)
 if (WIN32)
 	SET(glfw $ENV{GLFW3_LIBRARIES})
 	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+	target_link_libraries (SGR ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
+	target_link_libraries (SGR glfw)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
-target_link_libraries (SGR ${Vulkan_LIBRARIES} ${glfw})
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${GLFW3_INCLUDE_DIRS})
+target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries
 if (APPLE)
@@ -106,9 +119,19 @@ set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERS
 
 set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
 
-# ther is install process
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include DESTINATION ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION})
-install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION}/lib)
+# install process
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION})
+endif ()
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_SOURCE_DIR}/build/include/SGR)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/build/include/SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+
+add_custom_command(TARGET SGR
+	POST_BUILD
+	COMMAND ${CMAKE_COMMAND} --install .
+)
 
 include(ProcessorCount)
 ProcessorCount(N)
@@ -116,7 +139,3 @@ ProcessorCount(N)
 message("Ready to build on " ${PLATFORM_NAME})
 
 ##########################################################################
-
-if (BUILD_EXAMPLE)
-	add_subdirectory(examplesData)
-endif()

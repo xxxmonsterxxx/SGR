@@ -31,27 +31,27 @@ echo "0. Your system is $SYSTEM_TYPE"
 echo
 # Check OS
 
-
-#IF MACOS
-
-#install command line tools
-echo "0a. Checking CLI..."
-CLI_INSTALLED=FALSE
-CLI_INSTALLED_RETURN=$(xcode-select -p)
-if [[ $CLI_INSTALLED_RETURN == *"xcode-select: error:"* ]]
+if [ $SYSTEM_TYPE == Darwin ]
 then
-    read -p "CLI not installed, install now? (y/n) " RESP
-    if [ "$RESP" = "n" ]
+    #install command line tools
+    echo "0a. Checking CLI..."
+    CLI_INSTALLED=FALSE
+    CLI_INSTALLED_RETURN=$(xcode-select -p)
+    if [[ $CLI_INSTALLED_RETURN == *"xcode-select: error:"* ]]
     then
-        echo "Skipping."
+        read -p "CLI not installed, install now? (y/n) " RESP
+        if [ "$RESP" = "n" ]
+        then
+            echo "Skipping."
+        else
+            echo "Installing..."
+            CLI_INSTALLED=TRUE
+            xcode-select --install
+        fi
     else
-        echo "Installing..."
+        echo "CLI already installed"
         CLI_INSTALLED=TRUE
-        xcode-select --install
     fi
-else
-    echo "CLI already installed"
-    CLI_INSTALLED=TRUE
 fi
 echo
 
@@ -70,7 +70,20 @@ else
     else
         echo "Installing homebrew..."
         HOMEBREW_INSTALLED=TRUE
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        if [ $SYSTEM_TYPE == Linux ]
+        then
+            sudo apt install curl
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+            test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+            source ~/.bashrc
+        else
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+
+        echo "Homebrew installed"
     fi
 fi
 echo
@@ -98,7 +111,7 @@ echo
 #check vulkan sdk
 VULKAN_SDK_INSTALLED=FALSE
 echo "3. Checking Vulkan SDK..."
-if [ !$(command -v vulkanvia &> /dev/null) ]
+if [ !$(command -v vkvia &> /dev/null) ]
 then
     echo "Vulkan SDK already installed."
     VULKAN_SDK_INSTALLED=TRUE
@@ -110,13 +123,22 @@ else
     else
         echo "Installing Vulkan SDK..."
         VULKAN_SDK_INSTALLED=TRUE
-        wget https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
 
+        if [ $SYSTEM_TYPE == Darwin ]
+        then
+            wget https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
+            VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
+            mount dmg
+            sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+        fi
 
-        VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
-        mount dmg
-        sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
-
+        if [ $SYSTEM_TYPE == Linux ]
+        then
+            wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-jammy.list http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list
+            sudo apt update
+            sudo apt install vulkan-sdk
+        fi
 
         echo "3a. Export Vulkan SDK variables"
         #add to end of bashrc
@@ -163,13 +185,19 @@ else
         echo "Installing GLFW..."
         GLFW_INSTALLED=TRUE
         brew install glfw
+        brew install glfw
     fi
 fi
 echo
 
 echo
 echo "Environement install helper done:"
+
+if [ $SYSTEM_TYPE == Darwin ]
+then
 echo "CLI:          $CLI_INSTALLED"
+fi
+
 echo "Homebrew:     $HOMEBREW_INSTALLED"
 echo "CMake:        $CMAKE_INSTALLED"
 echo "Vulkan SDK:   $VULKAN_SDK_INSTALLED"

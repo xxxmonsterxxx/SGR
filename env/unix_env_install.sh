@@ -58,7 +58,7 @@ echo
 #check homebrew
 HOMEBREW_INSTALLED=FALSE
 echo "1. Checking homebrew..."
-if [ !$(command -v brew &> /dev/null) ]
+if [ $(command -v brew) ]
 then
     echo "Homebrew already installed."
     HOMEBREW_INSTALLED=TRUE
@@ -93,7 +93,7 @@ echo
 #check cmake
 CMAKE_INSTALLED=FALSE
 echo "2. Checking CMake..."
-if [ !$(command -v CMake &> /dev/null) ]
+if [ $(command -v cmake) ]
 then
     echo "CMake already installed."
     CMAKE_INSTALLED=TRUE
@@ -106,7 +106,7 @@ else
         echo "Installing CMake..."
         CMAKE_INSTALLED=TRUE
         brew install cmake
-        if [ $SYSTEM_TYPE == Linux]
+        if [ $SYSTEM_TYPE == Linux ]
         then
             sudo apt install make
             sudo apt install g++
@@ -118,7 +118,7 @@ echo
 #check vulkan sdk
 VULKAN_SDK_INSTALLED=FALSE
 echo "3. Checking Vulkan SDK..."
-if [ !$(command -v vkvia &> /dev/null) ]
+if [ $(command -v vkvia) ]
 then
     echo "Vulkan SDK already installed."
     VULKAN_SDK_INSTALLED=TRUE
@@ -137,6 +137,24 @@ else
             VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
             mount dmg
             sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+
+            echo "3a. Export Vulkan SDK variables"
+            #add to end of bashrc
+            export VULKAN_SDK
+            PATH="$PATH:$VULKAN_SDK/bin"
+            export PATH
+            DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:${DYLD_LIBRARY_PATH:-}"
+            export DYLD_LIBRARY_PATH
+            #echo "This script is now using VK_ADD_LAYER_PATH instead of VK_LAYER_PATH"
+            VK_ADD_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
+            export VK_ADD_LAYER_PATH
+            VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+            export VK_ICD_FILENAMES
+            VK_DRIVER_FILES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
+            export VK_DRIVER_FILES
+
+            rm -rf *.dmg
+            remove
         fi
 
         if [ $SYSTEM_TYPE == Linux ]
@@ -147,29 +165,11 @@ else
             sudo apt install vulkan-sdk
         fi
 
-        echo "3a. Export Vulkan SDK variables"
-        #add to end of bashrc
-        export VULKAN_SDK
-        PATH="$PATH:$VULKAN_SDK/bin"
-        export PATH
-        DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:${DYLD_LIBRARY_PATH:-}"
-        export DYLD_LIBRARY_PATH
-        #echo "This script is now using VK_ADD_LAYER_PATH instead of VK_LAYER_PATH"
-        VK_ADD_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
-        export VK_ADD_LAYER_PATH
-        VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-        export VK_ICD_FILENAMES
-        VK_DRIVER_FILES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-        export VK_DRIVER_FILES
-
         echo "3b. Checking Vulkan"
         if [ !$(command -v vulkanvia &> /dev/null) ]
         then
             echo "Vulkan SDK installed correctly"
         fi
-
-        rm -rf *.dmg
-        remove
     fi
 fi
 echo

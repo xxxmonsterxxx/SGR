@@ -78,6 +78,8 @@ else
             test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
             test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+            echo "export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:${LD_LIBRARY_PATH}" >> ~/.bashrc
+
             source ~/.bashrc
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -104,6 +106,11 @@ else
         echo "Installing CMake..."
         CMAKE_INSTALLED=TRUE
         brew install cmake
+        if [ $SYSTEM_TYPE == Linux]
+        then
+            sudo apt install make
+            sudo apt install g++
+        fi
     fi
 fi
 echo

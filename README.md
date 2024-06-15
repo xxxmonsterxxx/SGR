@@ -21,7 +21,7 @@ Manual documentation is currently unavailable. :cry:
 ___
 
 #### ***Environement:***
-This project contains helpfull scripts to environement install and configur additional dependencies. If you wan't to manually install the libraries, just use the helper scripts:
+This project contains helpfull scripts to environement install and configure additional dependencies. If you wan't to manually install the libraries, just use the helper scripts:
 - Windows: /env/win_env_install.ps1 - Powershell script
 - Linux & MacOS: /env/unix_env_install.sh - Bash script
 

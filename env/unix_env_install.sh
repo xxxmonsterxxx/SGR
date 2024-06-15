@@ -78,7 +78,7 @@ else
             test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
             test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
-            echo "export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:${LD_LIBRARY_PATH}" >> ~/.bashrc
+            echo "export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:\${LD_LIBRARY_PATH}" >> ~/.bashrc
 
             source ~/.bashrc
         else
@@ -133,28 +133,32 @@ else
 
         if [ $SYSTEM_TYPE == Darwin ]
         then
-            wget https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
-            VULKAN_SDK=~/Libs/VulkanSDK/1.3.268.1/macOS
-            mount dmg
-            sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+            curl -O https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
+            VULKAN_SDK=~/Libs/VulkanSDK/latest/macOS
+
+            output=$(hdiutil attach "vulkan-sdk.dmg")
+            mount_point=$(echo "$output" | grep -o '/Volumes/[^ ]*')
+            sudo $mount_point/InstallVulkan.app/Contents/MacOS/InstallVulkan --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+            hdiutil detach $mount_point
 
             echo "3a. Export Vulkan SDK variables"
-            #add to end of bashrc
-            export VULKAN_SDK
-            PATH="$PATH:$VULKAN_SDK/bin"
-            export PATH
-            DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:${DYLD_LIBRARY_PATH:-}"
-            export DYLD_LIBRARY_PATH
-            #echo "This script is now using VK_ADD_LAYER_PATH instead of VK_LAYER_PATH"
-            VK_ADD_LAYER_PATH="$VULKAN_SDK/share/vulkan/explicit_layer.d"
-            export VK_ADD_LAYER_PATH
-            VK_ICD_FILENAMES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-            export VK_ICD_FILENAMES
-            VK_DRIVER_FILES="$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"
-            export VK_DRIVER_FILES
+
+            echo "" >> ~/.zshrc
+            echo "" >> ~/.zshrc
+            echo "TTTTEEESSSTTT " >> ~/.zshrc
+            echo "export VULKAN_SDK" >> ~/.zshrc
+            echo "PATH="\$PATH:\$VULKAN_SDK/bin"" >> ~/.zshrc
+            echo "export PATH" >> ~/.zshrc
+            echo "DYLD_LIBRARY_PATH="\$VULKAN_SDK/lib:\${DYLD_LIBRARY_PATH:-}"" >> ~/.zshrc
+            echo "export DYLD_LIBRARY_PATH" >> ~/.zshrc
+            echo "VK_ADD_LAYER_PATH="\$VULKAN_SDK/share/vulkan/explicit_layer.d"" >> ~/.zshrc
+            echo "export VK_ADD_LAYER_PATH" >> ~/.zshrc
+            echo "VK_ICD_FILENAMES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
+            echo "export VK_ICD_FILENAMES" >> ~/.zshrc
+            echo "VK_DRIVER_FILES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
+            echo "export VK_DRIVER_FILES" >> ~/.zshrc
 
             rm -rf *.dmg
-            remove
         fi
 
         if [ $SYSTEM_TYPE == Linux ]

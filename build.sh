@@ -42,16 +42,14 @@ SCRIPT_PATH="$( cd -P "$( dirname "$SOURCE" )" && pwd )/$(basename "$SOURCE")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 BUILD=false # do we need build or not?
-INSTALL=false # install library or not
 BUILD_TYPE=debug # release or debug
 CLEAN= # clean or not
 EXAMPLE_BUILD=false # need to build example project?
 OPTS_PRESENTED=false # options provided
 REMOVE_LIBRARY=false # remove library from folder where installed
 SYSTEM_TYPE="$(uname -s)"
-PATH_INC=
-PATH_LIB=
 USER_CONFIG_FILE=
+INSTALL_PATH=
 
 echo
 echo "Your system is $SYSTEM_TYPE"
@@ -59,19 +57,20 @@ echo
 
 case $SYSTEM_TYPE in 
 	Linux)
-		PATH_INC=/usr/include
-		PATH_LIB=/usr/lib
+		INSTALL_PATH=/usr
 		USER_CONFIG_FILE="$HOME/.bashrc"
 		;;
 	Darwin)
-		PATH_INC=/usr/local/include
-		PATH_LIB=/usr/local/lib
+		INSTALL_PATH=/usr/local
 		USER_CONFIG_FILE="$HOME/.zshrc"
 		;;
 esac
 
+PATH_INC=$INSTALL_PATH/include
+PATH_LIB=$INSTALL_PATH/lib
+
 # Get the options
-while getopts ":rcidezh" flag
+while getopts ":rcdezh" flag
 do
 	OPTS_PRESENTED=true
     case $flag in
@@ -138,12 +137,6 @@ then
 		echo "Build folder was cleared"
 		echo
 	fi
-	if [ $INSTALL == true ]
-	then
-		echo
-		echo "Cannot install without building"
-		echo
-	fi
 	exit
 fi
 
@@ -153,7 +146,7 @@ cd build
 # Choose build type
 case $BUILD_TYPE in
 	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug --install-prefix $SCRIPT_DIR/build/ ;;
-	release)	cmake .. -DCMAKE_BUILD_TYPE=Release --install-prefix /usr/local/;;
+	release)	cmake .. -DCMAKE_BUILD_TYPE=Release --install-prefix $INSTALL_PATH;;
 esac
 
 # Need to clean?
@@ -172,34 +165,24 @@ fi
 # If build type is release (with/out install option)
 if [ $BUILD_TYPE == release ]
 then
-	cd release
+	cd Release
 	rm -rf *.tar
 	for entry in `ls $search_dir`; do
-		if [ $INSTALL == true ]
-		then
-			#setting environement variables
-			if [ -f  ]; then
-				if ! grep -q 'export CMAKE_PREFIX_PATH=/usr/local/include/SGR:CMAKE_PREFIX_PATH' $USER_CONFIG_FILE; then
-					echo >> $USER_CONFIG_FILE
-					echo 'export CMAKE_PREFIX_PATH=/usr/local/include/SGR:CMAKE_PREFIX_PATH #for cmake package_find command' >> $USER_CONFIG_FILE
-				fi
-				
-				if ! grep -q 'export SGR_LIB=/usr/local/lib/libSGR.dylib' $USER_CONFIG_FILE; then
-					echo 'export SGR_LIB=/usr/local/lib/libSGR.dylib' >> $USER_CONFIG_FILE
-				fi
-				echo "SDK environement added to user config file successfully."
+		#setting environement variables
+		if [ -f  ]; then
+			if ! grep -q "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:CMAKE_PREFIX_PATH" $USER_CONFIG_FILE; then
+				echo >> $USER_CONFIG_FILE
+				echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:CMAKE_PREFIX_PATH #for cmake package_find command" >> $USER_CONFIG_FILE
 			fi
+			
+			if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" $USER_CONFIG_FILE; then
+				echo "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" >> $USER_CONFIG_FILE
+			fi
+			echo "SDK environement added to user config file successfully."
 		fi
 		tar -cf $entry.tar $entry
 	done
 	cd ..
-else
-	if [ $INSTALL == true ]
-	then
-		echo
-		echo "Cannot install not release build type"
-		echo
-	fi
 fi
 
 cd ..

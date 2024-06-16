@@ -50,6 +50,7 @@ REMOVE_LIBRARY=false # remove library from folder where installed
 SYSTEM_TYPE="$(uname -s)"
 USER_CONFIG_FILE=
 INSTALL_PATH=
+INSTALL=false
 
 echo
 echo "Your system is $SYSTEM_TYPE"
@@ -70,7 +71,7 @@ PATH_INC=$INSTALL_PATH/include
 PATH_LIB=$INSTALL_PATH/lib
 
 # Get the options
-while getopts ":rcdezh" flag
+while getopts ":rcdezhi" flag
 do
 	OPTS_PRESENTED=true
     case $flag in
@@ -94,6 +95,9 @@ do
 			;;
 		z)	# Remove library
 			REMOVE_LIBRARY=true
+			;;
+		i)	# Need to install
+			INSTALL=true
 			;;
 		h)  # Help
 			Help
@@ -119,8 +123,8 @@ fi
 # Remove library from /usr/**
 if [ $REMOVE_LIBRARY == true ]
 then
-	rm -rf $PATH_INC/SGR
-	rm -f $PATH_LIB/libSGR.*
+	sudo rm -rf $PATH_INC/SGR
+	sudo rm -f $PATH_LIB/libSGR.*
 	echo
 	echo "Library was removed succesfull"
 	echo
@@ -145,8 +149,8 @@ cd build
 
 # Choose build type
 case $BUILD_TYPE in
-	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug --install-prefix $SCRIPT_DIR/build/ ;;
-	release)	cmake .. -DCMAKE_BUILD_TYPE=Release --install-prefix $INSTALL_PATH;;
+	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLE=FALSE --install-prefix $SCRIPT_DIR/build/ ;;
+	release)	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLE=FALSE --install-prefix $INSTALL_PATH ;;
 esac
 
 # Need to clean?
@@ -155,6 +159,13 @@ then
 	cmake --build . --CLEAN-first -- -j
 else
 	cmake --build . -- -j
+
+	if [ $BUILD_TYPE == release ] && [ $INSTALL == true ]
+	then
+		sudo mkdir $INSTALL_PATH/include/SGR
+		sudo make install
+	fi
+
 	if [ $EXAMPLE_BUILD == true ]
 	then
 		cmake .. -DBUILD_EXAMPLE=TRUE
@@ -170,15 +181,15 @@ then
 	for entry in `ls $search_dir`; do
 		#setting environement variables
 		if [ -f  ]; then
-			if ! grep -q "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:CMAKE_PREFIX_PATH" $USER_CONFIG_FILE; then
+			if ! grep -q "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH}" $USER_CONFIG_FILE; then
 				echo >> $USER_CONFIG_FILE
-				echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:CMAKE_PREFIX_PATH #for cmake package_find command" >> $USER_CONFIG_FILE
+				echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH} #for cmake package_find command" >> $USER_CONFIG_FILE
 			fi
 			
 			if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" $USER_CONFIG_FILE; then
 				echo "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" >> $USER_CONFIG_FILE
+				echo "SDK environement added to user config file successfully."
 			fi
-			echo "SDK environement added to user config file successfully."
 		fi
 		tar -cf $entry.tar $entry
 	done

@@ -134,7 +134,7 @@ else
         if [ $SYSTEM_TYPE == Darwin ]
         then
             curl -O https://sdk.lunarg.com/sdk/download/latest/mac/vulkan-sdk.dmg
-            VULKAN_SDK=~/Libs/VulkanSDK/latest/macOS
+            VULKAN_SDK=~/Libs/VulkanSDK/latest
 
             output=$(hdiutil attach "vulkan-sdk.dmg")
             mount_point=$(echo "$output" | grep -o '/Volumes/[^ ]*')
@@ -145,8 +145,7 @@ else
 
             echo "" >> ~/.zshrc
             echo "" >> ~/.zshrc
-            echo "TTTTEEESSSTTT " >> ~/.zshrc
-            echo "export VULKAN_SDK" >> ~/.zshrc
+            echo "export VULKAN_SDK=$VULKAN_SDK/macOS" >> ~/.zshrc
             echo "PATH="\$PATH:\$VULKAN_SDK/bin"" >> ~/.zshrc
             echo "export PATH" >> ~/.zshrc
             echo "DYLD_LIBRARY_PATH="\$VULKAN_SDK/lib:\${DYLD_LIBRARY_PATH:-}"" >> ~/.zshrc
@@ -157,6 +156,8 @@ else
             echo "export VK_ICD_FILENAMES" >> ~/.zshrc
             echo "VK_DRIVER_FILES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
             echo "export VK_DRIVER_FILES" >> ~/.zshrc
+
+            source ~/.zshrc
 
             rm -rf *.dmg
         fi

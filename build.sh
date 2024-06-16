@@ -71,7 +71,7 @@ case $SYSTEM_TYPE in
 esac
 
 # Get the options
-while getopts ":rcidez" flag
+while getopts ":rcidezh" flag
 do
 	OPTS_PRESENTED=true
     case $flag in
@@ -95,6 +95,10 @@ do
 			;;
 		z)	# Remove library
 			REMOVE_LIBRARY=true
+			;;
+		h)  # Help
+			Help
+			exit
 			;;
 	   \?)	# Invalid option
 	   		echo

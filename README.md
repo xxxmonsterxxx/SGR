@@ -20,6 +20,21 @@ Manual documentation is currently unavailable. :cry:
 ### ***How to build?***
 ___
 
+Firstly required to download project and its equal to install [git](https://www.git-scm.com/):
+
+MacOS and Linux (terminal):
+```
+git #for MacOS if was not installed you will got installation process
+
+sudo apt install git #for Linux
+
+#then navigate to folder where you want to install project
+git clone --recursive https://github.com/xxxmonsterxxx/SGR.git
+cd SGR
+#now you are ready
+```
+
+
 #### ***Environement:***
 This project contains helpfull scripts to environement install and configure additional dependencies. If you wan't to manually install the libraries, just use the helper scripts:
 - Windows: /env/win_env_install.ps1 - Powershell script

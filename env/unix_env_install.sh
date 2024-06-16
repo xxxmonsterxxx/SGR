@@ -79,8 +79,6 @@ else
             test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
             echo "export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:\${LD_LIBRARY_PATH}" >> ~/.bashrc
-
-            source ~/.bashrc
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
@@ -144,7 +142,6 @@ else
             echo "3a. Export Vulkan SDK variables"
 
             echo "" >> ~/.zshrc
-            echo "" >> ~/.zshrc
             echo "export VULKAN_SDK=$VULKAN_SDK/macOS" >> ~/.zshrc
             echo "PATH="\$PATH:\$VULKAN_SDK/bin"" >> ~/.zshrc
             echo "export PATH" >> ~/.zshrc
@@ -156,8 +153,6 @@ else
             echo "export VK_ICD_FILENAMES" >> ~/.zshrc
             echo "VK_DRIVER_FILES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
             echo "export VK_DRIVER_FILES" >> ~/.zshrc
-
-            source ~/.zshrc
 
             rm -rf *.dmg
         fi

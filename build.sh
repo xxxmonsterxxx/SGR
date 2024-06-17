@@ -186,8 +186,8 @@ then
 				echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH} #for cmake package_find command" >> $USER_CONFIG_FILE
 			fi
 			
-			if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" $USER_CONFIG_FILE; then
-				echo "export SGR_LIB=$INSTALL_PATH/lib/libSGR.dylib" >> $USER_CONFIG_FILE
+			if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib" $USER_CONFIG_FILE; then
+				echo "export SGR_LIB=$INSTALL_PATH/lib/" >> $USER_CONFIG_FILE
 				echo "SDK environement added to user config file successfully."
 			fi
 		fi

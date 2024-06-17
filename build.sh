@@ -174,7 +174,7 @@ else
 fi
 
 # If build type is release (with/out install option)
-if [ $BUILD_TYPE == release ]
+if [ $BUILD_TYPE == release ] && [ $INSTALL ]
 then
 	cd Release
 	rm -rf *.tar

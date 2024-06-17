@@ -25,7 +25,6 @@ Firstly required to download project and its equal to install [git](https://www.
 MacOS and Linux (terminal):
 ```
 git #for MacOS if was not installed you will got installation process
-
 sudo apt install git #for Linux
 
 #then navigate to folder where you want to install project
@@ -33,6 +32,8 @@ git clone --recursive https://github.com/xxxmonsterxxx/SGR.git
 cd SGR
 #now you are ready
 ```
+
+For windows you could to use git bash or git desktop or simply download project as ZIP.
 
 
 #### ***Environement:***

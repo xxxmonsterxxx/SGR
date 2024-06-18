@@ -44,25 +44,6 @@ configure_file(
 
 #######################################
 
-# platform detection
-if (UNIX AND NOT APPLE)
-	set(LINUX TRUE)
-endif (UNIX AND NOT APPLE)
-
-if (APPLE)
-	set(PLATFORM_NAME MacOS)
-endif (APPLE)
-
-if (LINUX)
-	set(PLATFORM_NAME Linux)
-endif (LINUX)
-
-if (WIN32)
-	set(PLATFORM_NAME Windows)
-endif (WIN32)
-
-#######################################
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	message("Build Simple Graphics Renderer v${VERSION}")
 else ()
@@ -112,9 +93,11 @@ if (WIN32)
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
 	target_link_libraries (SGR glfw)
+	get_target_property(GLFW3_INCLUDE_DIRS glfw INTERFACE_INCLUDE_DIRECTORIES)
+	include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${GLFW3_INCLUDE_DIRS})
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
 target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries

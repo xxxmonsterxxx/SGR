@@ -134,6 +134,16 @@ if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
 		)
 	"
 	)
+
+	install(CODE "
+		execute_process(
+        COMMAND reg add \"HKCU\\\\Environment\" /v CMAKE_PREFIX_PATH /t REG_SZ /d \"${CMAKE_INSTALL_PREFIX}/include/SGR\" /f
+        OUTPUT_VARIABLE result
+        ERROR_VARIABLE result
+        RESULT_VARIABLE exit_code
+		)
+	"
+	)
 endif ()
 
 include(ProcessorCount)

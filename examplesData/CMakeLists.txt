@@ -23,12 +23,9 @@ find_package(Vulkan 1.3.283.0 REQUIRED)
 find_library(SGR_LIB SGR ${SGR_FOLDER}/lib NO_DEFAULT_PATH)
 
 if (WIN32)
-	SET(glfw $ENV{GLFW3_LIBRARIES})
-	include_directories($ENV{GLFW3_INCLUDE_DIRS})
-	target_link_libraries (${PROJECT_NAME} ${glfw})
+	include_directories($ENV{GLFW3_LIB}/include/GLFW)
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
-	target_link_libraries (${PROJECT_NAME} glfw)
 endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include/SGR)

@@ -87,8 +87,8 @@ set(STB_INC_DIR modules/stb)
 find_package(Vulkan 1.3.283.0 REQUIRED)
 
 if (WIN32)
-	find_library(glfw glfw3 $ENV{GLFW3_LIBRARIES} NO_DEFAULT_PATH)
-	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+	find_library(glfw glfw3 $ENV{GLFW3_LIB}/lib NO_DEFAULT_PATH)
+	include_directories($ENV{GLFW3_LIB}/include/GLFW)
 	target_link_libraries (SGR ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
@@ -121,6 +121,18 @@ if (NOT WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_custom_command(TARGET SGR
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install .
+	)
+endif ()
+
+if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+	install(CODE "
+		execute_process(
+        COMMAND reg add \"HKCU\\\\Environment\" /v SGR_LIB /t REG_SZ /d \"${CMAKE_INSTALL_PREFIX}/lib\" /f
+        OUTPUT_VARIABLE result
+        ERROR_VARIABLE result
+        RESULT_VARIABLE exit_code
+		)
+	"
 	)
 endif ()
 

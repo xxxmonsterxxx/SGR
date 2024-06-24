@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #define STB_TRUETYPE_IMPLEMENTATION
-	#include "../modules/stb/stb_truetype.h"
+	#include "stb_truetype.h"
 
 bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedchar* &backedChars, uint32_t &width, uint32_t &height)
 {

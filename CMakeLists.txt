@@ -44,25 +44,6 @@ configure_file(
 
 #######################################
 
-# platform detection
-if (UNIX AND NOT APPLE)
-	set(LINUX TRUE)
-endif (UNIX AND NOT APPLE)
-
-if (APPLE)
-	set(PLATFORM_NAME MacOS)
-endif (APPLE)
-
-if (LINUX)
-	set(PLATFORM_NAME Linux)
-endif (LINUX)
-
-if (WIN32)
-	set(PLATFORM_NAME Windows)
-endif (WIN32)
-
-#######################################
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	message("Build Simple Graphics Renderer v${VERSION}")
 else ()
@@ -106,15 +87,17 @@ set(STB_INC_DIR modules/stb)
 find_package(Vulkan 1.3.283.0 REQUIRED)
 
 if (WIN32)
-	find_library(glfw glfw3 $ENV{GLFW3_LIBRARIES} NO_DEFAULT_PATH)
-	include_directories($ENV{GLFW3_INCLUDE_DIRS})
+	find_library(glfw glfw3 $ENV{GLFW3_LIB}/lib NO_DEFAULT_PATH)
+	include_directories($ENV{GLFW3_LIB}/include/GLFW)
 	target_link_libraries (SGR ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
 	target_link_libraries (SGR glfw)
+	get_target_property(GLFW3_INCLUDE_DIRS glfw INTERFACE_INCLUDE_DIRECTORIES)
+	include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${GLFW3_INCLUDE_DIRS})
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
 target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries
@@ -138,6 +121,28 @@ if (NOT WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_custom_command(TARGET SGR
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install .
+	)
+endif ()
+
+if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+	install(CODE "
+		execute_process(
+        COMMAND reg add \"HKCU\\\\Environment\" /v SGR_LIB /t REG_SZ /d \"${CMAKE_INSTALL_PREFIX}/lib\" /f
+        OUTPUT_VARIABLE result
+        ERROR_VARIABLE result
+        RESULT_VARIABLE exit_code
+		)
+	"
+	)
+
+	install(CODE "
+		execute_process(
+        COMMAND reg add \"HKCU\\\\Environment\" /v CMAKE_PREFIX_PATH /t REG_SZ /d \"${CMAKE_INSTALL_PREFIX}/include/SGR\" /f
+        OUTPUT_VARIABLE result
+        ERROR_VARIABLE result
+        RESULT_VARIABLE exit_code
+		)
+	"
 	)
 endif ()
 

@@ -66,13 +66,12 @@ if ($response.ToLower() -eq "y") {
     if (Test-Path $outputFile) {
         Expand-Archive -Path $outputFile -DestinationPath "C:\Libs\glfw" -Force
         Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\lib-vc2022" -Destination "C:\Libs\glfw\lib" -Force
-        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\include" -Destination "C:\Libs\glfw\include" -Force
+        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\include" -Destination "C:\Libs\glfw\include\GLFW" -Force
         Remove-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64" -Force -Recurse
         Remove-Item $outputFile
 
         Write-Host "2a. Export Vulkan SDK variables"
-        [System.Environment]::SetEnvironmentVariable("GLFW3_LIBRARIES", "C:\Libs\glfw\lib", [System.EnvironmentVariableTarget]::User)
-        [System.Environment]::SetEnvironmentVariable("GLFW3_INCLUDE_DIRS", "C:\Libs\glfw\include", [System.EnvironmentVariableTarget]::User)
+        [System.Environment]::SetEnvironmentVariable("GLFW3_LIB", "C:\Libs\glfw", [System.EnvironmentVariableTarget]::User)
         Write-Host "GLFW was installed."
         $glfw_installed = $true
     }

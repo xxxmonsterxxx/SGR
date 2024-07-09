@@ -21,10 +21,7 @@ void WindowManager::framebufferResizeCallback(GLFWwindow* window, int width, int
 void WindowManager::windowPosCallback(GLFWwindow* window, int xpos, int ypos)
 {
 	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-	app->windowResized = true;
-	app->windowMinimized = false;
 	if (app->getParrentSGRptr()) {
-		app->requestUpdateSwapChain();
 		app->getParrentSGRptr()->drawFrame();
 	}
 }

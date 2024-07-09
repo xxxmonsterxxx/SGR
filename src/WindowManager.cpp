@@ -18,6 +18,17 @@ void WindowManager::framebufferResizeCallback(GLFWwindow* window, int width, int
 	}
 }
 
+void WindowManager::windowPosCallback(GLFWwindow* window, int xpos, int ypos)
+{
+	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
+	app->windowResized = true;
+	app->windowMinimized = false;
+	if (app->getParrentSGRptr()) {
+		app->requestUpdateSwapChain();
+		app->getParrentSGRptr()->drawFrame();
+	}
+}
+
 WindowManager* WindowManager::instance = nullptr;
 
 WindowManager::WindowManager() { ; }
@@ -49,6 +60,7 @@ SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 	window = glfwCreateWindow(this->width, this->height, this->name.c_str(), nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+	glfwSetWindowPosCallback(window, windowPosCallback);
 	glfwSetWindowAspectRatio(window, 1, 1);
 
 	GLFWimage icons[1];

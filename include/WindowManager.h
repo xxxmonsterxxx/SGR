@@ -42,6 +42,7 @@ private:
 	void setSgrPtr(SGR* parrentSGR) { _parrentSgr = parrentSGR; }
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	static void windowPosCallback(GLFWwindow* window, int xpos, int ypos);
 	void requestUpdateSwapChain();
 
 	void destroy();

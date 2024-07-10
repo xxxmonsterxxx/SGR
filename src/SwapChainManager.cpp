@@ -195,6 +195,11 @@ SgrErrCode SwapChainManager::initSwapChain()
 SgrErrCode SwapChainManager::cleanOldSwapChain()
 {
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    vkDestroyImageView(device, depthImage->view, nullptr);
+    vkDestroyImage(device, depthImage->vkImage, nullptr);
+    vkFreeMemory(device, depthImage->memory, nullptr);
+
     for (size_t i = 0; i < framebuffers.size(); i++) {
         vkDestroyFramebuffer(device, framebuffers[i], nullptr);
     }
@@ -433,12 +438,14 @@ SgrErrCode SwapChainManager::findSupportedFormat(const std::vector<VkFormat>& ca
 
 SgrErrCode SwapChainManager::createDepthResources()
 {
+    if (!depthImage)
+        depthImage = new SgrImage;
+
 	VkFormat depthFormat;
 	SgrErrCode res = getDepthFormat(depthFormat);
 	if (res != sgrOK)
 		return res;
 
-	depthImage = new SgrImage;
 	depthImage->height = extent.height;
 	depthImage->width = extent.width;
 	depthImage->format = depthFormat;

@@ -30,6 +30,7 @@ private:
 	 * \return 
 	 */
 	SgrErrCode init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName);
+	SgrErrCode setWindowIcons(GLFWimage* icons, uint8_t iconsNumber);
 
 	/**
 	 * Init Window manually. There will be possibility to init own special window from outside.

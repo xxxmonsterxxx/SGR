@@ -102,6 +102,7 @@ public:
 	bool setFPSDesired(uint8_t fps);
 
 	SgrErrCode getWindow(GLFWwindow* &ptr);
+	SgrErrCode setApplicationLogo(std::string path);
 
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;

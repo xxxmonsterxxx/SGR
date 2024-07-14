@@ -1,7 +1,5 @@
 #include "WindowManager.h"
 #include "SGR.h"
-#include <stb_image.h>
-#include "ico.h"
 
 
 void WindowManager::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
@@ -60,15 +58,18 @@ SgrErrCode WindowManager::init(uint32_t windowWidth, uint32_t windowHeight, cons
 	glfwSetWindowPosCallback(window, windowPosCallback);
 	glfwSetWindowAspectRatio(window, 1, 1);
 
-	GLFWimage icons[1];
-	icons[0].height = 48;
-	icons[0].width = 48;
-	icons[0].pixels = SGRLogo;
-	glfwSetWindowIcon(window, 1, icons);
-
 	if (window == nullptr)
 		return sgrInitWindowError;
 
+	return sgrOK;
+}
+
+SgrErrCode WindowManager::setWindowIcons(GLFWimage* icons, uint8_t iconsNumber)
+{
+	if (!window)
+		return sgrIncorrectPointer;
+
+	glfwSetWindowIcon(window, iconsNumber, icons);
 	return sgrOK;
 }
 

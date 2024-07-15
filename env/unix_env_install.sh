@@ -81,6 +81,9 @@ else
             echo "export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:\${LD_LIBRARY_PATH}" >> ~/.bashrc
         else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+            (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zshrc
+            eval "$(/opt/homebrew/bin/brew shellenv)"
         fi
 
         echo "Homebrew installed"

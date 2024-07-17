@@ -78,6 +78,14 @@ file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(SGR SHARED ${SOURCES})
 
+set_target_properties(SGR PROPERTIES
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+
+set_target_properties(SGR PROPERTIES
+    VERSION ${VERSION}
+    SOVERSION ${VMAJOR}.${VMINOR}.0
+)
 
 # include libraries
 set(GLM_INC_DIR modules/glm)

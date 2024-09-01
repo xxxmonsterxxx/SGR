@@ -65,8 +65,13 @@ if ($response.ToLower() -eq "y") {
     Invoke-WebRequest -Uri https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.bin.WIN64.zip -OutFile $outputfile
     if (Test-Path $outputFile) {
         Expand-Archive -Path $outputFile -DestinationPath "C:\Libs\glfw" -Force
-        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\lib-vc2022" -Destination "C:\Libs\glfw\lib" -Force
-        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\include" -Destination "C:\Libs\glfw\include\GLFW" -Force
+        New-Item -ItemType Directory -Path "C:\Libs\glfw\include"
+        New-Item -ItemType Directory -Path "C:\Libs\glfw\lib"
+        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\lib-vc2022\*" -Destination "C:\Libs\glfw\lib" -Force
+        Move-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64\include\*" -Destination "C:\Libs\glfw\include" -Force
+        Remove-Item -Path "C:\Libs\glfw\lib\glfw3.lib" -Force
+        Remove-Item -Path "C:\Libs\glfw\lib\glfw3_mt.lib" -Force
+        Rename-Item -Path "C:\Libs\glfw\lib\glfw3dll.lib" -NewName "C:\Libs\glfw\lib\glfw3.lib"
         Remove-Item -Path "C:\Libs\glfw\glfw-3.4.bin.WIN64" -Force -Recurse
         Remove-Item $outputFile
 

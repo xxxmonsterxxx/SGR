@@ -159,6 +159,14 @@ int main()
 		return resultSGRInit;
 	}
 
+
+	std::string executablePath = getExecutablePath();
+	if (executablePath.length() == 0)
+		return 11;
+	std::string resourcePath = executablePath + "/Resources";
+
+	sgr_object1.setApplicationLogo(resourcePath + "/logo/Logo64.png");
+
 	// scheme to setup 2D-object layout:
 	// 1. setup geometry (mesh)
 	// 2. setup minimum two shaders: vertex and fragment
@@ -181,10 +189,7 @@ int main()
 											  { 0.5f, -0.5f, 0},	
 											  { 0.5f,  0.5f, 0}};
 
-	std::string executablePath = getExecutablePath();
-	if (executablePath.length() == 0)
-		return 11;
-	std::string resourcePath = executablePath + "/Resources";
+
 
 	std::string obShaderVert = resourcePath + "/shaders/vertInstanceSh.spv";
 	std::string obShaderFrag = resourcePath + "/shaders/fragTextureSh.spv";

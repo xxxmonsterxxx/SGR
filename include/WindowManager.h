@@ -30,6 +30,7 @@ private:
 	 * \return 
 	 */
 	SgrErrCode init(uint32_t windowWidth, uint32_t windowHeight, const char* windowName);
+	SgrErrCode setWindowIcons(GLFWimage* icons, uint8_t iconsNumber);
 
 	/**
 	 * Init Window manually. There will be possibility to init own special window from outside.
@@ -42,6 +43,7 @@ private:
 	void setSgrPtr(SGR* parrentSGR) { _parrentSgr = parrentSGR; }
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	static void windowPosCallback(GLFWwindow* window, int xpos, int ypos);
 	void requestUpdateSwapChain();
 
 	void destroy();

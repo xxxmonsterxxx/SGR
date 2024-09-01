@@ -3,6 +3,8 @@
 #include "ShaderManager.h"
 #include "PipelineManager.h"
 
+#include "stb_image.h"
+
 #if __linux__ || __APPLE__
 	#include <unistd.h>
 #endif
@@ -563,4 +565,20 @@ SgrErrCode SGR::getWindow(GLFWwindow* &ptr)
 
 	ptr = window;
 	return sgrOK;
+}
+
+SgrErrCode SGR::setApplicationLogo(std::string path)
+{
+	GLFWimage icon;
+
+	icon.pixels = stbi_load(path.c_str(), &icon.width, &icon.height, 0, 4);
+
+	if (!icon.pixels)
+		return sgrLoadImageError;
+	
+	SgrErrCode res = windowManager->setWindowIcons(&icon, 1);
+
+	stbi_image_free(icon.pixels);
+
+	return res;
 }

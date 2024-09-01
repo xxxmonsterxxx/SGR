@@ -83,7 +83,7 @@ private:
 	SgrSwapChainDetails details;
 	uint32_t imageCount;
 	std::vector<VkImage> images;
-	SgrImage* depthImage;
+	SgrImage* depthImage = nullptr;
 	VkFormat imageFormat;
 	VkExtent2D extent;
 	std::vector<VkImageView> imageViews;

@@ -156,4 +156,15 @@ private:
 	SgrErrCode initVulkanInstance();
 
 	SgrErrCode buildDrawingCommands();
+
+	// validation layer block
+	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
+	const bool validationLayersEnabled = NDBUG;
+	VkDebugUtilsMessengerEXT debugMessenger;
+
+	SgrErrCode checkValidationLayerSupport();
+
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+														VkDebugUtilsMessageTypeFlagsEXT messageType,
+														const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 };

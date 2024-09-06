@@ -100,7 +100,10 @@ enum SgrErrCode
 	sgrMissingInstance,
 	sgrSupportedFormatsNotFound,
 	sgrLoadFontPixelsError,
-	sgrIncorrectImagePixelFormat
+	sgrIncorrectImagePixelFormat,
+	sgrValidationLayerNotSupported,
+	sgrExtensionNotSupport,
+	sgrDebugMessengerCreationFailed
 };
 
 #if __APPLE__

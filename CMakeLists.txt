@@ -20,6 +20,13 @@ set(VPATCH ${CMAKE_MATCH_1})
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
+	add_definitions(-DNDBUG=FALSE)
+else ()
+	add_definitions(-DNDBUG=TRUE)
+endif ()
+
+
 if (BUILD_EXAMPLE)
 	add_subdirectory(examplesData)
 	return()
@@ -59,14 +66,6 @@ if (WIN32)
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2") #optimization
 else ()
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
-endif ()
-
-
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
-	add_definitions(-DNDBUG=FALSE)
-else ()
-	add_definitions(-DNDBUG=TRUE)
 endif ()
 
 

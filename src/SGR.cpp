@@ -285,6 +285,32 @@ SgrErrCode SGR::initSyncObjects()
 	return sgrOK;
 }
 
+SgrErrCode SGR::checkValidationLayerSupport()
+{
+	uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	for (const char* layerName : requiredValidationLayers) {
+		bool layerFound = false;
+
+		for (const auto& layerProperties : availableLayers) {
+			if (strcmp(layerName, layerProperties.layerName) == 0) {
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound) {
+			return sgrValidationLayerNotSupported;
+		}
+	}
+
+	return sgrOK;
+}
+
 SgrErrCode SGR::initVulkanInstance()
 {
 	VkApplicationInfo appInfo{};
@@ -310,14 +336,50 @@ SgrErrCode SGR::initVulkanInstance()
 #endif
 	// possible???
 	// extensions.push_back("VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME");
+
+	bool createValidation = false; // need to create validation layer and debug messenger
+	if (validationLayersEnabled && checkValidationLayerSupport() == sgrOK)
+		createValidation = true;
+
+	if (createValidation) {
+		createInfo.enabledLayerCount = static_cast<uint32_t>(requiredValidationLayers.size());
+		createInfo.ppEnabledLayerNames = requiredValidationLayers.data();
+
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	} else {
+		createInfo.enabledLayerCount = 0;
+	}
+
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames = extensions.data();
 	createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-	createInfo.enabledLayerCount = 0;
 	createInfo.pNext = nullptr;
+
+	VkDebugUtilsMessengerCreateInfoEXT debugMessengercreateInfo{}; // maybe will be unused
+	if (createValidation) {
+		// before we'll create instance we should to create debug messenger
+		debugMessengercreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		debugMessengercreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		debugMessengercreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		debugMessengercreateInfo.pfnUserCallback = debugCallback;
+		debugMessengercreateInfo.pUserData = nullptr; // Optional
+
+		createInfo.pNext = (void*)&debugMessengercreateInfo;
+	}
 
 	if (vkCreateInstance(&createInfo, nullptr, &vulkanInstance) != VK_SUCCESS) {
 		return sgrInitVulkanError;
+	}
+
+	if (createValidation) {
+		// loading function through the API
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vulkanInstance, "vkCreateDebugUtilsMessengerEXT");
+		if (func != nullptr) {
+			if (func(vulkanInstance, &debugMessengercreateInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+				return sgrDebugMessengerCreationFailed;
+		} else {
+			return sgrExtensionNotSupport;
+		}
 	}
 
 	return sgrOK;
@@ -581,4 +643,15 @@ SgrErrCode SGR::setApplicationLogo(std::string path)
 	stbi_image_free(icon.pixels);
 
 	return res;
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL SGR::debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData) {
+
+    printf("\n\n\n --------- Validation layer --------- \n  %s", pCallbackData->pMessage);
+
+    return VK_FALSE;
 }

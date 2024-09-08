@@ -19,8 +19,13 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	this->appVersionMajor = appVersionMajor;
 	this->appVersionMinor = appVersionMinor;
 	requiredQueueFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
-	requiredExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-	withSwapChain = true;
+#if ON_SCREEN_RENDER
+	deviceRequiredExtensions.push_back("VK_KHR_swapchain");
+#endif
+#if __APPLE__
+	// since VulkanSDK 1.3.216 we should to add this
+	instanceRequiredExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
 
 	// right sequence of initialization
 	windowManager = WindowManager::get();
@@ -72,7 +77,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInitSurface != sgrOK)
 		return resultInitSurface;
 
-	SgrErrCode resultGetPhysicalDeviceRequired = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, requiredExtensions, SwapChainManager::get()->surface);
+	SgrErrCode resultGetPhysicalDeviceRequired = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, deviceRequiredExtensions, SwapChainManager::get()->surface);
 	if (resultGetPhysicalDeviceRequired != sgrOK)
 		return resultGetPhysicalDeviceRequired;
 
@@ -311,6 +316,39 @@ SgrErrCode SGR::checkValidationLayerSupport()
 	return sgrOK;
 }
 
+void SGR::addGlfwRequiredExtensions()
+{
+	uint32_t glfwRequiredExtensionCount = 0;
+	const char** glfwRequiredExtensions;
+	glfwRequiredExtensions = glfwGetRequiredInstanceExtensions(&glfwRequiredExtensionCount);
+
+	for (uint8_t i = 0; i < glfwRequiredExtensionCount; i++)
+		instanceRequiredExtensions.push_back(glfwRequiredExtensions[i]);
+}
+
+SgrErrCode SGR::checkRequiredExtensionsSupport()
+{
+	uint32_t extensionSupportedCount = 0;
+	if (vkEnumerateInstanceExtensionProperties(NULL, &extensionSupportedCount, nullptr) != VK_SUCCESS || extensionSupportedCount <= 0)
+		return sgrExtensionNotSupport;
+
+	std::vector<VkExtensionProperties> supportedExtensions(extensionSupportedCount);
+	vkEnumerateInstanceExtensionProperties(NULL, &extensionSupportedCount, supportedExtensions.data());
+
+	uint32_t founded = 0;
+	for (auto reqExt : instanceRequiredExtensions)
+		for (auto suppExt : supportedExtensions)
+			if (reqExt == std::string(suppExt.extensionName)) {
+				founded++;
+				break;
+			}
+
+	if (founded == instanceRequiredExtensions.size())
+		return sgrOK;
+
+	return sgrExtensionNotSupport;
+}
+
 SgrErrCode SGR::initVulkanInstance()
 {
 	VkApplicationInfo appInfo{};
@@ -319,23 +357,11 @@ SgrErrCode SGR::initVulkanInstance()
 	appInfo.applicationVersion = VK_MAKE_VERSION(appVersionMajor, appVersionMinor, 0);
 	appInfo.pEngineName = "Simple Graphic Renderer";
 	appInfo.engineVersion = VK_MAKE_VERSION(this->engineVersionMajor, this->appVersionMinor, this->enginePatch);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
+	appInfo.apiVersion = VK_API_VERSION_1_1;
 
 	VkInstanceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
-
-	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions;
-	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-#if __APPLE__
-	// since VulkanSDK 1.3.216 we should to add VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
-	extensions.push_back("VK_KHR_portability_enumeration");
-#endif
-	// possible???
-	// extensions.push_back("VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME");
 
 	bool createValidation = false; // need to create validation layer and debug messenger
 	if (validationLayersEnabled && checkValidationLayerSupport() == sgrOK)
@@ -345,14 +371,24 @@ SgrErrCode SGR::initVulkanInstance()
 		createInfo.enabledLayerCount = static_cast<uint32_t>(requiredValidationLayers.size());
 		createInfo.ppEnabledLayerNames = requiredValidationLayers.data();
 
-		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		instanceRequiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	} else {
 		createInfo.enabledLayerCount = 0;
 	}
 
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	createInfo.ppEnabledExtensionNames = extensions.data();
+	addGlfwRequiredExtensions();
+	if (checkRequiredExtensionsSupport() != sgrOK)
+		return sgrExtensionNotSupport;
+
+	std::vector<const char*> reqExt;
+	for (auto& ext : instanceRequiredExtensions)
+		reqExt.push_back(ext.c_str());
+
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(reqExt.size());
+	createInfo.ppEnabledExtensionNames = reqExt.data();
+#if __APPLE__
 	createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 	createInfo.pNext = nullptr;
 
 	VkDebugUtilsMessengerCreateInfoEXT debugMessengercreateInfo{}; // maybe will be unused

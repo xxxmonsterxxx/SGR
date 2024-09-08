@@ -52,6 +52,8 @@ SgrErrCode PhysicalDeviceManager::init(VkInstance instance)
         newDeviceWithProp.extensions.resize(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, newDeviceWithProp.extensions.data());
 
+        vkGetPhysicalDeviceFeatures(device, &newDeviceWithProp.deviceFeatures);
+
         physicalDevices.push_back(newDeviceWithProp);
     }
 

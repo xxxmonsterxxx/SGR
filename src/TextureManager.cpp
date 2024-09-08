@@ -104,7 +104,7 @@ SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = PhysicalDeviceManager::instance->pickedPhysicalDevice.deviceFeatures.samplerAnisotropy;
     samplerInfo.maxAnisotropy = PhysicalDeviceManager::instance->pickedPhysicalDevice.props.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;

@@ -581,11 +581,15 @@ SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObje
 
 	MemoryManager::copyDataToBuffer(dynamicUBO, dynUBO.data);
 
+	vkMapMemory(device, dynamicUBO->bufferMemory, 0, dynamicUBO->size, 0, &dynUBO.data);
+
 	VkMappedMemoryRange mappedMemoryRange{};
 	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 	mappedMemoryRange.memory = dynamicUBO->bufferMemory;
 	mappedMemoryRange.size = dynamicUBO->size;
 	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
+
+	vkUnmapMemory(device, dynamicUBO->bufferMemory);
 	return sgrOK;
 }
 

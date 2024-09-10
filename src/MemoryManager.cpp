@@ -139,7 +139,7 @@ SgrErrCode MemoryManager::createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize si
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
-    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
+    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
     if (resultCreateBufferUsingStaging != sgrOK)
         return resultCreateBufferUsingStaging;
     allocatedBuffers.push_back(buffer);

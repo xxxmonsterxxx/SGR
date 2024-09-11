@@ -211,7 +211,7 @@ int main()
 	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
 		return 0;
 	SgrBuffer* instanceUBO = nullptr;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize);
+	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize, rectangles.dynamicAlignment);
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 

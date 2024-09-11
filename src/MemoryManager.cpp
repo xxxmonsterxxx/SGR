@@ -168,13 +168,14 @@ SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize s
     return sgrOK;
 }
 
-SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size)
+SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange)
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
     SgrErrCode resultCreateBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     if (resultCreateBuffer != sgrOK)
         return resultCreateBuffer;
+    buffer->blockRange = blockRange;
     allocatedBuffers.push_back(buffer);
     return sgrOK;
 }

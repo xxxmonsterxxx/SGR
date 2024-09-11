@@ -143,7 +143,7 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::string
                 {   
                     dynamicUboBufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
                     dynamicUboBufferInfo.offset = 0;
-                    dynamicUboBufferInfo.range = ((SgrBuffer*)data[k])->size;
+                    dynamicUboBufferInfo.range = ((SgrBuffer*)data[k])->blockRange;
 
                     descriptorWriteForSetOneBinding.pBufferInfo = &dynamicUboBufferInfo;
                     break;

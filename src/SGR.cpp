@@ -129,6 +129,7 @@ SgrErrCode SGR::destroy()
 	shaderManager->destroy();
 	commandManager->destroy();
 	renderPassManager->destroy();
+	swapChainManager->destroyCreatedImages();
 	swapChainManager->destroy(vulkanInstance);
 	memoryManager->destroyAllocatedBuffers();
 	logicalDeviceManager->destroy();

@@ -12,6 +12,9 @@ SwapChainManager* SwapChainManager::instance = nullptr;
 SwapChainManager::SwapChainManager() { ; }
 SwapChainManager::~SwapChainManager() { ; }
 
+std::vector<AllocatedImageData> SwapChainManager::createdImages;
+std::vector<VkImageView*> SwapChainManager::createdImageViews;
+
 SwapChainManager* SwapChainManager::get()
 {
     if (instance == nullptr) {
@@ -323,6 +326,9 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
     if (vkCreateImage(device, &imageInfo, nullptr, &(image->vkImage)) != VK_SUCCESS)
         return sgrCreateImageError;
 
+    AllocatedImageData newAllocatedImageData;
+    newAllocatedImageData.imgP = &(image->vkImage);
+
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, image->vkImage, &memRequirements);
 
@@ -340,6 +346,10 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
         return sgrAllocateMemoryError;
 
     vkBindImageMemory(device, image->vkImage, image->memory, 0);
+
+    newAllocatedImageData.memP = &(image->memory);
+
+    createdImages.push_back(newAllocatedImageData);
     return sgrOK;
 }
 
@@ -416,6 +426,8 @@ SgrErrCode SwapChainManager::createImageView(VkImage image, VkFormat format, VkI
     if (vkCreateImageView(LogicalDeviceManager::instance->logicalDevice, &viewInfo, nullptr, imageView) != VK_SUCCESS)
         return sgrInitImageViews;
 
+    createdImageViews.push_back(imageView);
+
     return sgrOK;
 }
 
@@ -461,4 +473,19 @@ SgrErrCode SwapChainManager::createDepthResources()
 		return res;
 
 	return sgrOK;
+}
+
+SgrErrCode SwapChainManager::destroyCreatedImages()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    for (auto& img : createdImages) {
+        vkDestroyImage(device, *img.imgP, nullptr);
+        vkFreeMemory(device, *img.memP, nullptr);
+    }
+
+    // for (auto& imgv : createdImageViews)
+    //     vkDestroyImageView(device, *imgv, nullptr);
+
+    return sgrOK;
 }

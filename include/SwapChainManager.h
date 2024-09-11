@@ -33,6 +33,11 @@ struct SgrImage {
 	VkSampler sampler;
 };
 
+struct AllocatedImageData {
+	VkImage* imgP;
+	VkDeviceMemory* memP;
+};
+
 class SwapChainManager {
 	friend class SGR;
 	friend class PhysicalDeviceManager;
@@ -50,6 +55,8 @@ public:
 	SgrErrCode getDepthFormat(VkFormat& depthFormat);
 
 	SgrErrCode findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features, VkFormat& resFormat);
+
+	static SgrErrCode destroyCreatedImages();
 
 private:
 	SwapChainManager();
@@ -90,4 +97,7 @@ private:
 	std::vector<VkFramebuffer> framebuffers;
 
 	SgrErrCode initFrameBuffers();
+
+	static std::vector<AllocatedImageData> createdImages;
+	static std::vector<VkImageView*> createdImageViews;
 };

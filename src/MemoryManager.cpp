@@ -236,3 +236,12 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferOb
 
     return sgrOK;
 }
+
+SgrErrCode MemoryManager::destroyAllocatedBuffers()
+{
+    for (auto& buf : allocatedBuffers) {
+        destroyBuffer(buf);
+    }
+
+    return sgrOK;
+}

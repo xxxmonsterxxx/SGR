@@ -130,6 +130,7 @@ SgrErrCode SGR::destroy()
 	commandManager->destroy();
 	renderPassManager->destroy();
 	swapChainManager->destroy(vulkanInstance);
+	memoryManager->destroyAllocatedBuffers();
 	logicalDeviceManager->destroy();
 	physicalDeviceManager->destroy();
 	vkDestroyInstance(vulkanInstance, nullptr);

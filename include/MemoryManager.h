@@ -45,4 +45,6 @@ public:
 	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 	static SgrErrCode createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO);
 	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange);
+
+	SgrErrCode destroyAllocatedBuffers();
 };

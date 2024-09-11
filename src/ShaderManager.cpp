@@ -50,7 +50,6 @@ SgrErrCode ShaderManager::destroyShaders(std::string name)
         if (objectShaders[i].name == name) {
             vkDestroyShaderModule(device, objectShaders[i].vkShaders.vertex, nullptr);
             vkDestroyShaderModule(device, objectShaders[i].vkShaders.fragment, nullptr);
-            objectShaders.erase(objectShaders.begin() + i);
             return sgrOK;
         }
     }
@@ -62,6 +61,8 @@ SgrErrCode ShaderManager::destroyAllShaders()
     for (auto shader : objectShaders) {
         destroyShaders(shader.name);
     }
+
+    objectShaders.clear();
     
     return sgrOK;
 }

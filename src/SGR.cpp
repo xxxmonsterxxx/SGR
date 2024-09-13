@@ -126,6 +126,7 @@ SgrErrCode SGR::destroy()
 		vkDestroyFence(device, inFlightFences[i], nullptr);
 	}
 
+	TextureManager::destroyAllSamplers();
 	descriptorManager->destroyDescriptorsData();
 	shaderManager->destroy();
 	commandManager->destroy();

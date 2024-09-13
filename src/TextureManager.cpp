@@ -10,6 +10,8 @@
 
 TextureManager* TextureManager::instance = nullptr;
 
+std::vector<VkSampler*> TextureManager::createdSamplers;
+
 TextureManager::TextureManager() { ; }
 
 TextureManager* TextureManager::get()
@@ -114,6 +116,16 @@ SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)
 
     if (vkCreateSampler(LogicalDeviceManager::instance->logicalDevice, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         return sgrCreateSamplerError;
+
+    createdSamplers.push_back(&sampler);
+
+    return sgrOK;
+}
+
+SgrErrCode TextureManager::destroyAllSamplers()
+{
+    for (auto& sampler : createdSamplers)
+        vkDestroySampler(LogicalDeviceManager::instance->logicalDevice, *sampler, nullptr);
 
     return sgrOK;
 }

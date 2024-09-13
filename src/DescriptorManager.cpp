@@ -50,6 +50,7 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo,
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
  
     if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrPool) != VK_SUCCESS) {
         return sgrInitDefaultUBODescriptorPoolError;
@@ -203,4 +204,20 @@ const DescriptorManager::SgrDescriptorSets DescriptorManager::getDescriptorSetsB
     SgrDescriptorSets emptyDescriptorSets;
     emptyDescriptorSets.name = "empty";
     return emptyDescriptorSets;
+}
+
+SgrErrCode DescriptorManager::destroyDescriptorsData()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    for (auto& descrSets : allDescriptorSets)
+        vkFreeDescriptorSets(device, descrSets.descriptorPool, descrSets.descriptorSets.size(), descrSets.descriptorSets.data());
+
+    for (auto& descrSets : allDescriptorSets)
+        vkDestroyDescriptorPool(device, descrSets.descriptorPool, nullptr);
+
+    for (auto& descrInfo : descriptorInfos)
+        vkDestroyDescriptorSetLayout(device, descrInfo.setLayouts[0], nullptr);
+
+    return sgrOK;
 }

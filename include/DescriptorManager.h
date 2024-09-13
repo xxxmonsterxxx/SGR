@@ -44,6 +44,8 @@ private:
 public:
 	static DescriptorManager* get();
 
+	SgrErrCode destroyDescriptorsData();
+
 protected:
 	SgrErrCode createDescriptorSetLayout(SgrDescriptorInfo& descrInfo);
 	SgrErrCode createDescriptorPool(SgrDescriptorInfo& descrInfo, VkDescriptorPool& descrPool);

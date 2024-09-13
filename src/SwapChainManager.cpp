@@ -31,11 +31,17 @@ void SwapChainManager::destroy(VkInstance vKInstance)
     for (size_t i = 0; i < framebuffers.size(); i++) {
         vkDestroyFramebuffer(device, framebuffers[i], nullptr);
     }
-    
-    for (size_t i = 0; i < imageViews.size(); i++) {
-        vkDestroyImageView(device, imageViews[i], nullptr);
+
+    for (auto& img : createdImages) {
+        vkDestroyImage(device, *img.imgP, nullptr);
+        vkFreeMemory(device, *img.memP, nullptr);
     }
 
+    for (auto& imgv : createdImageViews)
+        vkDestroyImageView(device, *imgv, nullptr);
+
+    createdImages.clear();
+    createdImageViews.clear();
     images.clear();
     details.destroy();
     vkDestroySwapchainKHR(device, swapChain, nullptr);
@@ -473,19 +479,4 @@ SgrErrCode SwapChainManager::createDepthResources()
 		return res;
 
 	return sgrOK;
-}
-
-SgrErrCode SwapChainManager::destroyCreatedImages()
-{
-    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
-
-    for (auto& img : createdImages) {
-        vkDestroyImage(device, *img.imgP, nullptr);
-        vkFreeMemory(device, *img.memP, nullptr);
-    }
-
-    // for (auto& imgv : createdImageViews)
-    //     vkDestroyImageView(device, *imgv, nullptr);
-
-    return sgrOK;
 }

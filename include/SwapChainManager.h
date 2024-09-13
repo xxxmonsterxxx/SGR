@@ -56,8 +56,6 @@ public:
 
 	SgrErrCode findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features, VkFormat& resFormat);
 
-	static SgrErrCode destroyCreatedImages();
-
 private:
 	SwapChainManager();
 	~SwapChainManager();

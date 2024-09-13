@@ -103,7 +103,8 @@ enum SgrErrCode
 	sgrIncorrectImagePixelFormat,
 	sgrValidationLayerNotSupported,
 	sgrExtensionNotSupport,
-	sgrDebugMessengerCreationFailed
+	sgrDebugMessengerCreationFailed,
+	sgrDebugMessengerDestructionFailed
 };
 
 #if __APPLE__

@@ -126,15 +126,19 @@ SgrErrCode SGR::destroy()
 		vkDestroyFence(device, inFlightFences[i], nullptr);
 	}
 
+	descriptorManager->destroyDescriptorsData();
 	shaderManager->destroy();
 	commandManager->destroy();
 	renderPassManager->destroy();
 	pipelineManager->destroyAllPipelines();
-	swapChainManager->destroyCreatedImages();
 	swapChainManager->destroy(vulkanInstance);
 	memoryManager->destroyAllocatedBuffers();
 	logicalDeviceManager->destroy();
 	physicalDeviceManager->destroy();
+
+	if (validationLayersEnabled)
+		destroyDebugMessenger();
+
 	vkDestroyInstance(vulkanInstance, nullptr);
 	windowManager->destroy();
 
@@ -697,4 +701,16 @@ VKAPI_ATTR VkBool32 VKAPI_CALL SGR::debugCallback(
     printf("\n\n\n --------- Validation layer --------- \n  %s", pCallbackData->pMessage);
 
     return VK_FALSE;
+}
+
+SgrErrCode SGR::destroyDebugMessenger()
+{
+	// loading function through the API
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(vulkanInstance, "vkDestroyDebugUtilsMessengerEXT");
+	if (func != nullptr) {
+		func(vulkanInstance, debugMessenger, nullptr);
+		return sgrOK;
+	}
+
+	return sgrDebugMessengerDestructionFailed;
 }

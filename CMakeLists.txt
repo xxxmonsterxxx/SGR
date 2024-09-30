@@ -21,9 +21,9 @@ set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
-	add_definitions(-DNDBUG=FALSE)
+	add_definitions(-DNDBUG=false)
 else ()
-	add_definitions(-DNDBUG=TRUE)
+	add_definitions(-DNDBUG=true)
 endif ()
 
 

@@ -1,6 +1,10 @@
 #pragma once
 
 
+#ifndef NDBUG
+#define NDBUG true
+#endif
+
 #if _WIN64
 #include "Windows.h"
 #define PATH_MAX MAX_PATH

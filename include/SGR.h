@@ -17,11 +17,7 @@
 #include "TextureManager.h"
 #include "RenderPassManager.h"
 
-#define ON_SCREEN_RENDER TRUE
-
-#ifndef NDUG
-#define NDBUG TRUE
-#endif
+#define ON_SCREEN_RENDER true
 
 class SGR {
 public:

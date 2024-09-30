@@ -139,7 +139,7 @@ SgrErrCode MemoryManager::createVertexBuffer(SgrBuffer*& buffer, VkDeviceSize si
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
-    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
+    SgrErrCode resultCreateBufferUsingStaging = createBufferUsingStaging(buffer, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexData);
     if (resultCreateBufferUsingStaging != sgrOK)
         return resultCreateBufferUsingStaging;
     allocatedBuffers.push_back(buffer);
@@ -168,13 +168,14 @@ SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize s
     return sgrOK;
 }
 
-SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size)
+SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange)
 {
     if (buffer != nullptr)
         return sgrIncorrectPointer;
     SgrErrCode resultCreateBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     if (resultCreateBuffer != sgrOK)
         return resultCreateBuffer;
+    buffer->blockRange = blockRange;
     allocatedBuffers.push_back(buffer);
     return sgrOK;
 }
@@ -232,6 +233,15 @@ SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferOb
 #endif
 
     dynamicUBO.dataSize = dynamicUBO.instnaceCount * dynamicUBO.dynamicAlignment;
+
+    return sgrOK;
+}
+
+SgrErrCode MemoryManager::destroyAllocatedBuffers()
+{
+    for (auto& buf : allocatedBuffers) {
+        destroyBuffer(buf);
+    }
 
     return sgrOK;
 }

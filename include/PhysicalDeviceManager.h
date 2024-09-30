@@ -46,10 +46,6 @@ private:
 	bool isSupportAnySwapChainMode(SgrPhysicalDevice sgrDevice);
 	bool isSupportSamplerAnisotropy(SgrPhysicalDevice sgrDevice);
 
-	
-	SgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
-		std::vector<std::string> requiredExtensions);
-
 	SgrErrCode findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
 										 std::vector<std::string> requiredExtensions,
 										 VkSurfaceKHR surface);

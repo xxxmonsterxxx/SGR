@@ -32,7 +32,7 @@ private:
 
 	std::vector<VkCommandBuffer> commandBuffers;
 	SgrErrCode initCommandBuffers();
-	SgrErrCode freeCommandBuffers();
+	SgrErrCode freeCommandBuffers(bool cleanOldCommands = false);
 	SgrErrCode endInitCommandBuffers();
 	bool buffersEnded = false;
 

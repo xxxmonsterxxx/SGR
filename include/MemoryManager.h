@@ -10,6 +10,7 @@ struct SgrBuffer {
 	VkBuffer vkBuffer;
 	VkDeviceMemory bufferMemory;
 	VkDeviceSize size;
+	VkDeviceSize blockRange; // for dynamic uniform buffer
 };
 
 class MemoryManager {
@@ -43,5 +44,7 @@ public:
 	static MemoryManager* get();
 	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 	static SgrErrCode createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO);
-	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
+	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange);
+
+	SgrErrCode destroyAllocatedBuffers();
 };

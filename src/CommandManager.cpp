@@ -91,9 +91,14 @@ SgrErrCode CommandManager::initCommandBuffers()
     return sgrOK;
 }
 
-SgrErrCode CommandManager::freeCommandBuffers()
+SgrErrCode CommandManager::freeCommandBuffers(bool cleanOldCommands)
 {
     vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+    commandBuffers.clear();
+
+    if (cleanOldCommands)
+        commands.clear();
+
     return sgrOK;
 }
 

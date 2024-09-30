@@ -52,6 +52,8 @@ SgrErrCode PhysicalDeviceManager::init(VkInstance instance)
         newDeviceWithProp.extensions.resize(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, newDeviceWithProp.extensions.data());
 
+        vkGetPhysicalDeviceFeatures(device, &newDeviceWithProp.deviceFeatures);
+
         physicalDevices.push_back(newDeviceWithProp);
     }
 
@@ -91,7 +93,7 @@ bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device
     uint8_t supportedExtensions = 0;
     for (auto reqExt : requiredExtensions) {
         for (uint8_t i = 0; i < device.extensions.size(); i++) {
-            if (strcmp(device.extensions[i].extensionName, reqExt.c_str())) {
+            if (!strcmp(device.extensions[i].extensionName, reqExt.c_str())) {
                 supportedExtensions++;
                 break;
             }
@@ -124,22 +126,6 @@ bool PhysicalDeviceManager::isSupportSamplerAnisotropy(SgrPhysicalDevice sgrDevi
 }
 
 SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
-                                                            std::vector<std::string> requiredExtensions)
-{
-    for (auto physDev : physicalDevices) {
-        if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues) && 
-            isSupportRequiredExtentions(physDev, requiredExtensions) && 
-            isSupportAnySwapChainMode(physDev) &&
-            isSupportSamplerAnisotropy(physDev)) {
-                pickedPhysicalDevice = physDev;
-                vkGetPhysicalDeviceProperties(pickedPhysicalDevice.vkPhysDevice, &pickedPhysicalDevice.props);
-                return sgrOK;
-        }
-    }
-    return sgrGPUNotFound;
-}
-
-SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueueFlagBits> requiredQueues,
                                                             std::vector<std::string> requiredExtensions,
                                                             VkSurfaceKHR surface)
 {
@@ -147,6 +133,12 @@ SgrErrCode PhysicalDeviceManager::findPhysicalDeviceRequired(std::vector<VkQueue
         if (isSupportRequiredQueuesAndSurface(physDev, requiredQueues, &surface) &&
             isSupportRequiredExtentions(physDev, requiredExtensions) &&
             isSupportAnySwapChainMode(physDev)) {
+                
+                // if physical device support portability we MUST to add it to logical device extension
+                std::vector<std::string> portabilityExtension; portabilityExtension.push_back("VK_KHR_portability_subset");
+                if (isSupportRequiredExtentions(physDev, portabilityExtension))
+                    requiredExtensions.push_back("VK_KHR_portability_subset");
+
                 pickedPhysicalDevice = physDev;
                 enabledExtensions = requiredExtensions;
                 vkGetPhysicalDeviceProperties(pickedPhysicalDevice.vkPhysDevice, &pickedPhysicalDevice.props);

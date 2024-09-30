@@ -17,6 +17,8 @@
 #include "TextureManager.h"
 #include "RenderPassManager.h"
 
+#define ON_SCREEN_RENDER true
+
 class SGR {
 public:
 	struct SgrObject {
@@ -125,8 +127,8 @@ private:
 	VkInstance vulkanInstance;
 
 	std::vector<VkQueueFlagBits> requiredQueueFamilies;
-	std::vector<std::string> requiredExtensions;
-	bool withSwapChain;
+	std::vector<std::string> instanceRequiredExtensions;
+	std::vector<std::string> deviceRequiredExtensions;
 	PhysicalDeviceManager* physicalDeviceManager;
 	LogicalDeviceManager* logicalDeviceManager;
 	SwapChainManager* swapChainManager;
@@ -155,5 +157,20 @@ private:
 
 	SgrErrCode initVulkanInstance();
 
-	SgrErrCode buildDrawingCommands();
+	SgrErrCode buildDrawingCommands(bool rebuild = false);
+
+	// validation layer block
+	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
+	const bool validationLayersEnabled = NDBUG;
+	VkDebugUtilsMessengerEXT debugMessenger;
+
+	SgrErrCode checkValidationLayerSupport();
+	void addGlfwRequiredExtensions();
+	SgrErrCode checkRequiredExtensionsSupport();
+
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+														VkDebugUtilsMessageTypeFlagsEXT messageType,
+														const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+
+	SgrErrCode destroyDebugMessenger();
 };

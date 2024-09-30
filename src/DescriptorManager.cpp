@@ -50,6 +50,7 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo,
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
  
     if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrPool) != VK_SUCCESS) {
         return sgrInitDefaultUBODescriptorPoolError;
@@ -87,6 +88,27 @@ SgrErrCode DescriptorManager::addNewDescriptorInfo(SgrDescriptorInfo& descrInfo)
     return sgrOK;
 }
 
+SgrErrCode DescriptorManager::updateDescriptorSets()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    int i = 0;
+    for (auto& descr : pendedDescriptorsUpdate) {
+        vkFreeDescriptorSets(device, allDescriptorSets[descr.idx].descriptorPool, allDescriptorSets[descr.idx].descriptorSets.size(), allDescriptorSets[descr.idx].descriptorSets.data());
+        vkDestroyDescriptorPool(device, allDescriptorSets[descr.idx].descriptorPool, nullptr);
+        allDescriptorSets.erase(allDescriptorSets.begin() + descr.idx);
+
+        updateDescriptorSets(descr.name, descr.infoName, descr.data);
+
+        pendedDescriptorsUpdate.erase(pendedDescriptorsUpdate.begin() + i);
+        i++;
+    }
+
+    if (i > 0)
+        return sgrDescriptorsSetsUpdated;
+        
+    return sgrOK;
+}
+
 SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::string infoName, std::vector<void*> data)
 {
 	SgrDescriptorInfo info = getDescriptorInfoByName(infoName);
@@ -103,7 +125,11 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::string
             break;
     }
 
-	if (i == allDescriptorSets.size()) {
+    if (i != allDescriptorSets.size()) {
+        SgrDescriptorPended descr{(int)i, name, infoName, data};
+        pendedDescriptorsUpdate.push_back(descr);
+        return sgrOK;
+    } else {
 		SgrErrCode resultCreateDescriptorSets = createDescriptorSets(name, info);
 		if (resultCreateDescriptorSets != sgrOK) {
 			return resultCreateDescriptorSets;
@@ -143,7 +169,7 @@ SgrErrCode DescriptorManager::updateDescriptorSets(std::string name, std::string
                 {   
                     dynamicUboBufferInfo.buffer = ((SgrBuffer*)data[k])->vkBuffer;
                     dynamicUboBufferInfo.offset = 0;
-                    dynamicUboBufferInfo.range = ((SgrBuffer*)data[k])->size;
+                    dynamicUboBufferInfo.range = ((SgrBuffer*)data[k])->blockRange;
 
                     descriptorWriteForSetOneBinding.pBufferInfo = &dynamicUboBufferInfo;
                     break;
@@ -203,4 +229,20 @@ const DescriptorManager::SgrDescriptorSets DescriptorManager::getDescriptorSetsB
     SgrDescriptorSets emptyDescriptorSets;
     emptyDescriptorSets.name = "empty";
     return emptyDescriptorSets;
+}
+
+SgrErrCode DescriptorManager::destroyDescriptorsData()
+{
+    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+
+    for (auto& descrSets : allDescriptorSets)
+        vkFreeDescriptorSets(device, descrSets.descriptorPool, descrSets.descriptorSets.size(), descrSets.descriptorSets.data());
+
+    for (auto& descrSets : allDescriptorSets)
+        vkDestroyDescriptorPool(device, descrSets.descriptorPool, nullptr);
+
+    for (auto& descrInfo : descriptorInfos)
+        vkDestroyDescriptorSetLayout(device, descrInfo.setLayouts[0], nullptr);
+
+    return sgrOK;
 }

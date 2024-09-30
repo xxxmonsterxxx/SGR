@@ -33,6 +33,11 @@ struct SgrImage {
 	VkSampler sampler;
 };
 
+struct AllocatedImageData {
+	VkImage* imgP;
+	VkDeviceMemory* memP;
+};
+
 class SwapChainManager {
 	friend class SGR;
 	friend class PhysicalDeviceManager;
@@ -90,4 +95,7 @@ private:
 	std::vector<VkFramebuffer> framebuffers;
 
 	SgrErrCode initFrameBuffers();
+
+	static std::vector<AllocatedImageData> createdImages;
+	static std::vector<VkImageView*> createdImageViews;
 };

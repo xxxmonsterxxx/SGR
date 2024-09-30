@@ -119,6 +119,7 @@ SGR sgr_object1;
 
 SgrTime_t frame_dr;
 SgrTime_t lastDraw = SgrTime::now();
+SgrTime_t lastTextureChange = SgrTime::now();
 
 // data structure for instance uses shader presenter as "instance shader"
 struct InstanceData {
@@ -211,7 +212,7 @@ int main()
 	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
 		return 0;
 	SgrBuffer* instanceUBO = nullptr;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize);
+	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize, rectangles.dynamicAlignment);
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
@@ -369,6 +370,14 @@ int main()
 			break;
 
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
+
+		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 5) {
+			std::vector<void*> objectDataRoad;
+			objectDataRoad.push_back((void*)(uboBuffer));
+			objectDataRoad.push_back((void*)(texture1));
+			objectDataRoad.push_back((void*)(instanceUBO));
+			sgr_object1.writeDescriptorSets("road", objectDataRoad);
+		}
 
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;

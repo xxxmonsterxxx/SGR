@@ -12,6 +12,9 @@ SwapChainManager* SwapChainManager::instance = nullptr;
 SwapChainManager::SwapChainManager() { ; }
 SwapChainManager::~SwapChainManager() { ; }
 
+std::vector<AllocatedImageData> SwapChainManager::createdImages;
+std::vector<VkImageView*> SwapChainManager::createdImageViews;
+
 SwapChainManager* SwapChainManager::get()
 {
     if (instance == nullptr) {
@@ -28,11 +31,28 @@ void SwapChainManager::destroy(VkInstance vKInstance)
     for (size_t i = 0; i < framebuffers.size(); i++) {
         vkDestroyFramebuffer(device, framebuffers[i], nullptr);
     }
-    
+
+    for (auto& img : createdImages) {
+        vkDestroyImage(device, *img.imgP, nullptr);
+        vkFreeMemory(device, *img.memP, nullptr);
+    }
+
+    for (auto& imgv : createdImageViews)
+        vkDestroyImageView(device, *imgv, nullptr);
+
+
+    // destroy depth resources
+    vkDestroyImage(device, depthImage->vkImage, nullptr);
+    vkFreeMemory(device, depthImage->memory, nullptr);
+    vkDestroyImageView(device, depthImage->view, nullptr);
+
+    // destroy own image views
     for (size_t i = 0; i < imageViews.size(); i++) {
         vkDestroyImageView(device, imageViews[i], nullptr);
     }
 
+    createdImages.clear();
+    createdImageViews.clear();
     images.clear();
     details.destroy();
     vkDestroySwapchainKHR(device, swapChain, nullptr);
@@ -132,7 +152,10 @@ SgrErrCode SwapChainManager::createImageViews() {
     for (size_t i = 0; i < images.size(); i++) {
         resultCreateImageView = createImageView(images[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT, &imageViews[i]);
         if (resultCreateImageView != sgrOK)
-            return sgrOK;
+            return resultCreateImageView;
+
+        // control of image views destruction take to self swapchain manager
+        createdImageViews.pop_back();
     }
 
     return sgrOK;
@@ -323,6 +346,9 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
     if (vkCreateImage(device, &imageInfo, nullptr, &(image->vkImage)) != VK_SUCCESS)
         return sgrCreateImageError;
 
+    AllocatedImageData newAllocatedImageData;
+    newAllocatedImageData.imgP = &(image->vkImage);
+
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, image->vkImage, &memRequirements);
 
@@ -340,6 +366,10 @@ SgrErrCode SwapChainManager::createImage(SgrImage*& image)
         return sgrAllocateMemoryError;
 
     vkBindImageMemory(device, image->vkImage, image->memory, 0);
+
+    newAllocatedImageData.memP = &(image->memory);
+
+    createdImages.push_back(newAllocatedImageData);
     return sgrOK;
 }
 
@@ -416,6 +446,8 @@ SgrErrCode SwapChainManager::createImageView(VkImage image, VkFormat format, VkI
     if (vkCreateImageView(LogicalDeviceManager::instance->logicalDevice, &viewInfo, nullptr, imageView) != VK_SUCCESS)
         return sgrInitImageViews;
 
+    createdImageViews.push_back(imageView);
+
     return sgrOK;
 }
 
@@ -459,6 +491,10 @@ SgrErrCode SwapChainManager::createDepthResources()
 	res = createImageView(depthImage->vkImage, depthImage->format, VK_IMAGE_ASPECT_DEPTH_BIT, &depthImage->view);
 	if (res != sgrOK)
 		return res;
+
+    // code to remove depth resources image and image views from all allocated images
+    createdImages.pop_back();
+    createdImageViews.pop_back();
 
 	return sgrOK;
 }

@@ -1,6 +1,10 @@
 #pragma once
 
 
+#ifndef NDBUG
+#define NDBUG true
+#endif
+
 #if _WIN64
 #include "Windows.h"
 #define PATH_MAX MAX_PATH
@@ -100,7 +104,12 @@ enum SgrErrCode
 	sgrMissingInstance,
 	sgrSupportedFormatsNotFound,
 	sgrLoadFontPixelsError,
-	sgrIncorrectImagePixelFormat
+	sgrIncorrectImagePixelFormat,
+	sgrValidationLayerNotSupported,
+	sgrExtensionNotSupport,
+	sgrDebugMessengerCreationFailed,
+	sgrDebugMessengerDestructionFailed,
+	sgrDescriptorsSetsUpdated
 };
 
 #if __APPLE__

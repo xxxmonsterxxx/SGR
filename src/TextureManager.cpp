@@ -10,6 +10,8 @@
 
 TextureManager* TextureManager::instance = nullptr;
 
+std::vector<VkSampler*> TextureManager::createdSamplers;
+
 TextureManager::TextureManager() { ; }
 
 TextureManager* TextureManager::get()
@@ -104,7 +106,7 @@ SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = PhysicalDeviceManager::instance->pickedPhysicalDevice.deviceFeatures.samplerAnisotropy;
     samplerInfo.maxAnisotropy = PhysicalDeviceManager::instance->pickedPhysicalDevice.props.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
@@ -114,6 +116,16 @@ SgrErrCode TextureManager::createTextureSampler(VkSampler& sampler)
 
     if (vkCreateSampler(LogicalDeviceManager::instance->logicalDevice, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         return sgrCreateSamplerError;
+
+    createdSamplers.push_back(&sampler);
+
+    return sgrOK;
+}
+
+SgrErrCode TextureManager::destroyAllSamplers()
+{
+    for (auto& sampler : createdSamplers)
+        vkDestroySampler(LogicalDeviceManager::instance->logicalDevice, *sampler, nullptr);
 
     return sgrOK;
 }

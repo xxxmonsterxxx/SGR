@@ -93,7 +93,7 @@ bool PhysicalDeviceManager::isSupportRequiredExtentions(SgrPhysicalDevice device
     uint8_t supportedExtensions = 0;
     for (auto reqExt : requiredExtensions) {
         for (uint8_t i = 0; i < device.extensions.size(); i++) {
-            if (strcmp(device.extensions[i].extensionName, reqExt.c_str())) {
+            if (!strcmp(device.extensions[i].extensionName, reqExt.c_str())) {
                 supportedExtensions++;
                 break;
             }

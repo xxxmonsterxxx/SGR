@@ -104,7 +104,8 @@ enum SgrErrCode
 	sgrValidationLayerNotSupported,
 	sgrExtensionNotSupport,
 	sgrDebugMessengerCreationFailed,
-	sgrDebugMessengerDestructionFailed
+	sgrDebugMessengerDestructionFailed,
+	sgrDescriptorsSetsUpdated
 };
 
 #if __APPLE__

@@ -170,8 +170,18 @@ SgrErrCode SGR::drawFrame()
 
 	drawDataUpdate();
 
-	if (!commandManager->buffersEnded) {
-		buildDrawingCommands();
+	vkQueueWaitIdle(logicalDeviceManager->graphicsQueue);
+	
+	SgrErrCode res = descriptorManager->updateDescriptorSets();
+
+	if (res != sgrOK && res != sgrDescriptorsSetsUpdated)
+		return res;
+
+	if (!commandManager->buffersEnded || res == sgrDescriptorsSetsUpdated) {
+		res = buildDrawingCommands(res == sgrDescriptorsSetsUpdated);
+		if (res != sgrOK)
+			return res;
+
 		commandManager->endInitCommandBuffers();
 	}
 
@@ -627,8 +637,30 @@ bool SGR::setFPSDesired(uint8_t fps)
 	return true;
 }
 
-SgrErrCode SGR::buildDrawingCommands()
+SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 {
+	if (rebuild) {
+		commandManager->freeCommandBuffers(true);
+
+		if (CommandManager::instance->initCommandBuffers() != sgrOK)
+        	return sgrReinitCommandBuffersError;
+
+		for (size_t i = 0; i < instances.size(); i++) {
+			const SgrObjectInstance& instance = instances[i];
+			if (instance.name == "empty") 
+				continue;
+
+			if (!instance.needToDraw)
+				continue;
+
+			SgrObject& objectToDraw = findObjectByName(instance.geometry);
+			if (objectToDraw.name == "empty")
+				return sgrMissingObject;
+
+			objectToDraw.meshDataAndPiplineBinded = false;
+		}
+	}
+
 	for (size_t i = 0; i < instances.size(); i++) {
 		const SgrObjectInstance& instance = instances[i];
 		if (instance.name == "empty") 

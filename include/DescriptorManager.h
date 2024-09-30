@@ -41,10 +41,20 @@ private:
 	const SgrDescriptorInfo getDescriptorInfoByName(std::string name);
 	const SgrDescriptorSets getDescriptorSetsByName(std::string name);
 
+	struct SgrDescriptorPended {
+		int idx;
+		std::string name;
+		std::string infoName;
+		std::vector<void*> data;
+	};
+	std::vector<SgrDescriptorPended> pendedDescriptorsUpdate;
+
 public:
 	static DescriptorManager* get();
 
 	SgrErrCode destroyDescriptorsData();
+
+	SgrErrCode updateDescriptorSets();
 
 protected:
 	SgrErrCode createDescriptorSetLayout(SgrDescriptorInfo& descrInfo);

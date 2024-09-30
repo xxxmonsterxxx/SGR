@@ -40,6 +40,17 @@ void SwapChainManager::destroy(VkInstance vKInstance)
     for (auto& imgv : createdImageViews)
         vkDestroyImageView(device, *imgv, nullptr);
 
+
+    // destroy depth resources
+    vkDestroyImage(device, depthImage->vkImage, nullptr);
+    vkFreeMemory(device, depthImage->memory, nullptr);
+    vkDestroyImageView(device, depthImage->view, nullptr);
+
+    // destroy own image views
+    for (size_t i = 0; i < imageViews.size(); i++) {
+        vkDestroyImageView(device, imageViews[i], nullptr);
+    }
+
     createdImages.clear();
     createdImageViews.clear();
     images.clear();
@@ -141,7 +152,10 @@ SgrErrCode SwapChainManager::createImageViews() {
     for (size_t i = 0; i < images.size(); i++) {
         resultCreateImageView = createImageView(images[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT, &imageViews[i]);
         if (resultCreateImageView != sgrOK)
-            return sgrOK;
+            return resultCreateImageView;
+
+        // control of image views destruction take to self swapchain manager
+        createdImageViews.pop_back();
     }
 
     return sgrOK;
@@ -477,6 +491,10 @@ SgrErrCode SwapChainManager::createDepthResources()
 	res = createImageView(depthImage->vkImage, depthImage->format, VK_IMAGE_ASPECT_DEPTH_BIT, &depthImage->view);
 	if (res != sgrOK)
 		return res;
+
+    // code to remove depth resources image and image views from all allocated images
+    createdImages.pop_back();
+    createdImageViews.pop_back();
 
 	return sgrOK;
 }

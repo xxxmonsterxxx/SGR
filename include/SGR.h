@@ -19,6 +19,10 @@
 
 #define ON_SCREEN_RENDER TRUE
 
+#ifndef NDUG
+#define NDBUG TRUE
+#endif
+
 class SGR {
 public:
 	struct SgrObject {
@@ -157,7 +161,7 @@ private:
 
 	SgrErrCode initVulkanInstance();
 
-	SgrErrCode buildDrawingCommands();
+	SgrErrCode buildDrawingCommands(bool rebuild = false);
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};

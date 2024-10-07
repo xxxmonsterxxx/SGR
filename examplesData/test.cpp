@@ -379,6 +379,14 @@ int main()
 			sgr_object1.writeDescriptorSets("road", objectDataRoad);
 		}
 
+		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 7) {
+			std::vector<void*> objectDataRoad;
+			objectDataRoad.push_back((void*)(uboBuffer));
+			objectDataRoad.push_back((void*)(road));
+			objectDataRoad.push_back((void*)(instanceUBO));
+			sgr_object1.writeDescriptorSets("road", objectDataRoad);
+		}
+
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
 	}

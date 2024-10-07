@@ -36,7 +36,7 @@ private:
 	std::vector<SgrDescriptorSets> allDescriptorSets;
 
 	SgrErrCode addNewDescriptorInfo(SgrDescriptorInfo& descrInfo);
-	SgrErrCode updateDescriptorSets(std::string instanceName, std::string infoName, std::vector<void*> data);
+	SgrErrCode updateDescriptorSets(std::string instanceName, std::string infoName, std::vector<void*> data, bool force = false);
 
 	const SgrDescriptorInfo getDescriptorInfoByName(std::string name);
 	const SgrDescriptorSets getDescriptorSetsByName(std::string name);

@@ -106,6 +106,8 @@ public:
 	SgrErrCode getWindow(GLFWwindow* &ptr);
 	SgrErrCode setApplicationLogo(std::string path);
 
+	void enableDebugMode();
+
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;
 	const uint8_t engineVersionMinor = SGR_VERSION_MINOR;
@@ -161,7 +163,7 @@ private:
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-	const bool validationLayersEnabled = NDBUG;
+	bool validationLayersEnabled = false;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	SgrErrCode checkValidationLayerSupport();

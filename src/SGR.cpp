@@ -55,6 +55,11 @@ SGR::~SGR()
 {
 }
 
+void SGR::enableDebugMode()
+{
+	validationLayersEnabled = true;
+}
+
 SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *windowName)
 {
 	if (!manualWindow) {

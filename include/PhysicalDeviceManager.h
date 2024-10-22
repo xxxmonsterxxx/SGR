@@ -6,6 +6,7 @@ class SGR;
 class SwapChainManager;
 class MemoryManager;
 class TextureManager;
+class UIManager;
 
 struct SgrPhysicalDevice {
 	VkPhysicalDevice vkPhysDevice;
@@ -31,6 +32,7 @@ private:
 	friend class SwapChainManager;
 	friend class MemoryManager;
 	friend class TextureManager;
+	friend class UIManager;
 
 	static PhysicalDeviceManager* instance;
 

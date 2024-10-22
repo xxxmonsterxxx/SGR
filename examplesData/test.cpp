@@ -150,6 +150,37 @@ void updateData() {
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);
 };
 
+bool exitFlag = false;
+
+void exitFunction()
+{
+	exitFlag = true;
+};
+
+uint8_t roadText = 1;
+bool roadToggled = false;
+void toggleRoadText()
+{
+	roadToggled = true;
+
+	if (roadText == 1)
+		roadText = 2;
+	else
+		roadText = 1;
+}
+
+bool textHided = false;
+bool toggleTextFlag = false;
+void toggleText()
+{
+	toggleTextFlag = true;
+
+	if (textHided)
+		textHided = false;
+	else
+		textHided = true;
+}
+
 int main()
 {
 	// This source code is example for using SGR library
@@ -364,31 +395,45 @@ int main()
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
 	sgr_object1.updateGlobalUniformBufferObject(ubo);
 
+	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");
+	SgrUIButton b1("ButtonC1", {0.1, 0.3}, toggleRoadText, "Change road texture");
+
+	SgrUIButton hideT("HideText", {0.5, 0.87}, toggleText, "Hide");
+	SgrUIText t1("Text1", {0.5, 0.9}, "Simple Graphics Renderer");
+
+	sgr_object1.drawUIElement(exitButton);
+	sgr_object1.drawUIElement(b1);
+	sgr_object1.drawUIElement(t1);
+	sgr_object1.drawUIElement(hideT);
+
 	sgr_object1.setUpdateFunction(updateData);
-	while (1) {
+	while (!exitFlag) {
 		if (!sgr_object1.isSGRRunning())
 			break;
 
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
 
-		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 5) {
-			std::vector<void*> objectDataRoad;
-			objectDataRoad.push_back((void*)(uboBuffer));
-			objectDataRoad.push_back((void*)(texture1));
-			objectDataRoad.push_back((void*)(instanceUBO));
-			sgr_object1.writeDescriptorSets("road", objectDataRoad);
-		}
-
-		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 7) {
-			std::vector<void*> objectDataRoad;
-			objectDataRoad.push_back((void*)(uboBuffer));
-			objectDataRoad.push_back((void*)(road));
-			objectDataRoad.push_back((void*)(instanceUBO));
-			sgr_object1.writeDescriptorSets("road", objectDataRoad);
-		}
-
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
+
+		if (toggleTextFlag) {
+			t1.show(!textHided);
+			toggleTextFlag = false;
+			if (textHided)
+				hideT.changeText("Show");
+			else
+				hideT.changeText("Hide");
+		}
+
+		if (roadToggled) {
+			roadToggled = false;
+			std::vector<void*> objectDataRoad;
+			objectDataRoad.push_back((void*)(uboBuffer));
+			if (roadText == 1) objectDataRoad.push_back((void*)(road));
+			else objectDataRoad.push_back((void*)(texture1));
+			objectDataRoad.push_back((void*)(instanceUBO));
+			sgr_object1.writeDescriptorSets("road", objectDataRoad);
+		}
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

@@ -71,8 +71,16 @@ endif ()
 
 #######################################
 
+# user interface library
+set(IMGUI_DIR modules/imgui)
+
 include_directories(include) # SGR include folder
 file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
+
+file(GLOB IMGUI ${IMGUI_DIR}/*.cpp)
+list(APPEND SOURCES ${IMGUI})
+list(APPEND SOURCES ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp)
+list(APPEND SOURCES ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(SGR SHARED ${SOURCES})
@@ -89,6 +97,7 @@ set_target_properties(SGR PROPERTIES
 # include libraries
 set(GLM_INC_DIR modules/glm)
 set(STB_INC_DIR modules/stb)
+set(IMGUI_INC_DIR ${IMGUI_DIR})
 
 # find additional dependecies
 find_package(Vulkan 1.3.283.0 REQUIRED)
@@ -104,7 +113,7 @@ else (WIN32)
 	include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${IMGUI_INC_DIR})
 target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries

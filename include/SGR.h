@@ -16,6 +16,7 @@
 #include "DescriptorManager.h"
 #include "TextureManager.h"
 #include "RenderPassManager.h"
+#include "UserInterface.h"
 
 #define ON_SCREEN_RENDER true
 
@@ -108,6 +109,8 @@ public:
 
 	void enableDebugMode();
 
+	SgrErrCode drawUIElement(SgrUIElement& uiElement);
+
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;
 	const uint8_t engineVersionMinor = SGR_VERSION_MINOR;
@@ -126,6 +129,8 @@ private:
 	bool manualWindow;
 	GLFWwindow* window = nullptr;
 
+	bool commandsBuilded = false;
+
 	VkInstance vulkanInstance;
 
 	std::vector<VkQueueFlagBits> requiredQueueFamilies;
@@ -141,6 +146,7 @@ private:
 	TextureManager* textureManager;
 	RenderPassManager* renderPassManager;
 	ShaderManager* shaderManager;
+	UIManager* uiManager;
 
 	uint8_t maxFrameInFlight;
 	uint8_t currentFrame;

@@ -10,6 +10,7 @@ class DescriptorManager;
 class CommandManager;
 class TextureManager;
 class RenderPassManager;
+class UIManager;
 
 class LogicalDeviceManager {
 	friend class SGR;
@@ -20,6 +21,7 @@ class LogicalDeviceManager {
 	friend class CommandManager;
 	friend class TextureManager;
 	friend class RenderPassManager;
+	friend class UIManager;
 
 public:
 

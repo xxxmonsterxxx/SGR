@@ -1,0 +1,54 @@
+name: SGR autobuild
+
+on:
+  #push:
+  #  branches:
+  #    - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache CMake dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            build/      # Путь к каталогу сборки
+            ~/.cache/vcpkg  # Если используешь vcpkg для управления зависимостями
+          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-
+      
+      - name: Install dependencies
+        run: |
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            sudo ./env/unix_env_install.sh -f
+          elif [[ "${{ runner.os }}" == "Windows" ]]; then
+            powershell -File ./env/win_env_install.ps1 -f
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            sudo ./env/unix_env_install.sh -f
+          fi
+
+      - name: Configure CMake Windows
+        if: ${{ matrix.os == 'windows-latest' }} # only for Windows
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 16 2019" ..  
+
+      - name: Build project
+        run: |
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            ./build.sh -d
+          elif [[ "${{ runner.os }}" == "Windows" ]]; then
+            msbuild YourProject.sln;
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            ./build.sh -d
+          fi

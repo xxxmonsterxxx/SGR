@@ -245,4 +245,4 @@ echo "Homebrew:     $HOMEBREW_INSTALLED"
 echo "CMake:        $CMAKE_INSTALLED"
 echo "Vulkan SDK:   $VULKAN_SDK_INSTALLED"
 echo "GLFW:         $GLFW_INSTALLED"
-exit 1
+exit 0

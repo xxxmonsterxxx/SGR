@@ -16,15 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache CMake dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            build/      # Путь к каталогу сборки
-            ~/.cache/vcpkg  # Если используешь vcpkg для управления зависимостями
-          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-
+      # - name: Cache CMake dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: |
+      #       build/      # Путь к каталогу сборки
+      #       ~/.cache/vcpkg  # Если используешь vcpkg для управления зависимостями
+      #     key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-cmake-
       
       - name: Install dependencies
         run: |

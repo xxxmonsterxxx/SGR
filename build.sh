@@ -176,21 +176,22 @@ fi
 # If build type is release (with/out install option)
 if [ $BUILD_TYPE == release ] && [ $INSTALL ]
 then
+	#setting environement variables
+	if [ -f  ]; then
+		if ! grep -q "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH}" $USER_CONFIG_FILE; then
+			echo >> $USER_CONFIG_FILE
+			echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH} #for cmake package_find command" >> $USER_CONFIG_FILE
+		fi
+		
+		if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib" $USER_CONFIG_FILE; then
+			echo "export SGR_LIB=$INSTALL_PATH/lib/" >> $USER_CONFIG_FILE
+			echo "SDK environement added to user config file successfully."
+		fi
+	fi
+
 	cd Release
 	rm -rf *.tar
 	for entry in `ls $search_dir`; do
-		#setting environement variables
-		if [ -f  ]; then
-			if ! grep -q "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH}" $USER_CONFIG_FILE; then
-				echo >> $USER_CONFIG_FILE
-				echo "export CMAKE_PREFIX_PATH=$INSTALL_PATH/include/SGR:\${CMAKE_PREFIX_PATH} #for cmake package_find command" >> $USER_CONFIG_FILE
-			fi
-			
-			if ! grep -q "export SGR_LIB=$INSTALL_PATH/lib" $USER_CONFIG_FILE; then
-				echo "export SGR_LIB=$INSTALL_PATH/lib/" >> $USER_CONFIG_FILE
-				echo "SDK environement added to user config file successfully."
-			fi
-		fi
 		tar -cf $entry.tar $entry
 	done
 	cd ..

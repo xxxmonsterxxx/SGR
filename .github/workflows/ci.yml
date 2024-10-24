@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           if [[ "${{ runner.os }}" == "Linux" ]]; then
-            sudo ./env/unix_env_install.sh -f
+            ./env/unix_env_install.sh -f
           elif [[ "${{ runner.os }}" == "Windows" ]]; then
             powershell -File ./env/win_env_install.ps1 -f
           elif [[ "${{ runner.os }}" == "macOS" ]]; then

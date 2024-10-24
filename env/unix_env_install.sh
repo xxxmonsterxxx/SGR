@@ -95,6 +95,9 @@ else
         if [ $SYSTEM_TYPE == Linux ]
         then
             apt install curl
+            NON_ROOT_USER=runner
+            sudo mkdir /home/linuxbrew
+            sudo chown -R $NON_ROOT_USER:$NON_ROOT_USER /home/linuxbrew
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
             test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"

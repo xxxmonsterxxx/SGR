@@ -16,7 +16,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
 
-set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/SGR-v${VERSION})
+set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME})
 
 find_package(Vulkan 1.3.283.0 REQUIRED)
 

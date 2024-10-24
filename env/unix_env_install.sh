@@ -33,7 +33,7 @@ if [ "$FORCE" = false ]; then
     if [ "$RESP" = "n" ]
     then
         echo "Exiting."
-        exit 0
+        exit 2
     fi
 fi
 

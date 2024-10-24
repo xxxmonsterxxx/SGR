@@ -1,10 +1,21 @@
 #!/bin/bash
 
 # Ubuntu or MacOS (Warning!!! For Windows use environment_install.ps (powershell script))
-# shell script for requirement librariess installing
+# shell script for requirement libraries installing
+
+FORCE=false
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -f|--force) FORCE=true ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
 
 echo
-echo "Welcome to Simple Graphics Renderer (SGR) environement install helper."
+echo "Welcome to Simple Graphics Renderer (SGR) environment install helper."
 echo
 echo "Script will install (or skip if installed):"
 echo "0. Check OS (different OS requires different libs and tools)"
@@ -16,11 +27,14 @@ echo "   a) Vulkan SDK variables export"
 echo "   b) Vulkan SDK check"
 echo "4. glfw"
 echo
-read -p "Let's begin? (y/n) " RESP
-if [ "$RESP" = "n" ]
-then
-    echo "Exiting."
-    exit 0
+
+if [ "$FORCE" = false ]; then
+    read -p "Let's begin? (y/n) " RESP
+    if [ "$RESP" = "n" ]
+    then
+        echo "Exiting."
+        exit 0
+    fi
 fi
 
 # Check OS
@@ -29,7 +43,6 @@ SYSTEM_TYPE="$(uname -s)"
 echo
 echo "0. Your system is $SYSTEM_TYPE"
 echo
-# Check OS
 
 if [ $SYSTEM_TYPE == Darwin ]
 then
@@ -39,7 +52,11 @@ then
     CLI_INSTALLED_RETURN=$(xcode-select -p)
     if [[ $CLI_INSTALLED_RETURN == *"xcode-select: error:"* ]]
     then
-        read -p "CLI not installed, install now? (y/n) " RESP
+        if [ "$FORCE" = true ]; then
+            RESP="y"
+        else
+            read -p "CLI not installed, install now? (y/n) " RESP
+        fi
         if [ "$RESP" = "n" ]
         then
             echo "Skipping."
@@ -63,7 +80,11 @@ then
     echo "Homebrew already installed."
     HOMEBREW_INSTALLED=TRUE
 else
-    read -p "Homebrew not installed, install now? (y/n) " RESP
+    if [ "$FORCE" = true ]; then
+        RESP="y"
+    else
+        read -p "Homebrew not installed, install now? (y/n) " RESP
+    fi
     if [ "$RESP" = "n" ]
     then
         echo "Skipping."
@@ -99,7 +120,11 @@ then
     echo "CMake already installed."
     CMAKE_INSTALLED=TRUE
 else
-    read -p "CMake not installed, install now? (y/n) " RESP
+    if [ "$FORCE" = true ]; then
+        RESP="y"
+    else
+        read -p "CMake not installed, install now? (y/n) " RESP
+    fi
     if [ "$RESP" = "n" ]
     then
         echo "Skipping."
@@ -124,7 +149,11 @@ then
     echo "Vulkan SDK already installed."
     VULKAN_SDK_INSTALLED=TRUE
 else
-    read -p "Looks like Vulkan SDK not installed or we cannot find them, install now? (y/n) " RESP
+    if [ "$FORCE" = true ]; then
+        RESP="y"
+    else
+        read -p "Looks like Vulkan SDK not installed or we cannot find them, install now? (y/n) " RESP
+    fi
     if [ "$RESP" = "n" ]
     then
         echo "Skipping."
@@ -155,7 +184,6 @@ else
             echo "VK_ICD_FILENAMES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
             echo "export VK_ICD_FILENAMES" >> ~/.zshrc
             echo "VK_DRIVER_FILES="\$VULKAN_SDK/share/vulkan/icd.d/MoltenVK_icd.json"" >> ~/.zshrc
-            echo "export VK_DRIVER_FILES" >> ~/.zshrc
 
             rm -rf *.dmg
         fi
@@ -177,7 +205,6 @@ else
 fi
 echo
 
-
 #check glfw
 GLFW_INSTALLED=FALSE
 GLFW_INSTALLED_RETURN=$(brew list glfw 2>&1)
@@ -187,7 +214,11 @@ then
     echo "GLFW already installed."
     GLFW_INSTALLED=TRUE
 else
-    read -p "GLFW not installed, install now? (y/n) " RESP
+    if [ "$FORCE" = true ]; then
+        RESP="y"
+    else
+        read -p "GLFW not installed, install now? (y/n) " RESP
+    fi
     if [ "$RESP" = "n" ]
     then
         echo "Skipping."
@@ -195,13 +226,12 @@ else
         echo "Installing GLFW..."
         GLFW_INSTALLED=TRUE
         brew install glfw
-        brew install glfw
     fi
 fi
 echo
 
 echo
-echo "Environement install helper done:"
+echo "Environment install helper done:"
 
 if [ $SYSTEM_TYPE == Darwin ]
 then

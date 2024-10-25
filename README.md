@@ -1,10 +1,20 @@
-# ***Simple Graphics Renderer ver. 0.8.0***
+# ***Simple Graphics Renderer ver. 0.10.0***
 
 ![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
 
 ### ***Introduction***
 
 *This library is a wrapper for the Vulkan API, allowing its use without deep diving into Vulkan itself. It handles simple and basic initialization and allows rendering custom 2D/3D objects with basic textures, spritesheets and fonts for text rendering. Designed for cross-platform use (MacOS, Linux, Windows).*
+
+#### ***Supported features:***
+* Creation of a simple window application
+* Creation of custom 2D/3D shapes/geometry
+* Applying any texture to these shapes
+* Drawing text objects
+* Ability to change shape textures in real-time
+* Real-time control of drawn objects (position, orientation, scale)
+* Drawing UI interfaces (buttons, text)
+* And many others...
 
 ### ***How to use?***
 ___
@@ -42,6 +52,8 @@ This project contains helpfull scripts to environement install and configure add
 - Linux & MacOS: /env/unix_env_install.sh - Bash script
 
 Just run and follow instructions. If you expirience any issues with these scripts, please send me report by email or as an issue on github.
+
+After environement was installed
    
 
 #### ***Build:***
@@ -61,6 +73,9 @@ Use this to see all given options for building and debugging.
 #### ***References:***
 1. [Simple Game Engine](https://github.com/xxxmonsterxxx/SGE) - Game engine based on this SGR library
 2. [Vulkan tutorial](https://vulkan-tutorial.com/)
+3. [Khronos Vulkan tutorial](https://docs.vulkan.org/tutorial/latest/00_Introduction.html)
+4. [More one usefull guide](https://vkguide.dev/)
+5. [Sasha's Willems examples](https://www.saschawillems.de/creations/vulkan-examples/)
 ___
 
 P.S. I am always open to new ideas for this project improvement.

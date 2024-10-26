@@ -396,6 +396,7 @@ int main()
 	sgr_object1.updateGlobalUniformBufferObject(ubo);
 
 	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");
+	exitButton.setSize({50,50});
 	SgrUIButton b1("ButtonC1", {0.1, 0.3}, toggleRoadText, "Change road texture");
 
 	SgrUIButton hideT("HideText", {0.5, 0.87}, toggleText, "Hide");

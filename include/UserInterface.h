@@ -12,10 +12,12 @@ public:
     virtual void draw() = 0;
     virtual void setPos(glm::vec2 pos);
     virtual void beginElement();
+    virtual void setSize(glm::vec2 size);
 
 protected:
     std::string _name;
     glm::vec2 _position;
+    glm::vec2 _size;
     bool _visible = true;
 };
 

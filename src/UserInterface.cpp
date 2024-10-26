@@ -106,6 +106,11 @@ void SgrUIElement::setPos(glm::vec2 pos)
     ImGui::SetCursorScreenPos({_position.x * windowSize.x, _position.y * windowSize.y});
 }
 
+void SgrUIElement::setSize(glm::vec2 size)
+{
+    _size = size;
+}
+
 SgrUIButton::SgrUIButton(std::string name, glm::vec2 pos, void (*callbackFunc)(), std::string text) :
             SgrUIElement(name, pos), _text(text)
 {
@@ -119,7 +124,7 @@ void SgrUIButton::draw()
     beginElement();
 
     setPos(_position);
-    if (ImGui::Button(_text.c_str())) {
+    if (ImGui::Button(_text.c_str(), {_size.x, _size.y})) {
         buttonFunction();
     }
 

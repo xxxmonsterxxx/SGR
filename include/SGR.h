@@ -20,6 +20,7 @@
 
 #define ON_SCREEN_RENDER true
 
+#pragma pack(push, 1) // Disable padding
 class SGR {
 public:
 	struct SgrObject {
@@ -182,3 +183,4 @@ private:
 
 	SgrErrCode destroyDebugMessenger();
 };
+#pragma pack(pop) // Enable padding

@@ -26,6 +26,7 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	unsigned char* font_data = (unsigned char*)malloc(file_size);
 	if(fread(font_data, 1, file_size, font_ttf) != file_size) {
 		printf("Real time corrupted file\n");
+		free(font_data);
 		return false;
 	};
 	fclose(font_ttf);
@@ -41,7 +42,7 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	int result = stbtt_BakeFontBitmap(font_data, 0, 64, fontPixels, bitmapWidth, bitmapHeight, 32, char_number_to_bake, backedChars);
 	free(font_data);
 
-	return true;
+	return result;
 }
 
 
@@ -275,6 +276,19 @@ int main()
 	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
 	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
 	resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
+	if (resultCreateTextureImage != sgrOK) {
+		free(fontData);
+		return resultCreateTextureImage;
+	}
+
+	glm::vec4 meshLetter;
+	glm::vec4 textLetter;
+	getLetterFontData('S', fontData,meshLetter,textLetter);
+	std::vector<SgrVertex> letterMesh = {{meshLetter.x, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.w, 0},
+										 {meshLetter.x, meshLetter.w, 0}};
+	free(fontData);
 
 	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);
 
@@ -314,13 +328,6 @@ int main()
 	objectData3.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("road", objectData3);
 
-	glm::vec4 meshLetter;
-	glm::vec4 textLetter;
-	getLetterFontData('S', fontData,meshLetter,textLetter);
-	std::vector<SgrVertex> letterMesh = {{meshLetter.x, meshLetter.y, 0},
-										 {meshLetter.z, meshLetter.y, 0},
-										 {meshLetter.z, meshLetter.w, 0},
-										 {meshLetter.x, meshLetter.w, 0}};
 	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;

@@ -61,11 +61,13 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo,
 
 SgrErrCode DescriptorManager::createDescriptorSets(std::string name, SgrDescriptorInfo& descrInfo)
 {
-	SgrDescriptorSets* newSets = new SgrDescriptorSets{};
+	SgrDescriptorSets* newSets = nullptr;
 
     auto it = std::find_if(allDescriptorSets.begin(), allDescriptorSets.end(), [&name](const SgrDescriptorSets& descr){ return descr.name == name; });
     if (it != allDescriptorSets.end())
         newSets = &(*it);
+    else
+        newSets = new SgrDescriptorSets{};
 
 	SgrErrCode resultCreateDescriptorPool = createDescriptorPool(descrInfo, newSets->descriptorPool);
 	if (resultCreateDescriptorPool != sgrOK)

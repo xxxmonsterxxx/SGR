@@ -93,8 +93,6 @@ SgrErrCode MemoryManager::createStagingBufferWithData(SgrBuffer*& buffer, VkDevi
     if (resultInitStagingBuffer != sgrOK)
         return resultInitStagingBuffer;
 
-    VkDevice device = LogicalDeviceManager::instance->logicalDevice;
-
     copyDataToBuffer(buffer, data);
 
     return sgrOK;

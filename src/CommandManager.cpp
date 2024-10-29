@@ -103,8 +103,11 @@ SgrErrCode CommandManager::freeCommandBuffers(bool cleanOldCommands)
     vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 
-    if (cleanOldCommands)
+    if (cleanOldCommands) {
+        for (auto cmd : commands[0])
+            delete cmd;
         commands.clear();
+    }
 
     return sgrOK;
 }
@@ -222,6 +225,8 @@ void CommandManager::endSingleTimeCommands(VkCommandBuffer cmdBuffer)
 void CommandManager::destroy()
 {
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    for (auto cmd : commands[0])
+        delete cmd;
     commands.clear();
     freeCommandBuffers();
     commandBuffers.clear();

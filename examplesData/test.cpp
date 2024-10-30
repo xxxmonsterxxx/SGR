@@ -407,6 +407,7 @@ int main()
 	SgrUIButton b1("ButtonC1", {0.1, 0.3}, toggleRoadText, "Change road texture");
 
 	SgrUIButton hideT("HideText", {0.5, 0.87}, toggleText, "Hide");
+	hideT.setSize({ 50,20 });
 	SgrUIText t1("Text1", {0.5, 0.9}, "Simple Graphics Renderer");
 
 	sgr_object1.drawUIElement(exitButton);

@@ -20,6 +20,8 @@ set(VPATCH ${CMAKE_MATCH_1})
 
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
+set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
+
 #######################################
 
 # Debug #NDBUG for sources install
@@ -115,6 +117,7 @@ find_package(Vulkan 1.3.283.0 REQUIRED)
 if (WIN32)
 	find_library(glfw glfw3 $ENV{GLFW3_LIB}/lib NO_DEFAULT_PATH)
 	include_directories($ENV{GLFW3_LIB}/include/GLFW)
+	include_directories($ENV{GLFW3_LIB}/include/)
 	target_link_libraries (SGR ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
@@ -133,9 +136,14 @@ endif (APPLE)
 
 #######################################
 
-set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
+#set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
 
-set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+#set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+
+set_target_properties(SGR PROPERTIES
+					ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
+					RUNTIME_OUTPUT_DIRECTORY  ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
+					)
 
 # install process
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

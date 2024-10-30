@@ -15,9 +15,9 @@ public:
     virtual void setSize(glm::vec2 size);
 
 protected:
-    std::string _name;
-    glm::vec2 _position;
-    glm::vec2 _size;
+    std::string _name = "Name";
+    glm::vec2 _position{ 0.5,0.5 };
+    glm::vec2 _size{ 50,50 };
     bool _visible = true;
 };
 

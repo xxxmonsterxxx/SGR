@@ -42,11 +42,7 @@ SgrErrCode UIManager::init(GLFWwindow* window, VkInstance instance, std::vector<
     init_info.ImageCount = imageCount;
 
     ImGui_ImplVulkan_Init(&init_info);
-
-    VkCommandBuffer commandBuffer = CommandManager::instance->beginSingleTimeCommands();
     ImGui_ImplVulkan_CreateFontsTexture();
-    CommandManager::instance->endSingleTimeCommands(commandBuffer);
-
     vkDeviceWaitIdle(LogicalDeviceManager::instance->logicalDevice);
     ImGui_ImplVulkan_DestroyFontsTexture();
     

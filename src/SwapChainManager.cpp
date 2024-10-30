@@ -144,8 +144,7 @@ void SwapChainManager::setupSwapChainProperties()
 }
 
 SgrErrCode SwapChainManager::createImageViews() {
-    VkDevice logicalDevice = LogicalDeviceManager::get()->getLogicalDevice();
-
+    
     imageViews.resize(images.size());
 
     SgrErrCode resultCreateImageView = sgrOK;

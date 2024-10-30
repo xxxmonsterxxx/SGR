@@ -1,4 +1,4 @@
-##########################################################################
+############ S I M P L E   G R A P H I C S   R E N D E R E R #############
 
 cmake_minimum_required(VERSION 3.10)
 
@@ -6,6 +6,7 @@ project(SGR DESCRIPTION "Simple Graphics Renderer")
 
 ##########################################################################
 
+# Version configuration
 file(STRINGS "./include/version.h" ver)
 
 string(REGEX MATCH "SGR_VERSION_MAJOR ([0-9]*)" _ ${ver})
@@ -19,19 +20,24 @@ set(VPATCH ${CMAKE_MATCH_1})
 
 set(VERSION ${VMAJOR}.${VMINOR}.${VPATCH})
 
+set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
 
+#######################################
+
+# Debug #NDBUG for sources install
 if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
 	add_definitions(-DNDBUG=false)
 else ()
 	add_definitions(-DNDBUG=true)
 endif ()
 
-
+# If we want to example project build
 if (BUILD_EXAMPLE)
 	add_subdirectory(examplesData)
 	return()
 endif()
 
+#######################################
 
 # Config version file generate
 set(SGR_CONFIG_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/SGRConfigVersion.cmake")
@@ -74,7 +80,19 @@ endif ()
 include_directories(include) # SGR include folder
 file(GLOB SOURCES src/*.cpp) #set as source files all files from src/
 
+# user interface library
+set(IMGUI_DIR modules/imgui)
+# include to build only required source files
+file(GLOB IMGUI ${IMGUI_DIR}/*.cpp)
+list(APPEND SOURCES ${IMGUI})
+list(APPEND SOURCES ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp)
+list(APPEND SOURCES ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp)
+
+# windows option required
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+#######################################
+
 add_library(SGR SHARED ${SOURCES})
 
 set_target_properties(SGR PROPERTIES
@@ -86,9 +104,12 @@ set_target_properties(SGR PROPERTIES
     SOVERSION ${VMAJOR}.${VMINOR}.0
 )
 
+#######################################
+
 # include libraries
 set(GLM_INC_DIR modules/glm)
 set(STB_INC_DIR modules/stb)
+set(IMGUI_INC_DIR ${IMGUI_DIR})
 
 # find additional dependecies
 find_package(Vulkan 1.3.283.0 REQUIRED)
@@ -96,6 +117,7 @@ find_package(Vulkan 1.3.283.0 REQUIRED)
 if (WIN32)
 	find_library(glfw glfw3 $ENV{GLFW3_LIB}/lib NO_DEFAULT_PATH)
 	include_directories($ENV{GLFW3_LIB}/include/GLFW)
+	include_directories($ENV{GLFW3_LIB}/include/)
 	target_link_libraries (SGR ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
@@ -104,7 +126,7 @@ else (WIN32)
 	include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR})
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${IMGUI_INC_DIR})
 target_link_libraries (SGR ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries
@@ -112,24 +134,40 @@ if (APPLE)
 	target_link_libraries(SGR "-framework CoreFoundation")
 endif (APPLE)
 
-set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}) # set build destination
+#######################################
 
-set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+#set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
+
+#set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
+
+set_target_properties(SGR PROPERTIES
+					ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
+					RUNTIME_OUTPUT_DIRECTORY  ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
+					LIBRARY_OUTPUT_DIRECTORY  ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
+					)
 
 # install process
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/SGR-v${VERSION})
 endif ()
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/SGR)
-install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+#######################################
 
-if (NOT WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_custom_command(TARGET SGR
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install .
-	)
-endif ()
+# post build actions
+
+# post build command for copy include files into build directory
+add_custom_command(
+    TARGET SGR POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/include
+        ${BUILD_DEST}/include/SGR
+    COMMENT "Copying includes to build directory..."
+)
+
+# install options
+
+install(DIRECTORY ${BUILD_DEST}/include/SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(TARGETS SGR DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
 if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
 	install(CODE "
@@ -152,6 +190,8 @@ if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
 	"
 	)
 endif ()
+
+#######################################
 
 include(ProcessorCount)
 ProcessorCount(N)

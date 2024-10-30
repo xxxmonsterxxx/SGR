@@ -16,9 +16,11 @@
 #include "DescriptorManager.h"
 #include "TextureManager.h"
 #include "RenderPassManager.h"
+#include "UserInterface.h"
 
 #define ON_SCREEN_RENDER true
 
+#pragma pack(push, 1) // Disable padding
 class SGR {
 public:
 	struct SgrObject {
@@ -108,6 +110,8 @@ public:
 
 	void enableDebugMode();
 
+	SgrErrCode drawUIElement(SgrUIElement& uiElement);
+
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;
 	const uint8_t engineVersionMinor = SGR_VERSION_MINOR;
@@ -126,6 +130,8 @@ private:
 	bool manualWindow;
 	GLFWwindow* window = nullptr;
 
+	bool commandsBuilded = false;
+
 	VkInstance vulkanInstance;
 
 	std::vector<VkQueueFlagBits> requiredQueueFamilies;
@@ -141,6 +147,7 @@ private:
 	TextureManager* textureManager;
 	RenderPassManager* renderPassManager;
 	ShaderManager* shaderManager;
+	UIManager* uiManager;
 
 	uint8_t maxFrameInFlight;
 	uint8_t currentFrame;
@@ -163,7 +170,7 @@ private:
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-	bool validationLayersEnabled = false;
+	bool validationLayersEnabled = NDBUG;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	SgrErrCode checkValidationLayerSupport();
@@ -176,3 +183,4 @@ private:
 
 	SgrErrCode destroyDebugMessenger();
 };
+#pragma pack(pop) // Enable padding

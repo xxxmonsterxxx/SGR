@@ -10,6 +10,7 @@
 #include "DrawIndexedCommand.h"
 #include "BindDescriptorSetCommand.h"
 #include "BindPipelineCommand.h"
+#include "UserInterface.h"
 
 CommandManager* CommandManager::instance = nullptr;
 
@@ -31,6 +32,7 @@ SgrErrCode CommandManager::initCommandPool()
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = PhysicalDeviceManager::get()->getPickedPhysicalDevice().fixedGraphicsQueue.value();
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     if (vkCreateCommandPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         return sgrInitCommandPoolError;
@@ -38,30 +40,13 @@ SgrErrCode CommandManager::initCommandPool()
     return sgrOK;
 }
 
-SgrErrCode CommandManager::initCommandBuffers()
+SgrErrCode CommandManager::beginCommandBuffers()
 {
-    if (commandPool == VK_NULL_HANDLE) {
-        SgrErrCode resultInitCommandPool = initCommandPool();
-        if (resultInitCommandPool != sgrOK)
-            return resultInitCommandPool;
-    }
-
-    SwapChainManager* swpChMan = SwapChainManager::get();
-
-    commandBuffers.resize(swpChMan->framebuffers.size());
-
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-
-    if (vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-        return sgrInitCommandBuffersError;
-
-    commands.resize(commandBuffers.size());
-
     for (size_t i = 0; i < commandBuffers.size(); i++) {
+        // firstly we should to reset all command buffers
+        if (vkResetCommandBuffer(commandBuffers[i], 0 /*VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT*/) != VK_SUCCESS)
+            return sgrResetCommandBuffersError;
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
@@ -87,7 +72,30 @@ SgrErrCode CommandManager::initCommandBuffers()
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    buffersEnded = false;
+    return sgrOK;
+}
+
+SgrErrCode CommandManager::initCommandBuffers()
+{
+    if (commandPool == VK_NULL_HANDLE) {
+        SgrErrCode resultInitCommandPool = initCommandPool();
+        if (resultInitCommandPool != sgrOK)
+            return resultInitCommandPool;
+    }
+
+    SwapChainManager* swpChMan = SwapChainManager::get();
+    commandBuffers.resize(swpChMan->framebuffers.size());
+    commands.resize(commandBuffers.size());
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+
+    if (vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+        return sgrInitCommandBuffersError;
+
     return sgrOK;
 }
 
@@ -96,8 +104,11 @@ SgrErrCode CommandManager::freeCommandBuffers(bool cleanOldCommands)
     vkFreeCommandBuffers(LogicalDeviceManager::instance->logicalDevice, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 
-    if (cleanOldCommands)
+    if (cleanOldCommands) {
+        for (auto cmd : commands[0])
+            delete cmd;
         commands.clear();
+    }
 
     return sgrOK;
 }
@@ -151,10 +162,6 @@ void CommandManager::bindPipeline(VkPipeline* sgrPipeline, int16_t cmdBufferInde
 
 SgrErrCode CommandManager::endInitCommandBuffers()
 {
-    SgrErrCode resultExecuteCommands = executeCommands();
-    if (resultExecuteCommands != sgrOK)
-        return resultExecuteCommands;
-
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -163,7 +170,6 @@ SgrErrCode CommandManager::endInitCommandBuffers()
         }
     }
 
-    buffersEnded = true;
     return sgrOK;
 }
 
@@ -220,6 +226,8 @@ void CommandManager::endSingleTimeCommands(VkCommandBuffer cmdBuffer)
 void CommandManager::destroy()
 {
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
+    for (auto cmd : commands[0])
+        delete cmd;
     commands.clear();
     freeCommandBuffers();
     commandBuffers.clear();

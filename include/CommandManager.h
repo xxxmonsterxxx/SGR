@@ -9,6 +9,7 @@ class RenderPassManager;
 class SwapChainManager;
 class MemoryManager;
 class TextureManager;
+class UIManager;
 
 class CommandManager {
 private:
@@ -17,6 +18,7 @@ private:
 	friend class SwapChainManager;
 	friend class MemoryManager;
 	friend class TextureManager;
+	friend class UIManager;
 
 	CommandManager();
 	~CommandManager();
@@ -32,6 +34,7 @@ private:
 
 	std::vector<VkCommandBuffer> commandBuffers;
 	SgrErrCode initCommandBuffers();
+	SgrErrCode beginCommandBuffers();
 	SgrErrCode freeCommandBuffers(bool cleanOldCommands = false);
 	SgrErrCode endInitCommandBuffers();
 	bool buffersEnded = false;

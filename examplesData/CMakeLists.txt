@@ -16,7 +16,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
 
-set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/SGR-v${VERSION})
+set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME})
 
 find_package(Vulkan 1.3.283.0 REQUIRED)
 
@@ -36,7 +36,7 @@ target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} ${SGR_LIB})
 file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 if (WIN32)
-    set(DLL_FILES ${CMAKE_SOURCE_DIR}/build/SGR-v${VERSION}/lib/SGR.dll $ENV{GLFW3_LIB}/lib/glfw3.dll)
+    set(DLL_FILES ${BUILD_DEST}/lib/SGR.dll $ENV{GLFW3_LIB}/lib/glfw3.dll)
 
     add_custom_target(CopyDlls ALL
         COMMENT "Copying dynamic libraries to output directory"

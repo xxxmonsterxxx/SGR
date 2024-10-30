@@ -11,44 +11,37 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest] #os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest] #os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Cache CMake dependencies
-        uses: actions/cache@v2
+      - uses: actions/checkout@v4
         with:
-          path: |
-            build/      # Путь к каталогу сборки
-            ~/.cache/vcpkg  # Если используешь vcpkg для управления зависимостями
-          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-
-      
-      - name: Install dependencies
-        run: |
-          if [[ "${{ runner.os }}" == "Linux" ]]; then
-            sudo ./env/unix_env_install.sh -f
-          elif [[ "${{ runner.os }}" == "Windows" ]]; then
-            powershell -File ./env/win_env_install.ps1 -f
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            sudo ./env/unix_env_install.sh -f
-          fi
+          submodules: true
 
-      - name: Configure CMake Windows
-        if: ${{ matrix.os == 'windows-latest' }} # only for Windows
+      - name: Install Vulkan SDK
+        uses: humbletim/install-vulkan-sdk@v1.1.1
+        with:
+          version: 1.3.283.0
+          cache: true
+
+      - name: Cache Homebrew
+        id: homebrew-install
+        uses: actions/cache@v4
+        with:
+          path: /home/linuxbrew/.linuxbrew
+          key: homebrew-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            homebrew-${{ runner.os }}-
+      
+      - name: Install Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - if: ${{ steps.homebrew-install.outputs.cache-hit != 'true' }}
+        name: Install dependencies
+        continue-on-error: true
         run: |
-          mkdir build
-          cd build
-          cmake -G "Visual Studio 16 2019" ..  
+            brew install glfw
 
       - name: Build project
         run: |
-          if [[ "${{ runner.os }}" == "Linux" ]]; then
-            ./build.sh -d
-          elif [[ "${{ runner.os }}" == "Windows" ]]; then
-            msbuild YourProject.sln;
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            ./build.sh -d
-          fi
+          ./build.sh -r

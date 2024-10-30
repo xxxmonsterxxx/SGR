@@ -26,6 +26,7 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	unsigned char* font_data = (unsigned char*)malloc(file_size);
 	if(fread(font_data, 1, file_size, font_ttf) != file_size) {
 		printf("Real time corrupted file\n");
+		free(font_data);
 		return false;
 	};
 	fclose(font_ttf);
@@ -41,7 +42,7 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	int result = stbtt_BakeFontBitmap(font_data, 0, 64, fontPixels, bitmapWidth, bitmapHeight, 32, char_number_to_bake, backedChars);
 	free(font_data);
 
-	return true;
+	return result;
 }
 
 
@@ -150,6 +151,37 @@ void updateData() {
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);
 };
 
+bool exitFlag = false;
+
+void exitFunction()
+{
+	exitFlag = true;
+};
+
+uint8_t roadText = 1;
+bool roadToggled = false;
+void toggleRoadText()
+{
+	roadToggled = true;
+
+	if (roadText == 1)
+		roadText = 2;
+	else
+		roadText = 1;
+}
+
+bool textHided = false;
+bool toggleTextFlag = false;
+void toggleText()
+{
+	toggleTextFlag = true;
+
+	if (textHided)
+		textHided = false;
+	else
+		textHided = true;
+}
+
 int main()
 {
 	// This source code is example for using SGR library
@@ -244,6 +276,19 @@ int main()
 	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
 	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
 	resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
+	if (resultCreateTextureImage != sgrOK) {
+		free(fontData);
+		return resultCreateTextureImage;
+	}
+
+	glm::vec4 meshLetter;
+	glm::vec4 textLetter;
+	getLetterFontData('S', fontData,meshLetter,textLetter);
+	std::vector<SgrVertex> letterMesh = {{meshLetter.x, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.y, 0},
+										 {meshLetter.z, meshLetter.w, 0},
+										 {meshLetter.x, meshLetter.w, 0}};
+	free(fontData);
 
 	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);
 
@@ -283,13 +328,6 @@ int main()
 	objectData3.push_back((void*)(instanceUBO));
 	sgr_object1.writeDescriptorSets("road", objectData3);
 
-	glm::vec4 meshLetter;
-	glm::vec4 textLetter;
-	getLetterFontData('S', fontData,meshLetter,textLetter);
-	std::vector<SgrVertex> letterMesh = {{meshLetter.x, meshLetter.y, 0},
-										 {meshLetter.z, meshLetter.y, 0},
-										 {meshLetter.z, meshLetter.w, 0},
-										 {meshLetter.x, meshLetter.w, 0}};
 	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
@@ -364,31 +402,47 @@ int main()
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
 	sgr_object1.updateGlobalUniformBufferObject(ubo);
 
+	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");
+	exitButton.setSize({50,50});
+	SgrUIButton b1("ButtonC1", {0.1, 0.3}, toggleRoadText, "Change road texture");
+
+	SgrUIButton hideT("HideText", {0.5, 0.87}, toggleText, "Hide");
+	hideT.setSize({ 50,20 });
+	SgrUIText t1("Text1", {0.5, 0.9}, "Simple Graphics Renderer");
+
+	sgr_object1.drawUIElement(exitButton);
+	sgr_object1.drawUIElement(b1);
+	sgr_object1.drawUIElement(t1);
+	sgr_object1.drawUIElement(hideT);
+
 	sgr_object1.setUpdateFunction(updateData);
-	while (1) {
+	while (!exitFlag) {
 		if (!sgr_object1.isSGRRunning())
 			break;
 
 		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
 
-		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 5) {
-			std::vector<void*> objectDataRoad;
-			objectDataRoad.push_back((void*)(uboBuffer));
-			objectDataRoad.push_back((void*)(texture1));
-			objectDataRoad.push_back((void*)(instanceUBO));
-			sgr_object1.writeDescriptorSets("road", objectDataRoad);
-		}
-
-		if (getSgrTimeDuration(lastTextureChange, SgrTime::now()) > 7) {
-			std::vector<void*> objectDataRoad;
-			objectDataRoad.push_back((void*)(uboBuffer));
-			objectDataRoad.push_back((void*)(road));
-			objectDataRoad.push_back((void*)(instanceUBO));
-			sgr_object1.writeDescriptorSets("road", objectDataRoad);
-		}
-
 		if (resultDrawFrame != sgrOK)
 			return resultDrawFrame;
+
+		if (toggleTextFlag) {
+			t1.show(!textHided);
+			toggleTextFlag = false;
+			if (textHided)
+				hideT.changeText("Show");
+			else
+				hideT.changeText("Hide");
+		}
+
+		if (roadToggled) {
+			roadToggled = false;
+			std::vector<void*> objectDataRoad;
+			objectDataRoad.push_back((void*)(uboBuffer));
+			if (roadText == 1) objectDataRoad.push_back((void*)(road));
+			else objectDataRoad.push_back((void*)(texture1));
+			objectDataRoad.push_back((void*)(instanceUBO));
+			sgr_object1.writeDescriptorSets("road", objectDataRoad);
+		}
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

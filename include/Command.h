@@ -18,7 +18,7 @@ class Command {
 	friend class CommandManager;
 public:
 	CommandType getType() { return type; }
-
+	virtual ~Command() { ; }
 protected:
 
 	virtual SgrErrCode execute(VkCommandBuffer* cmdBuffer) = 0;

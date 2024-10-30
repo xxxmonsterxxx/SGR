@@ -109,7 +109,9 @@ enum SgrErrCode
 	sgrExtensionNotSupport,
 	sgrDebugMessengerCreationFailed,
 	sgrDebugMessengerDestructionFailed,
-	sgrDescriptorsSetsUpdated
+	sgrDescriptorsSetsUpdated,
+	sgrDescriptorPoolCreateError,
+	sgrResetCommandBuffersError
 };
 
 #if __APPLE__

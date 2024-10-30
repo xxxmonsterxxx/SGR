@@ -5,10 +5,12 @@
 
 class SGR;
 class PipelineManager;
+class UIManager;
 
 class DescriptorManager {
 	friend class SGR;
 	friend class PipelineManager;
+	friend class UIManager;
 
 private:
 	DescriptorManager();
@@ -48,6 +50,9 @@ private:
 		std::vector<void*> data;
 	};
 	std::vector<SgrDescriptorPended> pendedDescriptorsUpdate;
+
+	VkDescriptorPool uiDescriptorPool;
+	SgrErrCode createDescriptorPoolForUI();
 
 public:
 	static DescriptorManager* get();

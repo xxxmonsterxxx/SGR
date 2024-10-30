@@ -8,12 +8,11 @@ std::string getExecutablePath()
 		if (NDBUG) {
 			// MacOS release executable path
 			CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
-			if (CFURLGetFileSystemRepresentation(resourceURL, true,
+			CFURLGetFileSystemRepresentation(resourceURL, true,
 											(UInt8 *)ep,
-											PATH_MAX)) {
-				if (resourceURL != NULL)
-					CFRelease(resourceURL);
-			}
+											PATH_MAX);
+			if (resourceURL != NULL)
+				CFRelease(resourceURL);
 			return std::string(ep);
 		} else {
 			// MacOS debug executable path
@@ -24,7 +23,7 @@ std::string getExecutablePath()
 
 	#if __linux__
 		// linux path to the executable
-		if (readlink("/proc/self/exe", ep, PATH_MAX) == -1)
+		if (readlink("/proc/self/exe", (wchar_t*)ep, PATH_MAX) == -1)
 			return std::string("");
 	#endif
 

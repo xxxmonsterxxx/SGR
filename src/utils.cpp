@@ -29,7 +29,7 @@ std::string getExecutablePath()
 
 	#if _WIN64
 		HMODULE hModule = GetModuleHandle(nullptr);
-		if (GetModuleFileName(hModule, (wchar_t*)ep, MAX_PATH) == 0) {
+		if (GetModuleFileName(hModule, ep, MAX_PATH) == 0) {
 			return std::string("");
 		}
 	#endif

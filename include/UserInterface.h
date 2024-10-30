@@ -51,7 +51,7 @@ class UIManager {
     friend CommandManager;
 public:
     static UIManager* get();
-    SgrErrCode init(GLFWwindow* window, VkInstance instance, std::vector<VkQueueFlagBits> queueFams, uint8_t imageCount);
+    SgrErrCode init(GLFWwindow* window, VkInstance instance, uint8_t imageCount);
     SgrErrCode destroy();
 
     SgrErrCode drawElement(SgrUIElement& element);

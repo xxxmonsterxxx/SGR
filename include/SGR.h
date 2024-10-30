@@ -170,7 +170,7 @@ private:
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-	bool validationLayersEnabled = false;
+	bool validationLayersEnabled = NDBUG;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	SgrErrCode checkValidationLayerSupport();

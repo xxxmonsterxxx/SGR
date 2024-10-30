@@ -110,7 +110,8 @@ enum SgrErrCode
 	sgrDebugMessengerCreationFailed,
 	sgrDebugMessengerDestructionFailed,
 	sgrDescriptorsSetsUpdated,
-	sgrDescriptorPoolCreateError
+	sgrDescriptorPoolCreateError,
+	sgrResetCommandBuffersError
 };
 
 #if __APPLE__

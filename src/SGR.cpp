@@ -115,7 +115,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = uiManager->init(window, vulkanInstance, requiredQueueFamilies, swapChainManager->imageCount);
+	resultInit = uiManager->init(window, vulkanInstance, swapChainManager->imageCount);
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -188,9 +188,11 @@ SgrErrCode SGR::drawFrame()
 
 
 	// start commands recording
-	commandManager->beginCommandBuffers();
+	SgrErrCode res = commandManager->beginCommandBuffers();
+	if (res != sgrOK)
+		return res;
 	
-	SgrErrCode res = descriptorManager->updateDescriptorSets();
+	res = descriptorManager->updateDescriptorSets();
 
 	if (res != sgrOK && res != sgrDescriptorsSetsUpdated)
 		return res;
@@ -666,6 +668,10 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 
 		if (CommandManager::instance->initCommandBuffers() != sgrOK)
         	return sgrReinitCommandBuffersError;
+
+		SgrErrCode res = commandManager->beginCommandBuffers();
+		if (res != sgrOK)
+			return res;
 
 		for (size_t i = 0; i < instances.size(); i++) {
 			const SgrObjectInstance& instance = instances[i];

@@ -20,7 +20,7 @@ UIManager* UIManager::get()
     return _instance;
 }
 
-SgrErrCode UIManager::init(GLFWwindow* window, VkInstance instance, std::vector<VkQueueFlagBits> queueFams, uint8_t imageCount)
+SgrErrCode UIManager::init(GLFWwindow* window, VkInstance instance, uint8_t imageCount)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -32,7 +32,7 @@ SgrErrCode UIManager::init(GLFWwindow* window, VkInstance instance, std::vector<
     init_info.Instance = instance;
     init_info.PhysicalDevice = PhysicalDeviceManager::instance->pickedPhysicalDevice.vkPhysDevice;
     init_info.Device = LogicalDeviceManager::instance->logicalDevice;
-    init_info.QueueFamily = queueFams[0];
+    init_info.QueueFamily = PhysicalDeviceManager::instance->pickedPhysicalDevice.fixedGraphicsQueue.value();
     init_info.Queue = LogicalDeviceManager::instance->graphicsQueue;
     if (DescriptorManager::instance->createDescriptorPoolForUI() == sgrDescriptorPoolCreateError)
         return sgrDescriptorPoolCreateError;

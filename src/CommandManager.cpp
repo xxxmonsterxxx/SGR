@@ -32,6 +32,7 @@ SgrErrCode CommandManager::initCommandPool()
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = PhysicalDeviceManager::get()->getPickedPhysicalDevice().fixedGraphicsQueue.value();
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     if (vkCreateCommandPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         return sgrInitCommandPoolError;
@@ -42,6 +43,10 @@ SgrErrCode CommandManager::initCommandPool()
 SgrErrCode CommandManager::beginCommandBuffers()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
+        // firstly we should to reset all command buffers
+        if (vkResetCommandBuffer(commandBuffers[i], 0 /*VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT*/) != VK_SUCCESS)
+            return sgrResetCommandBuffersError;
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0; // Optional
@@ -90,10 +95,6 @@ SgrErrCode CommandManager::initCommandBuffers()
 
     if (vkAllocateCommandBuffers(LogicalDeviceManager::instance->logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
         return sgrInitCommandBuffersError;
-
-    SgrErrCode res = beginCommandBuffers();
-    if (res != sgrOK)
-        return res;
 
     return sgrOK;
 }

@@ -23,13 +23,13 @@ std::string getExecutablePath()
 
 	#if __linux__
 		// linux path to the executable
-		if (readlink("/proc/self/exe", (wchar_t*)ep, PATH_MAX) == -1)
+		if (readlink("/proc/self/exe", ep, PATH_MAX) == -1)
 			return std::string("");
 	#endif
 
 	#if _WIN64
 		HMODULE hModule = GetModuleHandle(nullptr);
-		if (GetModuleFileName(hModule, ep, MAX_PATH) == 0) {
+		if (GetModuleFileName(hModule, (wchar_t*)ep, MAX_PATH) == 0) {
 			return std::string("");
 		}
 	#endif

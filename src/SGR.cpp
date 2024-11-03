@@ -782,3 +782,8 @@ SgrErrCode SGR::drawUIElement(SgrUIElement& uiElement)
 {
 	return uiManager->drawElement(uiElement);
 }
+
+void SGR::setupUICallback()
+{
+	uiManager->setupUICallback();
+}

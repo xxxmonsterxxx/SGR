@@ -26,7 +26,7 @@ SgrErrCode UIManager::init(GLFWwindow* window, VkInstance instance, uint8_t imag
     ImGui::CreateContext();
 
     _window = window;
-    ImGui_ImplGlfw_InitForVulkan(_window, true);
+    ImGui_ImplGlfw_InitForVulkan(_window, false);
 
     ImGui_ImplVulkan_InitInfo init_info = {};
     init_info.Instance = instance;
@@ -63,6 +63,11 @@ void UIManager::uiRender()
     ImGui_ImplVulkan_RenderDrawData(data, CommandManager::instance->commandBuffers[0]);
     ImGui_ImplVulkan_RenderDrawData(data, CommandManager::instance->commandBuffers[1]);
     ImGui_ImplVulkan_RenderDrawData(data, CommandManager::instance->commandBuffers[2]);
+}
+
+void UIManager::setupUICallback()
+{
+    ImGui_ImplGlfw_InstallCallbacks(_window);
 }
 
 SgrErrCode UIManager::destroy()

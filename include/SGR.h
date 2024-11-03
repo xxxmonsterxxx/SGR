@@ -111,6 +111,7 @@ public:
 	void enableDebugMode();
 
 	SgrErrCode drawUIElement(SgrUIElement& uiElement);
+	void setupUICallback();
 
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;

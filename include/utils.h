@@ -124,3 +124,5 @@ enum SgrErrCode
 #endif
 
 std::string getExecutablePath();
+
+double getTimeDuration(SgrTime_t start, SgrTime_t end);

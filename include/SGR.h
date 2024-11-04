@@ -101,8 +101,6 @@ public:
 	SgrObjectInstance& findInstanceByName(std::string name);
 	SgrObject& findObjectByName(std::string name);
 
-	float getSgrTimeDuration(SgrTime_t start, SgrTime_t end);
-
 	bool setFPSDesired(uint8_t fps);
 
 	SgrErrCode getWindow(GLFWwindow* &ptr);

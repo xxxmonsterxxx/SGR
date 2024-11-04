@@ -52,3 +52,9 @@ std::string getExecutablePath()
 	executablePath[lastPathIndex] = '\0';
 	return std::string(executablePath);
 }
+
+
+double getTimeDuration(SgrTime_t start, SgrTime_t end)
+{
+	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
+}

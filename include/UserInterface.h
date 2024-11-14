@@ -57,6 +57,7 @@ public:
     SgrErrCode drawElement(SgrUIElement& element);
 
     void uiRender();
+    void setupUICallback();
 private:
     static UIManager* _instance;
 

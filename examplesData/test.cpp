@@ -416,6 +416,7 @@ int main()
 	sgr_object1.drawUIElement(hideT);
 
 	sgr_object1.setUpdateFunction(updateData);
+	sgr_object1.setupUICallback();
 	while (!exitFlag) {
 		if (!sgr_object1.isSGRRunning())
 			break;

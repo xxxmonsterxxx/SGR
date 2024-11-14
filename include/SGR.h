@@ -101,8 +101,6 @@ public:
 	SgrObjectInstance& findInstanceByName(std::string name);
 	SgrObject& findObjectByName(std::string name);
 
-	float getSgrTimeDuration(SgrTime_t start, SgrTime_t end);
-
 	bool setFPSDesired(uint8_t fps);
 
 	SgrErrCode getWindow(GLFWwindow* &ptr);
@@ -111,6 +109,7 @@ public:
 	void enableDebugMode();
 
 	SgrErrCode drawUIElement(SgrUIElement& uiElement);
+	void setupUICallback();
 
 private:
 	const uint8_t engineVersionMajor = SGR_VERSION_MAJOR;

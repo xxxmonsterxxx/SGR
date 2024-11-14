@@ -282,7 +282,7 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = getSgrTimeDuration(startDrawFrameTime,SgrTime::now());
+	float drawFrameTime = getTimeDuration(startDrawFrameTime,SgrTime::now());
 
 	if (drawFrameTime < 1.f/fpsDesired) {
 		#if __linux__ || __APPLE__
@@ -647,11 +647,6 @@ SgrErrCode SGR::writeDescriptorSets(std::string name, std::vector<void*> data)
 	return descriptorManager->updateDescriptorSets(name, descriptorManager->getDescriptorInfoByName(geometry).name, data);
 }
 
-float SGR::getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
-{
-	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
-}
-
 bool SGR::setFPSDesired(uint8_t fps)
 {
 	if (fps == 0)
@@ -781,4 +776,9 @@ SgrErrCode SGR::destroyDebugMessenger()
 SgrErrCode SGR::drawUIElement(SgrUIElement& uiElement)
 {
 	return uiManager->drawElement(uiElement);
+}
+
+void SGR::setupUICallback()
+{
+	uiManager->setupUICallback();
 }

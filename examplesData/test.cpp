@@ -6,6 +6,47 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 	#include "stb_truetype.h"
 
+
+
+#define TINYOBJLOADER_IMPLEMENTATION
+	#include "tiny_obj_loader.h"
+
+struct ModelVertex {
+	SgrVertex vert;
+	glm::vec2 texCoord;
+};
+
+std::vector<ModelVertex> modelVert;
+std::vector<uint32_t> modelInd;
+
+bool loadObjectModel(std::string modelPath)
+{
+	tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str())) {
+        return false;
+    }
+
+	for (const auto& shape : shapes) {
+		for (const auto& index : shape.mesh.indices) {
+			ModelVertex vertex{};
+			vertex.vert.x = attrib.vertices[3 * index.vertex_index + 0];
+			vertex.vert.y = attrib.vertices[3 * index.vertex_index + 1];
+			vertex.vert.z = attrib.vertices[3 * index.vertex_index + 2];
+
+			vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
+    						   1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
+
+			modelVert.push_back(vertex);
+			modelInd.push_back(modelInd.size());
+    	}
+	}
+	return true;
+}
+
 bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedchar* &backedChars, uint32_t &width, uint32_t &height)
 {
 	FILE* font_ttf = fopen(font_path.c_str(), "rb");
@@ -114,6 +155,37 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescr()
 	return vertexAttributeDescriptions; 
 }
 
+std::vector<VkVertexInputBindingDescription> createBindingDescrModel()
+{
+	VkVertexInputBindingDescription vertexBindingDescription;
+	vertexBindingDescription.binding = 0;
+	vertexBindingDescription.stride = sizeof(ModelVertex);
+	vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions{ vertexBindingDescription };
+	return vertexBindingDescriptions;
+}
+
+std::vector<VkVertexInputAttributeDescription> createAttrDescrModel()
+{
+	VkVertexInputAttributeDescription positionDescr;
+	positionDescr.binding = 0;
+	positionDescr.location = 0;
+	positionDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+	positionDescr.offset = offsetof(ModelVertex, vert);
+
+	VkVertexInputAttributeDescription colorDescr;
+	colorDescr.binding = 0;
+	colorDescr.location = 1;
+	colorDescr.format = VK_FORMAT_R32G32_SFLOAT;
+	colorDescr.offset = offsetof(ModelVertex, texCoord);
+
+	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+	vertexAttributeDescriptions.push_back(positionDescr);
+	vertexAttributeDescriptions.push_back(colorDescr);
+	return vertexAttributeDescriptions; 
+}
+
 
 
 SGR sgr_object1;
@@ -131,7 +203,12 @@ struct InstanceData {
 	glm::vec2 startText;
 };
 
+struct ModelInstanceData {
+	glm::mat4 model;
+};
+
 SgrInstancesUniformBufferObject rectangles;
+SgrInstancesUniformBufferObject models;
 SgrGlobalUniformBufferObject ubo;
 
 void updateData() {
@@ -144,11 +221,15 @@ void updateData() {
 
 		iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.09));
 
+		ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
+		iMData->model = glm::rotate(iMData->model, glm::radians(3.f), glm::vec3{0,0,1.f});
+
 		lastDraw = SgrTime::now();
 	}
 
 	sgr_object1.updateGlobalUniformBufferObject(ubo);
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);
+	sgr_object1.updateInstancesUniformBufferObject(models);
 };
 
 bool exitFlag = false;
@@ -210,14 +291,14 @@ int main()
 	// create geometry layout (mesh)
 
 	std::string objectName = "rectangle";
-	std::vector<uint16_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
+	std::vector<uint32_t> obMeshIndices = { 0, 1, 2, 2, 3, 0 };
 	std::vector<SgrVertex> obMeshVertices = {{-0.5f, -0.5f, 0},
 											 { 0.5f, -0.5f, 0},
 											 { 0.5f,  0.5f, 0},
 											 {-0.5f,  0.5f, 0}};
 
 	std::string objectName1 = "triangle";
-	std::vector<uint16_t> obMeshIndices1 = { 0, 1, 2 };
+	std::vector<uint32_t> obMeshIndices1 = { 0, 1, 2 };
 	std::vector<SgrVertex> obMeshVertices1 = {{-0.5f, -0.5f, 0},
 											  { 0.5f, -0.5f, 0},	
 											  { 0.5f,  0.5f, 0}};
@@ -228,10 +309,14 @@ int main()
 	std::string obShaderFrag = resourcePath + "/shaders/fragTextureSh.spv";
 	std::string obShaderFragColor = resourcePath + "/shaders/fragColorSh.spv";
 
+	std::string obModelShaderVert = resourcePath + "/shaders/vertObjModel.spv";
+	std::string obModelShaderFrag = resourcePath + "/shaders/fragObjModel.spv";
+
 	SgrGlobalUniformBufferObject objectsUBO;
 	std::string ob1Texture = resourcePath + "/textures/man.png";
 	std::string roadT = resourcePath + "/textures/road.png";
 	std::string ob2Texture = resourcePath + "/textures/tree.png";
+	std::string objmodelT = resourcePath + "/3d_models/viking_room.png";
 
 	// new object layout creating done. Next step - setup this data to SGR and add command to draw.
 
@@ -239,23 +324,33 @@ int main()
 	std::vector<VkVertexInputBindingDescription> bindInpDescr = createBindingDescr();
 	std::vector<VkVertexInputAttributeDescription> attDescr = createAttrDescr();
 
-	rectangles.instnaceCount = 4;
+	std::vector<VkDescriptorSetLayoutBinding> modelDescriptorSets = createDescriptorSetLayoutBinding();
+	std::vector<VkVertexInputBindingDescription> modelBindDescr = createBindingDescrModel();
+	std::vector<VkVertexInputAttributeDescription> modelAttrDescr = createAttrDescrModel();
+
+	rectangles.instnaceCount = 5;
 	rectangles.instanceSize = sizeof(InstanceData);
 	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
 		return 0;
-	SgrBuffer* instanceUBO = nullptr;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(instanceUBO, rectangles.dataSize, rectangles.dynamicAlignment);
+	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment);
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
-	sgr_object1.setupInstancesUniformBufferObject(instanceUBO);
+
+	models.instnaceCount = 2;
+	models.instanceSize = sizeof(ModelInstanceData);
+	if (MemoryManager::createDynamicUniformMemory(models) != sgrOK)
+		return 10;
+	resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment);
+	if (resultCreateBuffer != sgrOK)
+		return resultCreateBuffer;
 
 	SgrBuffer* uboBuffer = nullptr;
 	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject));
 	if (resultCreateBuffer != sgrOK)
 		return resultCreateBuffer;
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
+	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName, obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 	
@@ -295,12 +390,12 @@ int main()
 	std::vector<void*> objectData;
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(texture1));
-	objectData.push_back((void*)(instanceUBO));
+	objectData.push_back((void*)(rectangles.ubo));
 	sgr_object1.writeDescriptorSets("man", objectData);
 
 
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1, obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
+	resultAddNewObject = sgr_object1.addNewObjectGeometry(objectName1, obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
@@ -314,7 +409,7 @@ int main()
 	std::vector<void*>objectData2;
 	objectData2.push_back((void*)(uboBuffer));
 	objectData2.push_back((void*)(texture2));
-	objectData2.push_back((void*)(instanceUBO));
+	objectData2.push_back((void*)(rectangles.ubo));
 	sgr_object1.writeDescriptorSets("tree", objectData2);
 
 
@@ -325,10 +420,10 @@ int main()
 	std::vector<void*> objectData3;
 	objectData3.push_back((void*)(uboBuffer));
 	objectData3.push_back((void*)(road));
-	objectData3.push_back((void*)(instanceUBO));
+	objectData3.push_back((void*)(rectangles.ubo));
 	sgr_object1.writeDescriptorSets("road", objectData3);
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh, obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
+	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh.data(), letterMesh.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 	glm::vec2 letStartMesh(meshLetter.x, meshLetter.y);
@@ -342,8 +437,34 @@ int main()
 	std::vector<void*> objectData4;
 	objectData4.push_back((void*)(uboBuffer));
 	objectData4.push_back((void*)(textImage));
-	objectData4.push_back((void*)(instanceUBO));
+	objectData4.push_back((void*)(rectangles.ubo));
 	sgr_object1.writeDescriptorSets("letter", objectData4);
+
+	if (!loadObjectModel(resourcePath + "/3d_models/viking_room.obj"))
+		return 666;
+	resultAddNewObject = sgr_object1.addNewObjectGeometry("3dobj", modelVert.data(), modelVert.size() * sizeof(ModelVertex), modelInd,
+																						obModelShaderVert,
+																						obModelShaderFrag,
+																						true, modelBindDescr, modelAttrDescr, modelDescriptorSets);
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
+
+	SgrImage* texture3 = nullptr;
+	resultCreateTextureImage = TextureManager::createTextureImage(objmodelT, texture3);
+	if (resultCreateTextureImage != sgrOK)
+		return resultCreateTextureImage;
+
+	sgr_object1.addObjectInstance("room","3dobj",0*models.dynamicAlignment);
+
+	std::vector<void*>objectData5;
+	objectData5.push_back((void*)(uboBuffer));
+	objectData5.push_back((void*)(texture3));
+	objectData5.push_back((void*)(models.ubo));
+	sgr_object1.writeDescriptorSets("room", objectData5);
+
+
+	sgr_object1.addObjectInstance("room2","3dobj",1*models.dynamicAlignment);
+	sgr_object1.writeDescriptorSets("room2", objectData5);
 
 	if (sgr_object1.drawObject("man") != sgrOK)
 		return 100;
@@ -357,6 +478,12 @@ int main()
 	if (sgr_object1.drawObject("letter") != sgrOK)
 		return 400;
 
+	if (sgr_object1.drawObject("room") != sgrOK)
+		return 500;
+
+	if (sgr_object1.drawObject("room2") != sgrOK)
+		return 600;
+
 
 	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
 
@@ -364,7 +491,7 @@ int main()
 // MAN
 	InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
 	iData->model = glm::mat4(1.f);
-	iData->model = glm::translate(iData->model, glm::vec3(0, 0, 0));
+	iData->model = glm::translate(iData->model, glm::vec3(0.3, 0, 0));
 	iData->startMesh = glm::vec2(-0.5,-0.5);
 	iData->startText = glm::vec2(0,0);
 	iData->deltaText.x = (0.111 - 0) / (0.5 - -0.5);
@@ -397,7 +524,16 @@ int main()
 	current->startText = letStartText;
 	current->deltaText = deltaText;
 
+// ROOM
+	ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
+	iMData->model = glm::mat4(1.f);
+	iMData->model = glm::translate(iMData->model,glm::vec3(-1,1,-4.5));
+	iMData->model = glm::rotate(iMData->model,glm::radians(90.f),{1,0,0});
+	iMData->model = glm::rotate(iMData->model,glm::radians(45.f),{0,0,1});
+	iMData->model = glm::scale(iMData->model,glm::vec3(1.5f,1.5f,1.5f));
+
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);
+	sgr_object1.updateInstancesUniformBufferObject(models);
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
 	sgr_object1.updateGlobalUniformBufferObject(ubo);
@@ -441,7 +577,7 @@ int main()
 			objectDataRoad.push_back((void*)(uboBuffer));
 			if (roadText == 1) objectDataRoad.push_back((void*)(road));
 			else objectDataRoad.push_back((void*)(texture1));
-			objectDataRoad.push_back((void*)(instanceUBO));
+			objectDataRoad.push_back((void*)(rectangles.ubo));
 			sgr_object1.writeDescriptorSets("road", objectDataRoad);
 		}
 	}

@@ -15,7 +15,7 @@ private:
 	VkBuffer indexBuffer;
 
 	SgrErrCode execute(VkCommandBuffer* cmdBuffer) override {
-		vkCmdBindIndexBuffer(*cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(*cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 		return sgrOK;
 	}
 };

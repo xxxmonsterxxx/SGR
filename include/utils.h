@@ -35,19 +35,6 @@ using SgrTime = std::chrono::steady_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;
 using SgrVertex = glm::vec3;
 
-struct SgrGlobalUniformBufferObject {
-	glm::mat4 view = glm::mat4(1.f);
-	glm::mat4 proj = glm::mat4(1.f);
-};
-
-struct SgrInstancesUniformBufferObject {
-	void* data = nullptr;
-	size_t instanceSize = 0;
-	size_t instnaceCount = 0;
-	size_t dynamicAlignment = 0;
-	size_t dataSize = 0;
-};
-
 enum SgrErrCode
 {
 	sgrOK,

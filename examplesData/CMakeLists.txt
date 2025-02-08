@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
+set(TINY_OBJ_LOADER_INC_DIR ../modules/tiny_obj_loader)
 
 set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME})
 
@@ -30,7 +31,7 @@ else (WIN32)
     include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
-include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include/SGR)
+include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include/SGR ${TINY_OBJ_LOADER_INC_DIR})
 target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} ${SGR_LIB})
 
 file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

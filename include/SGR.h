@@ -79,7 +79,7 @@ public:
 
 	void setRequiredQueueFamilies(std::vector<VkQueueFlagBits> reqFam);
 
-	SgrErrCode addNewObjectGeometry(std::string name, std::vector<SgrVertex> vertices, std::vector<uint16_t> indices,
+	SgrErrCode addNewObjectGeometry(std::string name, void* vertices, VkDeviceSize verticesSize, std::vector<uint32_t> indices,
 									std::string shaderVert, std::string shaderFrag, bool filled,
 									std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									std::vector<VkVertexInputAttributeDescription> attributDescrtions,
@@ -91,8 +91,7 @@ public:
 	SgrErrCode setupGlobalUniformBufferObject(SgrBuffer* uboBuffer);
 	SgrErrCode updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj);
 
-	SgrErrCode setupInstancesUniformBufferObject(SgrBuffer* dynUBOBuffer);
-	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynamicUBO);
+	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
 	

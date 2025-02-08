@@ -13,6 +13,20 @@ struct SgrBuffer {
 	VkDeviceSize blockRange; // for dynamic uniform buffer
 };
 
+struct SgrGlobalUniformBufferObject {
+	glm::mat4 view = glm::mat4(1.f);
+	glm::mat4 proj = glm::mat4(1.f);
+};
+
+struct SgrInstancesUniformBufferObject {
+	SgrBuffer* ubo = nullptr;
+	void* data = nullptr;
+	size_t instanceSize = 0;
+	size_t instnaceCount = 0;
+	size_t dynamicAlignment = 0;
+	size_t dataSize = 0;
+};
+
 class MemoryManager {
 	friend class SGR;
 	friend class TextureManager;

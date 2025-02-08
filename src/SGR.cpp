@@ -483,13 +483,7 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 	return sgrOK;
 }
 
-SgrErrCode SGR::setupInstancesUniformBufferObject(SgrBuffer* dynUBOBuffer)
-{
-	dynamicUBO = dynUBOBuffer;
-	return sgrOK;
-}
-
-SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> vertices, std::vector<uint16_t> indices,
+SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceSize verticesSize, std::vector<uint32_t> indices,
 									 std::string shaderVert, std::string shaderFrag, bool filled,
 									 std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
@@ -499,15 +493,14 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> ve
 	newObject.name = name;
 
 	// create vertex buffer
-	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 	newObject.vertices = nullptr;
-	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, size, vertices.data());
+	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices);
 	if (resultAllocateMemoryBuffer != sgrOK)
 		return resultAllocateMemoryBuffer;
 
 	// create index buffer
-	newObject.indicesCount = (uint16_t)indices.size();
-	size = sizeof(indices[0]) * indices.size();
+	newObject.indicesCount = (uint32_t)indices.size();
+	VkDeviceSize size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
 	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
 	if (resultAllocateMemoryBuffer != sgrOK)
@@ -617,21 +610,21 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynUBO)
+SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
-	MemoryManager::copyDataToBuffer(dynamicUBO, dynUBO.data);
+	MemoryManager::copyDataToBuffer(dynUBO.ubo, dynUBO.data);
 
-	vkMapMemory(device, dynamicUBO->bufferMemory, 0, dynamicUBO->size, 0, &dynUBO.data);
+	vkMapMemory(device, dynUBO.ubo->bufferMemory, 0, dynUBO.ubo->size, 0, &dynUBO.data);
 
 	VkMappedMemoryRange mappedMemoryRange{};
 	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-	mappedMemoryRange.memory = dynamicUBO->bufferMemory;
-	mappedMemoryRange.size = dynamicUBO->size;
+	mappedMemoryRange.memory = dynUBO.ubo->bufferMemory;
+	mappedMemoryRange.size = dynUBO.ubo->size;
 	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
 
-	vkUnmapMemory(device, dynamicUBO->bufferMemory);
+	vkUnmapMemory(device, dynUBO.ubo->bufferMemory);
 	return sgrOK;
 }
 

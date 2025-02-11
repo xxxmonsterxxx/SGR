@@ -22,7 +22,7 @@ Write-Host ""
 $vulkan_sdk_installed = $false
 Write-Host "1. Checking Vulkan SDK..."
 
-$result = Get-Command vkcube -ErrorAction SilentlyContinue
+$result = Get-Command ${env:VULKAN_SDK}\bin\vkcube -ErrorAction SilentlyContinue
 if ($result) {
     Write-Host "Vulkan SDK already installed."
     $vulkan_sdk_installed = $true
@@ -39,6 +39,7 @@ if ($result) {
         pause
 
         Write-Host "1a. Export Vulkan SDK variables"
+		$env:VULKAN_SDK = [System.Environment]::GetEnvironmentVariable("VULKAN_SDK", "Machine")
         [System.Environment]::SetEnvironmentVariable("DYLD_LIBRARY_PATH", "${env:VULKAN_SDK}\lib;${env:DYLD_LIBRARY_PATH}", [System.EnvironmentVariableTarget]::User)
 
         Write-Host "1b. Checking Vulkan"

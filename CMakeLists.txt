@@ -136,10 +136,6 @@ endif (APPLE)
 
 #######################################
 
-#set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
-
-#set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
-
 set_target_properties(SGR PROPERTIES
 					ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
 					RUNTIME_OUTPUT_DIRECTORY  ${BUILD_DEST}/lib OUTPUT_NAME "SGR"

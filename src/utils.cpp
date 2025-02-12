@@ -56,5 +56,5 @@ std::string getExecutablePath()
 
 double getTimeDuration(SgrTime_t start, SgrTime_t end)
 {
-	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
+	return std::chrono::duration<double, std::chrono::seconds::period>(end - start).count();
 }

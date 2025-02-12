@@ -209,7 +209,7 @@ SgrErrCode SGR::drawFrame()
 	// end commands recording
 	commandManager->endInitCommandBuffers();
 
-	if (windowManager->windowMinimized)
+	if (windowManager->minimized)
 		glfwWaitEvents();
 
 	vkWaitForFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -271,8 +271,8 @@ SgrErrCode SGR::drawFrame()
 
 	result = vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->windowResized) {
-		windowManager->windowResized = false;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->resized) {
+		windowManager->resized = false;
 		unbindAllMeshesAndPiplines();
 		swapChainManager->reinitSwapChain();
 	}

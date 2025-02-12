@@ -111,7 +111,8 @@ enum SgrErrCode
 	sgrDebugMessengerDestructionFailed,
 	sgrDescriptorsSetsUpdated,
 	sgrDescriptorPoolCreateError,
-	sgrResetCommandBuffersError
+	sgrResetCommandBuffersError,
+	sgrInstanceDuplicate
 };
 
 #if __APPLE__

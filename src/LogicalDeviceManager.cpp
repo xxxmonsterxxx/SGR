@@ -22,7 +22,7 @@ VkDevice LogicalDeviceManager::getLogicalDevice()
     return logicalDevice;
 }
 
-SgrErrCode LogicalDeviceManager::initLogicalDevice()
+SgrErrCode LogicalDeviceManager::init()
 {
     // we need to create graphics and present queues
     PhysicalDeviceManager* physDeviceManager = PhysicalDeviceManager::get();

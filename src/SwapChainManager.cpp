@@ -260,7 +260,7 @@ SgrErrCode SwapChainManager::reinitSwapChain()
     if (initFrameBuffers() != sgrOK)
         return sgrReinitFrameBuffersError;
 
-    if (CommandManager::instance->initCommandBuffers() != sgrOK)
+    if (CommandManager::instance->init() != sgrOK)
         return sgrReinitCommandBuffersError;
 
     return sgrOK;

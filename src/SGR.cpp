@@ -89,7 +89,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = logicalDeviceManager->initLogicalDevice();
+	resultInit = logicalDeviceManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -107,7 +107,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = commandManager->initCommandBuffers();
+	resultInit = commandManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -541,6 +541,9 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 	if (findObjectByName(geometry).name == "empty")
 		return sgrUnknownGeometry;
 
+	if (findInstanceByName(name).name != "empty")
+		return sgrInstanceDuplicate;
+
 	SgrObjectInstance newInstance;
 	newInstance.name = name;
 	newInstance.geometry = geometry;
@@ -661,7 +664,7 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 	if (rebuild) {
 		commandManager->freeCommandBuffers(true);
 
-		if (CommandManager::instance->initCommandBuffers() != sgrOK)
+		if (CommandManager::instance->init() != sgrOK)
         	return sgrReinitCommandBuffersError;
 
 		SgrErrCode res = commandManager->beginCommandBuffers();

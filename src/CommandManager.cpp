@@ -75,7 +75,7 @@ SgrErrCode CommandManager::beginCommandBuffers()
     return sgrOK;
 }
 
-SgrErrCode CommandManager::initCommandBuffers()
+SgrErrCode CommandManager::init()
 {
     if (commandPool == VK_NULL_HANDLE) {
         SgrErrCode resultInitCommandPool = initCommandPool();

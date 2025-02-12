@@ -25,16 +25,16 @@ class SGR {
 public:
 	struct SgrObject {
 		std::string name;
-		SgrBuffer* vertices;
-		SgrBuffer* indices;
-		uint16_t indicesCount;
+		SgrBuffer* vertices = nullptr;
+		SgrBuffer* indices = nullptr;
+		uint16_t indicesCount = 0;
 		bool meshDataAndPiplineBinded = false;
 	};
 
 	struct SgrObjectInstance {
 		std::string name;
 		std::string geometry;
-		uint32_t 	uboDataAlignment;
+		uint32_t 	uboDataAlignment = 0;
 		bool		needToDraw = false;
 	};
 

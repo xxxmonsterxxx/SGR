@@ -282,7 +282,7 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = getTimeDuration(startDrawFrameTime,SgrTime::now());
+	float drawFrameTime = static_cast<float>(getTimeDuration(startDrawFrameTime,SgrTime::now()));
 
 	if (drawFrameTime < 1.f/fpsDesired) {
 		#if __linux__ || __APPLE__
@@ -378,8 +378,8 @@ SgrErrCode SGR::checkRequiredExtensionsSupport()
 	vkEnumerateInstanceExtensionProperties(NULL, &extensionSupportedCount, supportedExtensions.data());
 
 	uint32_t founded = 0;
-	for (auto reqExt : instanceRequiredExtensions)
-		for (auto suppExt : supportedExtensions)
+	for (auto& reqExt : instanceRequiredExtensions)
+		for (auto& suppExt : supportedExtensions)
 			if (reqExt == std::string(suppExt.extensionName)) {
 				founded++;
 				break;

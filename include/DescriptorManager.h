@@ -51,7 +51,7 @@ private:
 	};
 	std::vector<SgrDescriptorPended> pendedDescriptorsUpdate;
 
-	VkDescriptorPool uiDescriptorPool;
+	VkDescriptorPool uiDescriptorPool{ VK_NULL_HANDLE };
 	SgrErrCode createDescriptorPoolForUI();
 
 public:

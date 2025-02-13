@@ -55,7 +55,7 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo,
     uint32_t swapChainImageCount = SwapChainManager::instance->imageCount;
     std::vector<VkDescriptorPoolSize> poolSizes;
 
-    for (auto binding : descrInfo.setLayoutBinding) {
+    for (const auto& binding : descrInfo.setLayoutBinding) {
         VkDescriptorPoolSize poolSize;
         poolSize.type = binding.descriptorType;
         poolSize.descriptorCount = swapChainImageCount * binding.descriptorCount; // because we need to allocate for each swap chain image
@@ -132,7 +132,7 @@ SgrErrCode DescriptorManager::updateDescriptorSets()
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
     int i = 0;
     for (auto& descr : pendedDescriptorsUpdate) {
-        vkFreeDescriptorSets(device, allDescriptorSets[descr.idx].descriptorPool, allDescriptorSets[descr.idx].descriptorSets.size(), allDescriptorSets[descr.idx].descriptorSets.data());
+        vkFreeDescriptorSets(device, allDescriptorSets[descr.idx].descriptorPool, static_cast<uint32_t>(allDescriptorSets[descr.idx].descriptorSets.size()), allDescriptorSets[descr.idx].descriptorSets.data());
         vkDestroyDescriptorPool(device, allDescriptorSets[descr.idx].descriptorPool, nullptr);
 
         if (updateDescriptorSets(descr.name, descr.infoName, descr.data, true) == sgrOK)
@@ -282,7 +282,7 @@ SgrErrCode DescriptorManager::destroyDescriptorsData()
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 
     for (auto& descrSets : allDescriptorSets)
-        vkFreeDescriptorSets(device, descrSets.descriptorPool, descrSets.descriptorSets.size(), descrSets.descriptorSets.data());
+        vkFreeDescriptorSets(device, descrSets.descriptorPool, static_cast<uint32_t>(descrSets.descriptorSets.size()), descrSets.descriptorSets.data());
 
     for (auto& descrSets : allDescriptorSets)
         vkDestroyDescriptorPool(device, descrSets.descriptorPool, nullptr);
@@ -316,7 +316,7 @@ SgrErrCode DescriptorManager::createDescriptorPoolForUI()
 	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 	pool_info.maxSets = 1000;
-	pool_info.poolSizeCount = std::size(pool_sizes);
+	pool_info.poolSizeCount = static_cast<uint32_t>(std::size(pool_sizes));
 	pool_info.pPoolSizes = pool_sizes;
 
 	if(vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &pool_info, nullptr, &uiDescriptorPool) != VK_SUCCESS)

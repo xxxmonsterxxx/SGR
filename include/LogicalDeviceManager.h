@@ -43,5 +43,5 @@ private:
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
 
-	SgrErrCode initLogicalDevice();
+	SgrErrCode init();
 };

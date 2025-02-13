@@ -143,22 +143,22 @@ bool getFontData(std::string font_path, unsigned char* &fontPixels, stbtt_bakedc
 	}
 
 	unsigned char* font_data = (unsigned char*)malloc(file_size);
-	if(fread(font_data, 1, file_size, font_ttf) != file_size) {
+	if(font_data && fread(font_data, 1, file_size, font_ttf) != file_size) {
 		printf("Real time corrupted file\n");
 		free(font_data);
 		return false;
 	};
 	fclose(font_ttf);
 
-	int bitmapWidth = 512;
-	int bitmapHeight = 512;
-	width = bitmapWidth;
-	height = bitmapHeight;
+	size_t bitmapWidth = 512;
+	size_t bitmapHeight = 512;
+	width = static_cast<uint32_t>(bitmapWidth);
+	height = static_cast<uint32_t>(bitmapHeight);
 	fontPixels = (unsigned char*)malloc(bitmapWidth*bitmapHeight);
 	const int char_number_to_bake = 96;
 	backedChars = (stbtt_bakedchar*)malloc(char_number_to_bake*sizeof(stbtt_bakedchar));
 
-	int result = stbtt_BakeFontBitmap(font_data, 0, 64, fontPixels, bitmapWidth, bitmapHeight, 32, char_number_to_bake, backedChars);
+	int result = stbtt_BakeFontBitmap(font_data, 0, 64, fontPixels, width, height, 32, char_number_to_bake, backedChars);
 	free(font_data);
 
 	return result;
@@ -176,11 +176,6 @@ void getLetterFontData(char letter, stbtt_bakedchar* fontData, glm::vec4& mesh, 
 	text = glm::vec4(charData.s0, charData.t0, charData.s1, charData.t1);
 }
 
-
-float getSgrTimeDuration(SgrTime_t start, SgrTime_t end)
-{
-	return std::chrono::duration<float, std::chrono::seconds::period>(end - start).count();
-}
 
 std::vector<VkDescriptorSetLayoutBinding> createDescriptorSetLayoutBinding()
 {
@@ -331,10 +326,10 @@ SgrInstancesUniformBufferObject models;
 SgrGlobalUniformBufferObject ubo;
 
 void updateData() {
-	if (getSgrTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
+	if (getTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
 		InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
 		glm::vec2* texCoord = &iData->startText;
-		texCoord->x += 0.111;
+		texCoord->x += 0.111f;
 		if (texCoord->x >= 1)
 			texCoord->x = 0;
 
@@ -391,7 +386,6 @@ void toggleText()
 int main()
 {
 	// This source code is example for using SGR library
-
 	
 	SgrErrCode resultSGRInit = sgr_object1.init();
 	if (resultSGRInit != sgrOK) {
@@ -470,7 +464,7 @@ int main()
 		return resultAddNewObject;
 
 	// add instance man
-	sgr_object1.addObjectInstance("man","rectangle",0*rectangles.dynamicAlignment);
+	sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment));
 
 	SgrImage* texture1 = nullptr;
 	SgrErrCode resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1);
@@ -490,7 +484,7 @@ int main()
 		return resultAddNewObject;
 
 
-	sgr_object1.addObjectInstance("tree","triangle",1*rectangles.dynamicAlignment);
+	sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
@@ -499,7 +493,7 @@ int main()
 	sgr_object1.writeDescriptorSets("tree", objectData);
 
 	// add instance road
-	sgr_object1.addObjectInstance("road","rectangle",2*rectangles.dynamicAlignment);
+	sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment));
 
 	SgrImage* texture2 = nullptr;
 	resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2);
@@ -544,7 +538,7 @@ int main()
 	deltaText.x = (textLetter.z - textLetter.x) / (meshLetter.z - meshLetter.x);
 	deltaText.t = (textLetter.w - textLetter.y) / (meshLetter.w - meshLetter.y);
 	
-	sgr_object1.addObjectInstance("letter", "letterMesh", 3*rectangles.dynamicAlignment);
+	sgr_object1.addObjectInstance("letter", "letterMesh", static_cast<uint32_t>(3*rectangles.dynamicAlignment));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
@@ -575,7 +569,7 @@ int main()
 
 
 	// add model instance 1
-	sgr_object1.addObjectInstance("audi1", "car", 0*models.dynamicAlignment);
+	sgr_object1.addObjectInstance("audi1", "car", static_cast<uint32_t>(0*models.dynamicAlignment));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
@@ -583,7 +577,7 @@ int main()
 	sgr_object1.writeDescriptorSets("audi1", objectData);
 
 	// add model instance 2
-	sgr_object1.addObjectInstance("audi2", "car", 1*models.dynamicAlignment);
+	sgr_object1.addObjectInstance("audi2", "car", static_cast<uint32_t>(1*models.dynamicAlignment));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
@@ -611,7 +605,7 @@ int main()
 
 
 	// add room instance
-	sgr_object1.addObjectInstance("viking_room", "room", 2*models.dynamicAlignment);
+	sgr_object1.addObjectInstance("viking_room", "room", static_cast<uint32_t>(2*models.dynamicAlignment));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
@@ -652,8 +646,8 @@ int main()
 	iData->model = glm::translate(iData->model, glm::vec3(0.3, 0, 0));
 	iData->startMesh = glm::vec2(-0.5,-0.5);
 	iData->startText = glm::vec2(0,0);
-	iData->deltaText.x = (0.111 - 0) / (0.5 - -0.5);
-	iData->deltaText.y = (0.250 - 0) / (0.5 - -0.5);
+	iData->deltaText.x = (0.111f - 0) / (0.5 - -0.5);
+	iData->deltaText.y = (0.250f - 0) / (0.5 - -0.5);
 
 // TRIANGLE
 	iData = (InstanceData*)((uint64_t)rectangles.data + 1*rectangles.dynamicAlignment);

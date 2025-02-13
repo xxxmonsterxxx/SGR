@@ -5,10 +5,10 @@
 void WindowManager::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
 	auto app = reinterpret_cast<WindowManager*>(glfwGetWindowUserPointer(window));
 	if (width == 0 || height == 0)
-		app->windowMinimized = true;
+		app->minimized = true;
 	else {
-		app->windowResized = true;
-		app->windowMinimized = false;
+		app->resized = true;
+		app->minimized = false;
 		if (app->getParrentSGRptr()) {
 			app->requestUpdateSwapChain();
 			app->getParrentSGRptr()->drawFrame();
@@ -94,7 +94,7 @@ void WindowManager::setAspectRatio(uint8_t x, uint8_t y)
 void WindowManager::requestUpdateSwapChain()
 {
 	SwapChainManager::instance->reinitSwapChain();
-	windowResized = false;
+	resized = false;
 }
 
 void WindowManager::destroy()

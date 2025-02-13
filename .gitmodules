@@ -1,9 +1,9 @@
 [submodule "modules/glm"]
 	path = modules/glm
-	url = https://github.com/g-truc/glm
+	url = git@github.com:g-truc/glm
 [submodule "modules/stb"]
 	path = modules/stb
-	url = https://github.com/nothings/stb
+	url = git@github.com:nothings/stb
 [submodule "modules/imgui"]
 	path = modules/imgui
 	url = git@github.com:ocornut/imgui.git

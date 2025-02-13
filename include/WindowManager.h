@@ -60,7 +60,7 @@ private:
 public:
 
 	static WindowManager* get();
-	bool windowResized = false;
-	bool windowMinimized = false;
+	bool resized = false;
+	bool minimized = false;
 	SGR* getParrentSGRptr() { return _parrentSgr; }
 };

@@ -90,7 +90,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = logicalDeviceManager->initLogicalDevice();
+	resultInit = logicalDeviceManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -108,7 +108,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = commandManager->initCommandBuffers();
+	resultInit = commandManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -210,7 +210,7 @@ SgrErrCode SGR::drawFrame()
 	// end commands recording
 	commandManager->endInitCommandBuffers();
 
-	if (windowManager->windowMinimized)
+	if (windowManager->minimized)
 		glfwWaitEvents();
 
 	vkWaitForFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -272,8 +272,8 @@ SgrErrCode SGR::drawFrame()
 
 	result = vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->windowResized) {
-		windowManager->windowResized = false;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->resized) {
+		windowManager->resized = false;
 		unbindAllMeshesAndPiplines();
 		swapChainManager->reinitSwapChain();
 	}
@@ -283,7 +283,7 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = getTimeDuration(startDrawFrameTime,SgrTime::now());
+	float drawFrameTime = static_cast<float>(getTimeDuration(startDrawFrameTime,SgrTime::now()));
 
 	if (drawFrameTime < 1.f/fpsDesired) {
 		#if __linux__ || __APPLE__
@@ -379,8 +379,8 @@ SgrErrCode SGR::checkRequiredExtensionsSupport()
 	vkEnumerateInstanceExtensionProperties(NULL, &extensionSupportedCount, supportedExtensions.data());
 
 	uint32_t founded = 0;
-	for (auto reqExt : instanceRequiredExtensions)
-		for (auto suppExt : supportedExtensions)
+	for (auto& reqExt : instanceRequiredExtensions)
+		for (auto& suppExt : supportedExtensions)
 			if (reqExt == std::string(suppExt.extensionName)) {
 				founded++;
 				break;
@@ -535,6 +535,9 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 	if (findObjectByName(geometry).name == "empty")
 		return sgrUnknownGeometry;
 
+	if (findInstanceByName(name).name != "empty")
+		return sgrInstanceDuplicate;
+
 	SgrObjectInstance newInstance;
 	newInstance.name = name;
 	newInstance.geometry = geometry;
@@ -655,7 +658,7 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 	if (rebuild) {
 		commandManager->freeCommandBuffers(true);
 
-		if (CommandManager::instance->initCommandBuffers() != sgrOK)
+		if (CommandManager::instance->init() != sgrOK)
         	return sgrReinitCommandBuffersError;
 
 		SgrErrCode res = commandManager->beginCommandBuffers();

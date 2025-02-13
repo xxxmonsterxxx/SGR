@@ -61,7 +61,7 @@ public:
 private:
     static UIManager* _instance;
 
-    GLFWwindow* _window;
+    GLFWwindow* _window = nullptr;
 
     std::vector<SgrUIElement*> elementsToDraw{};
 

@@ -21,6 +21,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 #if ON_SCREEN_RENDER
 	requiredQueueFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
 	deviceRequiredExtensions.push_back("VK_KHR_swapchain");
+	deviceRequiredExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 #endif
 #if __APPLE__
 	// since VulkanSDK 1.3.216 we should to add this

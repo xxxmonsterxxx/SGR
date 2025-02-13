@@ -27,7 +27,7 @@ public:
 		std::string name;
 		SgrBuffer* vertices;
 		SgrBuffer* indices;
-		uint16_t indicesCount;
+		uint32_t indicesCount;
 		bool meshDataAndPiplineBinded = false;
 	};
 

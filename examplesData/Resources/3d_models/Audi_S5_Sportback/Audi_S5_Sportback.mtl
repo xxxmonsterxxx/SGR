@@ -1,0 +1,328 @@
+newmtl MeshesglassClear0011Mtl
+Material Color
+Ka 0.940601 0.940601 0.940601
+Kd 0.940601 0.940601 0.940601
+Ks 0.56436 0.56436 0.56436 
+
+d 0.152941
+
+Ns 0
+
+map_Ka MeshesglassRed71_diff.png
+map_Kd MeshesglassRed71_diff.png
+map_d MeshesglassRed71_diff.png
+
+map_Bump MeshesglassRed71_nmap.png
+
+map_Ns MeshesglassRed71_spec.png
+
+newmtl Drl5Mtl
+Material Color
+Ka 0.618686 0.618686 0.618686
+Kd 0.618686 0.618686 0.618686
+Ks 0.371211 0.371211 0.371211 
+
+d 1
+
+Ns 0
+
+newmtl Meshesglass61Mtl
+Material Color
+Ka 0.00258583 0.00258583 0.00258583
+Kd 0.00258583 0.00258583 0.00258583
+Ks 0.0015515 0.0015515 0.0015515 
+
+d 1
+
+Ns 0
+
+map_Ka MeshesglassRed71_diff.png
+map_Kd MeshesglassRed71_diff.png
+map_d MeshesglassRed71_diff.png
+
+map_Bump MeshesglassRed71_nmap.png
+
+map_Ns MeshesglassRed71_spec.png
+
+newmtl Rv2Mtl
+Material Color
+Ka 0.940601 0.940601 0.940601
+Kd 0.940601 0.940601 0.940601
+Ks 0.56436 0.56436 0.56436 
+
+d 0.603922
+
+Ns 0
+
+newmtl MeshesglassRed61Mtl
+Material Color
+Ka 0.315763 0 0
+Kd 0.315763 0 0
+Ks 0.189458 0 0 
+
+d 1
+
+Ns 0
+
+newmtl Meshpart2Mtl
+Material Color
+Ka 0.940601 0.940601 0.940601
+Kd 0.940601 0.940601 0.940601
+Ks 0.56436 0.56436 0.56436 
+
+d 1
+
+Ns 0
+
+newmtl Dashsc1Mtl
+Material Color
+Ka 0.00258583 0.00258583 0.00258583
+Kd 0.00258583 0.00258583 0.00258583
+Ks 0.0015515 0.0015515 0.0015515 
+
+d 1
+
+Ns 0
+
+newmtl Reflector1Mtl
+Material Color
+Ka 0.284452 0.280124 0.288816
+Kd 0.284452 0.280124 0.288816
+Ks 0.170671 0.168075 0.17329 
+
+d 1
+
+Ns 0
+
+newmtl 11Mtl
+Material Color
+Ka 0.00258583 0.00258583 0.00258583
+Kd 0.00258583 0.00258583 0.00258583
+Ks 0.0015515 0.0015515 0.0015515 
+
+d 0.301961
+
+Ns 0
+
+newmtl 12Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.803922
+
+Ns 0
+
+map_Ka 12_diff.png
+map_Kd 12_diff.png
+map_d 12_diff.png
+
+newmtl Mesheslights00561Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Mesheslights00561_diff.png
+map_Kd Mesheslights00561_diff.png
+map_d Mesheslights00561_diff.png
+
+newmtl Meshespaint131Mtl
+Material Color
+Ka 0.598942 0.605484 0.645555
+Kd 0.598942 0.605484 0.645555
+Ks 0.359365 0.363291 0.387333 
+
+d 1
+
+Ns 0
+
+newmtl Caliper1Mtl
+Material Color
+Ka 0.315763 0 0
+Kd 0.315763 0 0
+Ks 0.189458 0 0 
+
+d 1
+
+Ns 0
+
+map_Ka Meshpart1_diff.png
+map_Kd Meshpart1_diff.png
+map_d Meshpart1_diff.png
+
+map_Bump Meshpart1_nmap.png
+
+map_Ns Meshpart1_spec.png
+
+newmtl Mesheschassis11Mtl
+Material Color
+Ka 0 0 0
+Kd 0 0 0
+Ks 0 0 0 
+
+d 1
+
+Ns 0
+
+newmtl Meshesinterior11Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesinterior11_diff.png
+map_Kd Meshesinterior11_diff.png
+map_d Meshesinterior11_diff.png
+
+newmtl Meshesbadges1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbadges1_diff.png
+map_Kd Meshesbadges1_diff.png
+map_d Meshesbadges1_diff.png
+
+newmtl Mesheslights00391Mtl
+Material Color
+Ka 0.373615 0.368591 0.383775
+Kd 0.373615 0.368591 0.383775
+Ks 0.224169 0.221155 0.230265 
+
+d 1
+
+Ns 0
+
+newmtl Meshesengine1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesengine1_diff.png
+map_Kd Meshesengine1_diff.png
+map_d Meshesengine1_diff.png
+
+newmtl Plate1Mtl
+Material Color
+Ka 0.804559 0.804559 0.84337
+Kd 0.804559 0.804559 0.84337
+Ks 0.482735 0.482735 0.506022 
+
+d 1
+
+Ns 0
+
+newmtl MeshesglassRed71Mtl
+Material Color
+Ka 0.315763 0 0
+Kd 0.315763 0 0
+Ks 0.189458 0 0 
+
+d 0.603922
+
+Ns 0
+
+map_Ka MeshesglassRed71_diff.png
+map_Kd MeshesglassRed71_diff.png
+map_d MeshesglassRed71_diff.png
+
+map_Bump MeshesglassRed71_nmap.png
+
+map_Ns MeshesglassRed71_spec.png
+
+newmtl Mesheslights141Mtl
+Material Color
+Ka 1 0 0
+Kd 1 0 0
+Ks 0.6 0 0 
+
+d 1
+
+Ns 0
+
+newmtl Remote1Mtl
+Material Color
+Ka 0.00715504 0.018913 0.0315514
+Kd 0.00715504 0.018913 0.0315514
+Ks 0.00429302 0.0113478 0.0189308 
+
+d 1
+
+Ns 0
+
+newmtl Tire1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Tire1_diff.png
+map_Kd Tire1_diff.png
+map_d Tire1_diff.png
+
+newmtl Rotor1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Rotor1_diff.png
+map_Kd Rotor1_diff.png
+map_d Rotor1_diff.png
+
+newmtl Meshespaint141Mtl
+Material Color
+Ka 0.0986892 0.0118813 0.0986892
+Kd 0.0986892 0.0118813 0.0986892
+Ks 0.0592135 0.0071288 0.0592135 
+
+d 1
+
+Ns 0
+
+newmtl Meshpart1Mtl
+Material Color
+Ka 0.00258583 0.00258583 0.00258583
+Kd 0.00258583 0.00258583 0.00258583
+Ks 0.0015515 0.0015515 0.0015515 
+
+d 1
+
+Ns 0
+
+map_Ka Meshpart1_diff.png
+map_Kd Meshpart1_diff.png
+map_d Meshpart1_diff.png
+
+map_Bump Meshpart1_nmap.png
+
+map_Ns Meshpart1_spec.png
+

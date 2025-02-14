@@ -57,11 +57,13 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 			vertex.vert.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.vert.z = attrib.vertices[3 * index.vertex_index + 2];
 
+#if NDBUG == FALSE
 			auto it = std::find(vertices.begin(), vertices.end(), vertex);
 			if (it != vertices.end()) {
 				indices.push_back(std::distance(vertices.begin(), it));
 				continue;
 			}
+#endif
 
 			vertex.texCoord = {			attrib.texcoords[2 * index.texcoord_index + 0],
     						 	 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
@@ -704,11 +706,11 @@ int main()
 
 	// add UI
 	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");
-	exitButton.setSize({50,50});
+	exitButton._size = {50,50};
 	SgrUIButton b1("ButtonC1", {0.1, 0.3}, toggleRoadText, "Change road texture");
 
 	SgrUIButton hideT("HideText", {0.5, 0.87}, toggleText, "Hide");
-	hideT.setSize({ 50,20 });
+	hideT._size = { 50,20 };
 	SgrUIText t1("Text1", {0.5, 0.9}, "Simple Graphics Renderer");
 
 	sgr_object1.drawUIElement(exitButton);
@@ -728,7 +730,7 @@ int main()
 			return resultDrawFrame;
 
 		if (toggleTextFlag) {
-			t1.show(!textHided);
+			t1._visible= !textHided;
 			toggleTextFlag = false;
 			if (textHided)
 				hideT.changeText("Show");

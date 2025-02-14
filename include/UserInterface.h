@@ -2,47 +2,53 @@
 
 #include "utils.h"
 
+class UIManager;
+
 class SgrUIElement {
+    friend UIManager;
 public:
     SgrUIElement(std::string name, glm::vec2 pos);
-    ~SgrUIElement(){;}
+    virtual ~SgrUIElement() = default;
 
-    void show(bool visible);
-
-    virtual void draw() = 0;
-    virtual void setPos(glm::vec2 pos);
-    virtual void beginElement();
-    virtual void setSize(glm::vec2 size);
-
-protected:
-    std::string _name = "Name";
     glm::vec2 _position{ 0.5,0.5 };
     glm::vec2 _size{ 50,50 };
     bool _visible = true;
+
+    virtual void beginElement();
+
+protected:
+    std::string _name = "Name";
+    
+    virtual void draw() = 0;
+    virtual void setPos(glm::vec2 pos);
 };
 
 class SgrUIButton : public SgrUIElement {
 public:
     SgrUIButton(std::string name, glm::vec2 pos, void (*callbackFunc)(), std::string text=std::string("Button"));
     ~SgrUIButton() {;}
-    void draw() override;
 
     void changeText(std::string newText);
     
 private:
     std::string _text{};
     void (*buttonFunction)() = nullptr;
+
+protected:
+    void draw() override;
 };
 
 class SgrUIText : public SgrUIElement {
 public:
     SgrUIText(std::string name, glm::vec2 pos, std::string text=std::string());
     ~SgrUIText(){;}
-    void draw() override;
 
     void changeText(std::string newText);
 private:
     std::string _text{};
+
+protected:
+    void draw() override;
 };
 
 class CommandManager;

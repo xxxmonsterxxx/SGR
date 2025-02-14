@@ -88,11 +88,6 @@ SgrUIElement::SgrUIElement(std::string name, glm::vec2 pos) : _name(name), _posi
 {
 }
 
-void SgrUIElement::show(bool visible)
-{
-    _visible = visible;
-}
-
 void SgrUIElement::beginElement()
 {
     ImGui::SetNextWindowSize(ImVec2(0, 0));
@@ -105,11 +100,6 @@ void SgrUIElement::setPos(glm::vec2 pos)
 {
     ImVec2 windowSize = ImGui::GetIO().DisplaySize;
     ImGui::SetCursorScreenPos({_position.x * windowSize.x, _position.y * windowSize.y});
-}
-
-void SgrUIElement::setSize(glm::vec2 size)
-{
-    _size = size;
 }
 
 SgrUIButton::SgrUIButton(std::string name, glm::vec2 pos, void (*callbackFunc)(), std::string text) :

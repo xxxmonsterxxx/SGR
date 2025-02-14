@@ -6,10 +6,9 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 	#include "stb_truetype.h"
 
-
-
 #define TINYOBJLOADER_IMPLEMENTATION
 	#include "tiny_obj_loader.h"
+
 
 struct ModelVertex {
 	SgrVertex vert;
@@ -752,3 +751,14 @@ int main()
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();
 	return resultSGRDestroy;
 }
+
+
+#if _WIN64
+	#include "Windows.h"
+
+
+	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+		return main();
+	}
+
+#endif

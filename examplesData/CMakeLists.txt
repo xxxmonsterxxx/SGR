@@ -11,7 +11,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exampleApplication)
 
 file(GLOB SOURCES test.cpp)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_executable(${PROJECT_NAME} WIN32 ${SOURCES} Resources/logo/icon.rc)
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES})
+endif()
 
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
@@ -48,7 +52,23 @@ if (WIN32)
     )
 
     add_dependencies(${PROJECT_NAME} CopyDlls)
-endif()
 
+    #if (MAKE_INSTALL_PACKAGE)
+	#    include(CPack)
+    #
+	#    set(CPACK_GENERATOR "WIX")
+	#    set(CPACK_PACKAGE_NAME "SGR installer")
+	#    set(CPACK_PACKAGE_VERSION ${VERSION})
+	#    set(CPACK_PACKAGE_INSTALL_DIRECTORY "MyApp")
+    #
+	#    add_custom_command(
+	#    	TARGET ${PROJECT_NAME}
+	#    	POST_BUILD
+	#    	COMMAND ${CMAKE_COMMAND} -E echo "Generating installer..."
+	#    	COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR} cpack --config CPackConfig.cmake
+	#    )
+    #endif()
+
+endif()
 
 ###########################################################################

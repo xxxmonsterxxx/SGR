@@ -1,6 +1,6 @@
 ##########################################################################
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(SGR_test)
 
@@ -13,8 +13,44 @@ file(GLOB SOURCES test.cpp)
 
 if (WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
     add_executable(${PROJECT_NAME} WIN32 ${SOURCES} Resources/logo/icon.rc)
-else()
+elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(MACOSX_BUNDLE TRUE)
+
+    file(GLOB_RECURSE RESOURCE_FILES "Resources/*")
+    foreach (FILE ${RESOURCE_FILES})
+        file(RELATIVE_PATH NEW_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources ${FILE})
+        get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
+        set_source_files_properties(${FILE}
+                                    PROPERTIES
+                                    MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}"
+                                    HEADER_FILE_ONLY ON)
+    endforeach()
+
+    set(MACOSX_BUNDLE_ICON_FILE "logo/Logo.icns")
+
+    add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES}
+                                                 ${RESOURCE_FILES})
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+                                          MACOSX_BUNDLE_BUNDLE_NAME "SGR"
+    )
+
+    set(BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app)
+    set(FRAMEWORKS_PATH ${BUNDLE_PATH}/Contents/Frameworks)
+    set(ICD_PATH ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${FRAMEWORKS_PATH}
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${ICD_PATH}
+                    
+                    COMMAND ${CMAKE_COMMAND} -E copy $ENV{VULKAN_SDK}/lib/libvulkan.1.dylib ${FRAMEWORKS_PATH}
+                    COMMAND ${CMAKE_COMMAND} -E copy $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib ${FRAMEWORKS_PATH}
+
+                    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Resources/icd.d/MoltenVK_icd.json ${ICD_PATH}
+                    COMMAND codesign --deep --force --verbose --sign - ${BUNDLE_PATH}
+                    COMMENT "Signing the application bundle...")
+else ()
     add_executable(${PROJECT_NAME} ${SOURCES})
+    file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 set(GLM_INC_DIR ../modules/glm)
@@ -37,8 +73,6 @@ endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include/SGR ${TINY_OBJ_LOADER_INC_DIR})
 target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} ${SGR_LIB})
-
-file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 if (WIN32)
     set(DLL_FILES ${BUILD_DEST}/lib/SGR.dll $ENV{GLFW3_LIB}/lib/glfw3.dll)

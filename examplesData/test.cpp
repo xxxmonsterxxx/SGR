@@ -397,7 +397,13 @@ int main()
 	std::string executablePath = getExecutablePath();
 	if (executablePath.length() == 0)
 		return 11;
+
+#if __APPLE__ && !NDBUG
+	std::string resourcePath = executablePath + "/../Resources";
+#else
 	std::string resourcePath = executablePath + "/Resources";
+#endif
+
 
 	sgr_object1.setApplicationLogo(resourcePath + "/logo/Logo64.png");
 

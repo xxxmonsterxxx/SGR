@@ -201,7 +201,7 @@ cd ..
 
 
 # Example build and run if requested
-if [ $EXAMPLE_BUILD == true ]
+if [ $EXAMPLE_BUILD == true ] && [ $BUILD_TYPE == debug ]
 then
 	./build/exampleApplication/SGR_test
 fi

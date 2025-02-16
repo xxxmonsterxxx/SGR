@@ -1,4 +1,4 @@
-# ***Simple Graphics Renderer ver. 0.10.0*** 
+# ***Simple Graphics Renderer ver. 0.11.0*** 
 [![SGR autobuild](https://github.com/xxxmonsterxxx/SGR/actions/workflows/ci.yml/badge.svg)](https://github.com/xxxmonsterxxx/SGR/actions/workflows/ci.yml)
 
 ![Image of project](https://i.postimg.cc/4xrKg1gS/2022-02-01-14-38-36-1.jpg)
@@ -72,6 +72,7 @@ Use this to see all given options for building and debugging.
 ```
 
 **In result you should to see something like this**
+
 ![Gif of project](https://i.postimg.cc/cLfVFPQ0/0217.gif)
 
 Also are presented release builded example projects for different systems:

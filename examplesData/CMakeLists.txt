@@ -61,7 +61,6 @@ set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${C
 
 find_package(Vulkan 1.3.283.0 REQUIRED)
 
-find_library(SGR_LIB SGR ${SGR_FOLDER}/lib NO_DEFAULT_PATH)
 
 if (WIN32)
 	include_directories($ENV{GLFW3_LIB}/include/GLFW)
@@ -72,7 +71,7 @@ else (WIN32)
 endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${SGR_FOLDER}/include/SGR ${TINY_OBJ_LOADER_INC_DIR})
-target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} ${SGR_LIB})
+target_link_libraries (${PROJECT_NAME} ${Vulkan_LIBRARIES} SGR)
 
 if (WIN32)
     set(DLL_FILES ${BUILD_DEST}/lib/SGR.dll $ENV{GLFW3_LIB}/lib/glfw3.dll)

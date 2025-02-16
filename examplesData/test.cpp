@@ -90,12 +90,12 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 						else {
 							textures.push_back(texture);
 							addedTextures.push_back(requiredTexture);
-							vertex.texInd = textures.size() - 1;
+							vertex.texInd = (int)(textures.size()) - 1;
 						}
 					}
 					else {
 						auto it = std::find(addedTextures.begin(), addedTextures.end(), requiredTexture);
-						vertex.texInd = std::distance(addedTextures.begin(), it);
+						vertex.texInd = (int)std::distance(addedTextures.begin(), it);
 						if (vertex.texInd < 0 || vertex.texInd > addedTextures.size() - 1) {
 							return false;
 						}
@@ -104,7 +104,7 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 			}
 
 			vertices.push_back(vertex);
-			indices.push_back(vertices.size()-1);
+			indices.push_back((uint32_t)(vertices.size())-1);
     	}
 		shapeAdded++;
 	}
@@ -570,7 +570,7 @@ int main()
 																						true,
 																						createBindingDescrModel(),
 																						createAttrDescrModel(),
-																						createDescriptorSetLayoutBindingModel(audiTextures.size()));
+																						createDescriptorSetLayoutBindingModel((uint8_t)audiTextures.size()));
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;
 
@@ -605,7 +605,7 @@ int main()
 																							true,
 																							createBindingDescrModel(),
 																							createAttrDescrModel(),
-																							createDescriptorSetLayoutBindingModel(roomTextures.size()));
+																							createDescriptorSetLayoutBindingModel((uint8_t)roomTextures.size()));
 
 	if (resultAddNewObject != sgrOK)
 		return resultAddNewObject;

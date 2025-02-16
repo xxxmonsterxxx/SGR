@@ -21,6 +21,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 #if ON_SCREEN_RENDER
 	requiredQueueFamilies.push_back(VK_QUEUE_GRAPHICS_BIT); // because graphics bit support also transfer bit
 	deviceRequiredExtensions.push_back("VK_KHR_swapchain");
+	deviceRequiredExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 #endif
 #if __APPLE__
 	// since VulkanSDK 1.3.216 we should to add this
@@ -89,7 +90,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = logicalDeviceManager->initLogicalDevice();
+	resultInit = logicalDeviceManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -107,7 +108,7 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (resultInit != sgrOK)
 		return resultInit;
 
-	resultInit = commandManager->initCommandBuffers();
+	resultInit = commandManager->init();
 	if (resultInit != sgrOK)
 		return resultInit;
 
@@ -209,7 +210,7 @@ SgrErrCode SGR::drawFrame()
 	// end commands recording
 	commandManager->endInitCommandBuffers();
 
-	if (windowManager->windowMinimized)
+	if (windowManager->minimized)
 		glfwWaitEvents();
 
 	vkWaitForFences(logicalDeviceManager->logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -271,8 +272,8 @@ SgrErrCode SGR::drawFrame()
 
 	result = vkQueuePresentKHR(logicalDeviceManager->presentQueue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->windowResized) {
-		windowManager->windowResized = false;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || windowManager->resized) {
+		windowManager->resized = false;
 		unbindAllMeshesAndPiplines();
 		swapChainManager->reinitSwapChain();
 	}
@@ -282,7 +283,7 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = getTimeDuration(startDrawFrameTime,SgrTime::now());
+	float drawFrameTime = static_cast<float>(getTimeDuration(startDrawFrameTime,SgrTime::now()));
 
 	if (drawFrameTime < 1.f/fpsDesired) {
 		#if __linux__ || __APPLE__
@@ -378,8 +379,8 @@ SgrErrCode SGR::checkRequiredExtensionsSupport()
 	vkEnumerateInstanceExtensionProperties(NULL, &extensionSupportedCount, supportedExtensions.data());
 
 	uint32_t founded = 0;
-	for (auto reqExt : instanceRequiredExtensions)
-		for (auto suppExt : supportedExtensions)
+	for (auto& reqExt : instanceRequiredExtensions)
+		for (auto& suppExt : supportedExtensions)
 			if (reqExt == std::string(suppExt.extensionName)) {
 				founded++;
 				break;
@@ -483,13 +484,7 @@ SgrErrCode SGR::setRenderPhysicalDevice(SgrPhysicalDevice sgrDevice)
 	return sgrOK;
 }
 
-SgrErrCode SGR::setupInstancesUniformBufferObject(SgrBuffer* dynUBOBuffer)
-{
-	dynamicUBO = dynUBOBuffer;
-	return sgrOK;
-}
-
-SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> vertices, std::vector<uint16_t> indices,
+SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceSize verticesSize, std::vector<uint32_t> indices,
 									 std::string shaderVert, std::string shaderFrag, bool filled,
 									 std::vector<VkVertexInputBindingDescription> bindingDescriptions,
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
@@ -499,15 +494,14 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, std::vector<SgrVertex> ve
 	newObject.name = name;
 
 	// create vertex buffer
-	VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 	newObject.vertices = nullptr;
-	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, size, vertices.data());
+	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices);
 	if (resultAllocateMemoryBuffer != sgrOK)
 		return resultAllocateMemoryBuffer;
 
 	// create index buffer
-	newObject.indicesCount = (uint16_t)indices.size();
-	size = sizeof(indices[0]) * indices.size();
+	newObject.indicesCount = (uint32_t)indices.size();
+	VkDeviceSize size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
 	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
 	if (resultAllocateMemoryBuffer != sgrOK)
@@ -540,6 +534,9 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 {
 	if (findObjectByName(geometry).name == "empty")
 		return sgrUnknownGeometry;
+
+	if (findInstanceByName(name).name != "empty")
+		return sgrInstanceDuplicate;
 
 	SgrObjectInstance newInstance;
 	newInstance.name = name;
@@ -617,21 +614,21 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject dynUBO)
+SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
-	MemoryManager::copyDataToBuffer(dynamicUBO, dynUBO.data);
+	MemoryManager::copyDataToBuffer(dynUBO.ubo, dynUBO.data);
 
-	vkMapMemory(device, dynamicUBO->bufferMemory, 0, dynamicUBO->size, 0, &dynUBO.data);
+	vkMapMemory(device, dynUBO.ubo->bufferMemory, 0, dynUBO.ubo->size, 0, &dynUBO.data);
 
 	VkMappedMemoryRange mappedMemoryRange{};
 	mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-	mappedMemoryRange.memory = dynamicUBO->bufferMemory;
-	mappedMemoryRange.size = dynamicUBO->size;
+	mappedMemoryRange.memory = dynUBO.ubo->bufferMemory;
+	mappedMemoryRange.size = dynUBO.ubo->size;
 	vkFlushMappedMemoryRanges(device, 1, &mappedMemoryRange);
 
-	vkUnmapMemory(device, dynamicUBO->bufferMemory);
+	vkUnmapMemory(device, dynUBO.ubo->bufferMemory);
 	return sgrOK;
 }
 
@@ -661,7 +658,7 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 	if (rebuild) {
 		commandManager->freeCommandBuffers(true);
 
-		if (CommandManager::instance->initCommandBuffers() != sgrOK)
+		if (CommandManager::instance->init() != sgrOK)
         	return sgrReinitCommandBuffersError;
 
 		SgrErrCode res = commandManager->beginCommandBuffers();

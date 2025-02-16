@@ -1,37 +1,7 @@
 ﻿{
   "configurations": [
     {
-      "name": "SGR-Debug",
-      "generator": "Ninja",
-      "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\build",
-      "installRoot": "${projectDir}\\build",
-      "variables": [
-        {
-          "name": "BUILD_EXAMPLE",
-          "value": "FALSE",
-          "type": "STRING"
-        }
-      ]
-    },
-    {
-      "name": "SGR-Release",
-      "generator": "Ninja",
-      "configurationType": "Release",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\build",
-      "installRoot": "C:\\Libs\\SGR",
-      "variables": [
-        {
-          "name": "BUILD_EXAMPLE",
-          "value": "FALSE",
-          "type": "STRING"
-        }
-      ]
-    },
-    {
-      "name": "SGR_test",
+      "name": "SGR(Debug)",
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
@@ -42,6 +12,53 @@
       "variables": [
         {
           "name": "BUILD_EXAMPLE",
+          "value": "TRUE",
+          "type": "STRING"
+        },
+        {
+          "name": "MAKE_INSTALL_PACKAGE",
+          "value": "FALSE",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "SGR(Release)",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\examplesData\\build",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "TRUE",
+          "type": "STRING"
+        },
+        {
+          "name": "MAKE_INSTALL_PACKAGE",
+          "value": "FALSE",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "SGR-Release-Installer",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\build",
+      "installRoot": "C:\\Libs\\SGR",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "BUILD_EXAMPLE",
+          "value": "TRUE",
+          "type": "STRING"
+        },
+        {
+          "name": "MAKE_INSTALL_PACKAGE",
           "value": "TRUE",
           "type": "STRING"
         }

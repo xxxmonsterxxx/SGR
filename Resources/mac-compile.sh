@@ -15,7 +15,7 @@ for entry in `find . -type f -name "*.frag" & find . -type f -name "*.vert"`; do
 		mkdir CompiledShaders
 		FOLDER_CREATED=true
 	fi
-	~/Programming/Library/VulkanSDK/1.2.176.1/macOS/bin/glslc $entry -o CompiledShaders/$SHADER_NAME.spv
+	~/Libs/VulkanSDK/latest/macOS/bin/glslc $entry -o CompiledShaders/$SHADER_NAME.spv
 	echo "$entry -> CompiledShaders/$entry.spv"
 done
 

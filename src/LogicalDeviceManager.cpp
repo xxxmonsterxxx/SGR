@@ -22,7 +22,7 @@ VkDevice LogicalDeviceManager::getLogicalDevice()
     return logicalDevice;
 }
 
-SgrErrCode LogicalDeviceManager::initLogicalDevice()
+SgrErrCode LogicalDeviceManager::init()
 {
     // we need to create graphics and present queues
     PhysicalDeviceManager* physDeviceManager = PhysicalDeviceManager::get();
@@ -54,6 +54,21 @@ SgrErrCode LogicalDeviceManager::initLogicalDevice()
     createInfo.enabledExtensionCount = enabledExtensionsCount;
     createInfo.ppEnabledExtensionNames = enabledExtensions.data();
     createInfo.enabledLayerCount = 0;
+
+    VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{};
+    physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    physicalDeviceFeatures2.features = sgrDevice.deviceFeatures;
+        
+    VkPhysicalDeviceDescriptorIndexingFeaturesEXT physicalDeviceDescriptorIndexingFeatures{};
+    physicalDeviceDescriptorIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+    physicalDeviceDescriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures.runtimeDescriptorArray = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    
+    physicalDeviceFeatures2.pNext = &physicalDeviceDescriptorIndexingFeatures;
+
+    createInfo.pEnabledFeatures = nullptr;
+    createInfo.pNext = &physicalDeviceFeatures2;
 
     if (vkCreateDevice(sgrDevice.vkPhysDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS)
         return sgrInitLogicalDeviceError;

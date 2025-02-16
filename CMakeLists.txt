@@ -1,6 +1,6 @@
 ############ S I M P L E   G R A P H I C S   R E N D E R E R #############
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(SGR DESCRIPTION "Simple Graphics Renderer")
 
@@ -30,12 +30,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source 
 else ()
 	add_definitions(-DNDBUG=true)
 endif ()
-
-# If we want to example project build
-if (BUILD_EXAMPLE)
-	add_subdirectory(examplesData)
-	return()
-endif()
 
 #######################################
 
@@ -136,10 +130,6 @@ endif (APPLE)
 
 #######################################
 
-#set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME}) # set build destination
-
-#set_target_properties(SGR PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR")
-
 set_target_properties(SGR PROPERTIES
 					ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
 					RUNTIME_OUTPUT_DIRECTORY  ${BUILD_DEST}/lib OUTPUT_NAME "SGR"
@@ -197,5 +187,12 @@ include(ProcessorCount)
 ProcessorCount(N)
 
 message("Ready to build on " ${PLATFORM_NAME})
+
+#######################################
+
+# If we want to example project build
+if (BUILD_EXAMPLE)
+	add_subdirectory(examplesData)
+endif()
 
 ##########################################################################

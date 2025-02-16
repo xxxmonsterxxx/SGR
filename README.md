@@ -71,6 +71,14 @@ Linux and MacOS:
 Use this to see all given options for building and debugging.
 ```
 
+**In result you should to see something like this**
+![Gif of project](https://i.postimg.cc/cLfVFPQ0/0217.gif)
+
+Also are presented release builded example projects for different systems:
+- [Windows](https://drive.google.com/file/d/1EHSZGDK2KNPAjeVvmG5eSaR14COx7gP-/view?usp=sharing)
+- [MacOS](https://drive.google.com/file/d/1HEEnrqS26Sr7wE-3bwWuPWpwlFXXWDSA/view?usp=sharing)
+- [Linux (empty)]()
+
 #### ***References:***
 1. [Simple Game Engine](https://github.com/xxxmonsterxxx/SGE) - Game engine based on this SGR library
 2. [Vulkan tutorial](https://vulkan-tutorial.com/)

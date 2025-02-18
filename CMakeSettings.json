@@ -30,6 +30,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
+      "installRoot": "C:\\Libs\\SGR",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "variables": [
         {

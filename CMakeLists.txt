@@ -64,6 +64,7 @@ set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
 
 if (WIN32)
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2") #optimization
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # /MD runtime library
 else ()
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
 endif ()

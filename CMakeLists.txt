@@ -88,10 +88,10 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #######################################
 
-# Убираем абсолютные пути при линковке
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "@executable_path")
-
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+	set(CMAKE_INSTALL_RPATH "@executable_path")
+endif()
 
 add_library(SGR SHARED ${SOURCES})
 

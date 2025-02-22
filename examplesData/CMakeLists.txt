@@ -37,9 +37,8 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
     set_target_properties(${PROJECT_NAME} PROPERTIES
                                           MACOSX_BUNDLE TRUE
                                           MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
-                                          #MACOSX_BUNDLE_GUI_IDENTIFIER "com.SimpleGraphicsFam.SGR"
-                                          MACOSX_BUNDLE_BUNDLE_VERSION "0.11.1"
-                                          MACOSX_BUNDLE_SHORT_VERSION_STRING "0.11"
+                                          MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
+                                          MACOSX_BUNDLE_SHORT_VERSION_STRING ${VMAJOR}.${VMINOR}
                                           MACOSX_BUNDLE_COPYRIGHT "© 2022 SimpleGraphicsFam. All rights reserved."
     )
 

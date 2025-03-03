@@ -96,9 +96,6 @@ do
 		z)	# Remove library
 			REMOVE_LIBRARY=true
 			;;
-		i)	# Need to install
-			INSTALL=true
-			;;
 		h)  # Help
 			Help
 			exit

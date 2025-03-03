@@ -64,6 +64,7 @@ set (CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
 
 if (WIN32)
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2") #optimization
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # /MD runtime library
 else ()
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3") #optimization
 endif ()
@@ -87,11 +88,13 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #######################################
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+	set(CMAKE_INSTALL_RPATH "@executable_path")
+endif()
+
 add_library(SGR SHARED ${SOURCES})
 
-set_target_properties(SGR PROPERTIES
-    INSTALL_RPATH_USE_LINK_PATH TRUE
-)
 
 set_target_properties(SGR PROPERTIES
     VERSION ${VERSION}
@@ -112,20 +115,24 @@ if (WIN32)
 	find_library(glfw glfw3 $ENV{GLFW3_LIB}/lib NO_DEFAULT_PATH)
 	include_directories($ENV{GLFW3_LIB}/include/GLFW)
 	include_directories($ENV{GLFW3_LIB}/include/)
-	target_link_libraries (SGR ${glfw})
+	target_link_libraries (SGR PRIVATE ${glfw})
 else (WIN32)
 	find_package(glfw3 3.3 REQUIRED)
-	target_link_libraries (SGR glfw)
+	target_link_libraries (SGR PRIVATE glfw)
 	get_target_property(GLFW3_INCLUDE_DIRS glfw INTERFACE_INCLUDE_DIRECTORIES)
 	include_directories(${GLFW3_INCLUDE_DIRS}/GLFW)
 endif (WIN32)
 
 include_directories(${Vulkan_INCLUDE_DIRS} ${GLM_INC_DIR} ${STB_INC_DIR} ${IMGUI_INC_DIR})
-target_link_libraries (SGR ${Vulkan_LIBRARIES})
+target_link_libraries (SGR PRIVATE ${Vulkan_LIBRARIES})
 
 # linking MacOSX framework libraries
 if (APPLE)
-	target_link_libraries(SGR "-framework CoreFoundation")
+	target_link_libraries(SGR PRIVATE "-framework CoreFoundation")
+
+	add_custom_command(TARGET SGR POST_BUILD
+    	COMMAND install_name_tool -change /opt/homebrew/opt/glfw/lib/libglfw.3.dylib @rpath/libglfw.3.dylib $<TARGET_FILE:SGR>
+	)
 endif (APPLE)
 
 #######################################

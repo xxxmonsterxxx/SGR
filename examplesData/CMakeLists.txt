@@ -82,7 +82,7 @@ if (WIN32)
 
     add_dependencies(${PROJECT_NAME} CopyDlls)
 
-    #if (MAKE_INSTALL_PACKAGE)
+    if (MAKE_INSTALL_PACKAGE)
 	#    include(CPack)
     #
 	#    set(CPACK_GENERATOR "WIX")
@@ -96,7 +96,7 @@ if (WIN32)
 	#    	COMMAND ${CMAKE_COMMAND} -E echo "Generating installer..."
 	#    	COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR} cpack --config CPackConfig.cmake
 	#    )
-    #endif()
+    endif()
 
 endif()
 

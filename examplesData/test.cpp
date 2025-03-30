@@ -345,6 +345,9 @@ void updateData() {
 		iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
 		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,0,1 });
 
+		iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
+		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,1,0 });
+
 		lastDraw = SgrTime::now();
 	}
 
@@ -453,7 +456,7 @@ int main()
 		return resultCreateBuffer;
 
 
-	models.instnaceCount = 3;
+	models.instnaceCount = 4;
 	models.instanceSize = sizeof(ModelInstanceData);
 	if (MemoryManager::createDynamicUniformMemory(models) != sgrOK)
 		return 10;
@@ -620,6 +623,30 @@ int main()
 	sgr_object1.writeDescriptorSets("viking_room", objectData);
 
 
+	std::vector<ModelVertex> bmwVerts;
+	std::vector<uint32_t> bmwInds;
+	std::vector<SgrImage*> bmwTextures;
+	if (!loadObjectModel(resourcePath + "/3d_models/bmw_m3", "bmw_m3", bmwVerts, bmwInds, bmwTextures))
+		return 888;
+
+	resultAddNewObject = sgr_object1.addNewObjectGeometry("bmw", bmwVerts.data(), bmwVerts.size() * sizeof(ModelVertex), bmwInds,
+																							obModelShaderVert,
+																							obModelShaderFrag,
+																							true,
+																							createBindingDescrModel(),
+																							createAttrDescrModel(),
+																							createDescriptorSetLayoutBindingModel((uint8_t)bmwTextures.size()));
+
+	if (resultAddNewObject != sgrOK)
+		return resultAddNewObject;
+
+	sgr_object1.addObjectInstance("bmwm3", "bmw", static_cast<uint32_t>(3*models.dynamicAlignment));
+	objectData.clear();
+	objectData.push_back((void*)(uboBuffer));
+	objectData.push_back((void*)(models.ubo));
+	objectData.push_back((void*)(bmwTextures.data()));
+	sgr_object1.writeDescriptorSets("bmwm3", objectData);
+
 	// now register all objects
 
 	if (sgr_object1.drawObject("man") != sgrOK)
@@ -642,6 +669,9 @@ int main()
 
 	if (sgr_object1.drawObject("viking_room") != sgrOK)
 		return 700;
+
+	if (sgr_object1.drawObject("bmwm3") != sgrOK)
+		return 800;
 
 
 	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
@@ -701,6 +731,12 @@ int main()
 	iMData->model = glm::scale(iMData->model, { 0.3,0.3,0.3 });
 	iMData->model = glm::translate(iMData->model, {1.5,1.5,-2});
 	iMData->model = glm::rotate(iMData->model, glm::radians(90.f), { 1,0,0 });
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
+	iMData->model = glm::mat4(1.f);
+	iMData->model = glm::scale(iMData->model, { 0.02,0.02,0.02 });
+	iMData->model = glm::translate(iMData->model, {-10,0,0});
+	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
 	
 
 	sgr_object1.updateInstancesUniformBufferObject(rectangles);

@@ -78,9 +78,7 @@ SgrErrCode CommandManager::beginCommandBuffers()
 SgrErrCode CommandManager::init()
 {
     if (commandPool == VK_NULL_HANDLE) {
-        SgrErrCode resultInitCommandPool = initCommandPool();
-        if (resultInitCommandPool != sgrOK)
-            return resultInitCommandPool;
+        SGR_CHECK_RES(initCommandPool());
     }
 
     SwapChainManager* swpChMan = SwapChainManager::get();
@@ -177,10 +175,7 @@ SgrErrCode CommandManager::executeCommands()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         for (size_t j = 0; j < commands[i].size(); j++) {
-            SgrErrCode resultCmd = commands[i][j]->execute(&commandBuffers[i]);
-            if (resultCmd != sgrOK) {
-                return resultCmd;
-            }           
+            SGR_CHECK_RES(commands[i][j]->execute(&commandBuffers[i]));
         }
     }
 

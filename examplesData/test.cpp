@@ -391,11 +391,7 @@ int main()
 {
 	// This source code is example for using SGR library
 	
-	SgrErrCode resultSGRInit = sgr_object1.init();
-	if (resultSGRInit != sgrOK) {
-		return resultSGRInit;
-	}
-
+	SGR_CHECK_RES(sgr_object1.init());
 
 	std::string executablePath = getExecutablePath();
 	if (executablePath.length() == 0)
@@ -451,35 +447,25 @@ int main()
 	rectangles.instanceSize = sizeof(InstanceData);
 	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
 		return 0;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment);
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment));
 
 
 	models.instnaceCount = 4;
 	models.instanceSize = sizeof(ModelInstanceData);
 	if (MemoryManager::createDynamicUniformMemory(models) != sgrOK)
 		return 10;
-	resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment);
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment));
 
 	SgrBuffer* uboBuffer = nullptr;
-	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject));
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject)));
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 
 	// add instance man
 	sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment));
 
 	SgrImage* texture1 = nullptr;
-	SgrErrCode resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1);
-	if (resultCreateTextureImage != sgrOK)
-		return resultCreateTextureImage;
+	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1));
 
 	std::vector<void*> objectData;
 	objectData.push_back((void*)(uboBuffer));
@@ -489,9 +475,7 @@ int main()
 
 
 	// new geometry
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("triangle", obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("triangle", obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding));
 
 
 	sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment));
@@ -506,9 +490,7 @@ int main()
 	sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment));
 
 	SgrImage* texture2 = nullptr;
-	resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2);
-	if (resultCreateTextureImage != sgrOK)
-		return resultCreateTextureImage;
+	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
@@ -524,7 +506,7 @@ int main()
 	uint32_t pixelsWidth, pixelsHeight;
 	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
 	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
-	resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
+	SgrErrCode resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
 	if (resultCreateTextureImage != sgrOK) {
 		free(fontData);
 		return resultCreateTextureImage;
@@ -539,9 +521,7 @@ int main()
 										 {meshLetter.x, meshLetter.w, 0}};
 	free(fontData);
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh.data(), letterMesh.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("letterMesh", letterMesh.data(), letterMesh.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 	glm::vec2 letStartMesh(meshLetter.x, meshLetter.y);
 	glm::vec2 letStartText(textLetter.x, textLetter.y);
 	glm::vec2 deltaText;
@@ -567,15 +547,13 @@ int main()
 		return 666;
 
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("car", audiVerts.data(), audiVerts.size() * sizeof(ModelVertex), audiInds,
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("car", audiVerts.data(), audiVerts.size() * sizeof(ModelVertex), audiInds,
 																						obModelShaderVert,
 																						obModelShaderFrag,
 																						true,
 																						createBindingDescrModel(),
 																						createAttrDescrModel(),
-																						createDescriptorSetLayoutBindingModel((uint8_t)audiTextures.size()));
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+																						createDescriptorSetLayoutBindingModel((uint8_t)audiTextures.size())));
 
 
 	// add model instance 1
@@ -602,16 +580,13 @@ int main()
 	if (!loadObjectModel(resourcePath + "/3d_models/viking_room", "viking_room", roomVerts, roomInds, roomTextures))
 		return 777;
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("room", roomVerts.data(), roomVerts.size() * sizeof(ModelVertex), roomInds,
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("room", roomVerts.data(), roomVerts.size() * sizeof(ModelVertex), roomInds,
 																							obModelShaderVert,
 																							obModelShaderFrag,
 																							true,
 																							createBindingDescrModel(),
 																							createAttrDescrModel(),
-																							createDescriptorSetLayoutBindingModel((uint8_t)roomTextures.size()));
-
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+																							createDescriptorSetLayoutBindingModel((uint8_t)roomTextures.size())));
 
 
 	// add room instance
@@ -629,16 +604,13 @@ int main()
 	if (!loadObjectModel(resourcePath + "/3d_models/bmw_m3", "bmw_m3", bmwVerts, bmwInds, bmwTextures))
 		return 888;
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("bmw", bmwVerts.data(), bmwVerts.size() * sizeof(ModelVertex), bmwInds,
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("bmw", bmwVerts.data(), bmwVerts.size() * sizeof(ModelVertex), bmwInds,
 																							obModelShaderVert,
 																							obModelShaderFrag,
 																							true,
 																							createBindingDescrModel(),
 																							createAttrDescrModel(),
-																							createDescriptorSetLayoutBindingModel((uint8_t)bmwTextures.size()));
-
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+																							createDescriptorSetLayoutBindingModel((uint8_t)bmwTextures.size())));
 
 	sgr_object1.addObjectInstance("bmwm3", "bmw", static_cast<uint32_t>(3*models.dynamicAlignment));
 	objectData.clear();
@@ -765,10 +737,7 @@ int main()
 		if (!sgr_object1.isSGRRunning())
 			break;
 
-		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
-
-		if (resultDrawFrame != sgrOK)
-			return resultDrawFrame;
+		SGR_CHECK_RES(sgr_object1.drawFrame());
 
 		if (toggleTextFlag) {
 			t1._visible= !textHided;

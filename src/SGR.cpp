@@ -72,53 +72,20 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (window == nullptr)
 		return sgrInitWindowError;
 
-	SgrErrCode resultInit = sgrOK;
-
-	resultInit = initVulkanInstance();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = physicalDeviceManager->init(vulkanInstance);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initSurface(vulkanInstance, window);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, deviceRequiredExtensions, SwapChainManager::get()->surface);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = logicalDeviceManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initSwapChain();
-	if (resultInit != sgrOK)
-		return resultInit;
+	SGR_CHECK_RES(initVulkanInstance());
+	SGR_CHECK_RES(physicalDeviceManager->init(vulkanInstance));
+	SGR_CHECK_RES(swapChainManager->initSurface(vulkanInstance, window));
+	SGR_CHECK_RES(physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, deviceRequiredExtensions, SwapChainManager::get()->surface));
+	SGR_CHECK_RES(logicalDeviceManager->init());
+	SGR_CHECK_RES(swapChainManager->initSwapChain());
 
 	maxFrameInFlight = swapChainManager->imageCount;
 
-	resultInit = renderPassManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initFrameBuffers();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = commandManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = initSyncObjects();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = uiManager->init(window, vulkanInstance, swapChainManager->imageCount);
-	if (resultInit != sgrOK)
-		return resultInit;
+	SGR_CHECK_RES(renderPassManager->init());
+	SGR_CHECK_RES(swapChainManager->initFrameBuffers());
+	SGR_CHECK_RES(commandManager->init());
+	SGR_CHECK_RES(initSyncObjects());
+	SGR_CHECK_RES(uiManager->init(window, vulkanInstance, swapChainManager->imageCount));
 
 	sgrRunning = true;
 	startRunningTime = SgrTime::now();
@@ -189,19 +156,15 @@ SgrErrCode SGR::drawFrame()
 
 
 	// start commands recording
-	SgrErrCode res = commandManager->beginCommandBuffers();
-	if (res != sgrOK)
-		return res;
+	SGR_CHECK_RES(commandManager->beginCommandBuffers());
 	
-	res = descriptorManager->updateDescriptorSets();
+	SgrErrCode res = descriptorManager->updateDescriptorSets();
 
 	if (res != sgrOK && res != sgrDescriptorsSetsUpdated)
 		return res;
 
 	if (!commandsBuilded || res == sgrDescriptorsSetsUpdated) {
-		res = buildDrawingCommands(res == sgrDescriptorsSetsUpdated);
-		if (res != sgrOK)
-			return res;
+		SGR_CHECK_RES(buildDrawingCommands(res == sgrDescriptorsSetsUpdated));
 	}
 
 	commandManager->executeCommands();
@@ -495,22 +458,15 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceS
 
 	// create vertex buffer
 	newObject.vertices = nullptr;
-	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices);
-	if (resultAllocateMemoryBuffer != sgrOK)
-		return resultAllocateMemoryBuffer;
+	SGR_CHECK_RES(memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices));
 
 	// create index buffer
 	newObject.indicesCount = (uint32_t)indices.size();
 	VkDeviceSize size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
-	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
-	if (resultAllocateMemoryBuffer != sgrOK)
-		return resultAllocateMemoryBuffer;
+	SGR_CHECK_RES(memoryManager->createIndexBuffer(newObject.indices, size, indices.data()));
 
-
-	SgrErrCode initShaderResult = shaderManager->createShaders(name, shaderVert, shaderFrag);
-	if (initShaderResult != sgrOK)
-		return initShaderResult;
+	SGR_CHECK_RES(shaderManager->createShaders(name, shaderVert, shaderFrag));
 
 	ShaderManager::SgrShader objectShaders = shaderManager->getShadersByName(name);
 	if (objectShaders.name == "empty")
@@ -661,9 +617,7 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 		if (CommandManager::instance->init() != sgrOK)
         	return sgrReinitCommandBuffersError;
 
-		SgrErrCode res = commandManager->beginCommandBuffers();
-		if (res != sgrOK)
-			return res;
+		SGR_CHECK_RES(commandManager->beginCommandBuffers());
 
 		for (size_t i = 0; i < instances.size(); i++) {
 			const SgrObjectInstance& instance = instances[i];

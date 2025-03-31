@@ -114,3 +114,5 @@ enum SgrErrCode
 std::string getExecutablePath();
 
 double getTimeDuration(SgrTime_t start, SgrTime_t end);
+
+#define SGR_CHECK_RES(x) if (x != sgrOK) return x;

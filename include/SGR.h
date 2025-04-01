@@ -88,10 +88,10 @@ public:
 	SgrErrCode addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment);
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
-	SgrErrCode setupGlobalUniformBufferObject(SgrBuffer* uboBuffer);
-	SgrErrCode updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj);
+	SgrErrCode setupGlobalUBO(SgrBuffer* uboBuffer);
+	SgrErrCode updateGlobalUBO(SgrGlobalUBO obj);
 
-	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO);
+	SgrErrCode updateInstancesUBO(SgrInstancesUBO& dynUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
 	

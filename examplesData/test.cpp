@@ -322,9 +322,9 @@ struct ModelInstanceData {
 	glm::mat4 model;
 };
 
-SgrInstancesUniformBufferObject rectangles;
-SgrInstancesUniformBufferObject models;
-SgrGlobalUniformBufferObject ubo;
+SgrInstancesUBO rectangles;
+SgrInstancesUBO models;
+SgrGlobalUBO ubo;
 
 void updateData() {
 	if (getTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
@@ -351,9 +351,9 @@ void updateData() {
 		lastDraw = SgrTime::now();
 	}
 
-	sgr_object1.updateGlobalUniformBufferObject(ubo);
-	sgr_object1.updateInstancesUniformBufferObject(rectangles);
-	sgr_object1.updateInstancesUniformBufferObject(models);
+	sgr_object1.updateGlobalUBO(ubo);
+	sgr_object1.updateInstancesUBO(rectangles);
+	sgr_object1.updateInstancesUBO(models);
 };
 
 bool exitFlag = false;
@@ -457,7 +457,7 @@ int main()
 	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment));
 
 	SgrBuffer* uboBuffer = nullptr;
-	SGR_CHECK_RES(MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject)));
+	SGR_CHECK_RES(MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUBO)));
 
 	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 
@@ -646,7 +646,7 @@ int main()
 		return 800;
 
 
-	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
+	sgr_object1.setupGlobalUBO(uboBuffer);
 
 
 // MAN
@@ -711,11 +711,11 @@ int main()
 	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
 	
 
-	sgr_object1.updateInstancesUniformBufferObject(rectangles);
-	sgr_object1.updateInstancesUniformBufferObject(models);
+	sgr_object1.updateInstancesUBO(rectangles);
+	sgr_object1.updateInstancesUBO(models);
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
-	sgr_object1.updateGlobalUniformBufferObject(ubo);
+	sgr_object1.updateGlobalUBO(ubo);
 
 	// add UI
 	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");

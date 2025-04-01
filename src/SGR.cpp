@@ -535,7 +535,7 @@ SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
 	return instances[0];
 }
 
-SgrErrCode SGR::setupGlobalUniformBufferObject(SgrBuffer* uboBuffer)
+SgrErrCode SGR::setupGlobalUBO(SgrBuffer* uboBuffer)
 {
 	UBO = uboBuffer;
 	return sgrOK;
@@ -570,7 +570,7 @@ SgrErrCode SGR::drawObject(std::string instanceName)
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO)
+SgrErrCode SGR::updateInstancesUBO(SgrInstancesUBO& dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
@@ -588,7 +588,7 @@ SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObje
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj)
+SgrErrCode SGR::updateGlobalUBO(SgrGlobalUBO obj)
 {
 	MemoryManager::copyDataToBuffer(UBO, &obj);
 	return sgrOK;

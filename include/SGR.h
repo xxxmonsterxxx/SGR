@@ -116,8 +116,6 @@ private:
 	const uint8_t enginePatch 		 = SGR_VERSION_PATCH;
 
 	bool sgrRunning;
-	SgrTime_t startRunningTime;
-	SgrTime_t lastFrameUpdateTime;
 	uint8_t fpsDesired = 60;
 
 	std::string applicationName;

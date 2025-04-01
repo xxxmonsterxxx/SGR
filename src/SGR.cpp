@@ -88,7 +88,6 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	SGR_CHECK_RES(uiManager->init(window, vulkanInstance, swapChainManager->imageCount));
 
 	sgrRunning = true;
-	startRunningTime = SgrTime::now();
 	windowManager->setSgrPtr(this);
 
 	return sgrOK;
@@ -148,7 +147,7 @@ void SGR::setAspectRatio(uint8_t x, uint8_t y)
 
 SgrErrCode SGR::drawFrame()
 {
-	SgrTime_t startDrawFrameTime = SgrTime::now();
+	SgrTime_t drawTime = SgrTime::now();
 
 	drawDataUpdate();
 
@@ -246,16 +245,15 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = static_cast<float>(getTimeDuration(startDrawFrameTime,SgrTime::now()));
+	float drawFrameTime = static_cast<float>(getTimeDuration(drawTime,SgrTime::now()));
+	drawTime = SgrTime::now();
 
 	if (drawFrameTime < 1.f/fpsDesired) {
-		#if __linux__ || __APPLE__
-			usleep((1.f/fpsDesired - drawFrameTime)*1000000);
-		#endif
-
-		#if _WIN64
-			Sleep(DWORD((1.f / fpsDesired - drawFrameTime) * 1000));
-		#endif
+		float needWaitTime = 1.f/fpsDesired - drawFrameTime;
+		while(true) {
+			if (getTimeDuration(drawTime,SgrTime::now()) > needWaitTime)
+				break;
+		}
 	}
 
 	return sgrOK;

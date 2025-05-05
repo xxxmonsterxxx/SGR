@@ -220,10 +220,13 @@ void loadNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, Nod
 
 bool loadImages(tinygltf::Model input, std::vector<SgrImage*>& images)
 {
+	printf("\nLoading images\n");
 	// Images can be stored inside the glTF (which is the case for the sample model), so instead of directly
 	// loading them from disk, we fetch them from the glTF loader and upload the buffers
 	images.resize(input.images.size());
 	for (size_t i = 0; i < input.images.size(); i++) {
+		printf("\rLoad process...[%d]", (int)(i / (float)input.images.size() * 100));
+		fflush(stdout);
 		tinygltf::Image& glTFImage = input.images[i];
 		// Get the image data from the glTF loader
 		unsigned char* buffer = nullptr;
@@ -256,14 +259,15 @@ bool loadImages(tinygltf::Model input, std::vector<SgrImage*>& images)
 		}
 	}
 
+	printf("\rLoad process...[%d]", 100);
+	fflush(stdout);
+
 	return true;
 }
 
 bool loadGLTFModel(std::string filename, std::vector<Node*>& nodes, std::vector<SgrImage*>& images)
 {
-	std::vector<int32_t> textures;
-	std::vector<Material> materials;
-
+	printf("\nLoading GLTF model %s", filename.c_str());
 	tinygltf::Model glTFInput;
 	tinygltf::TinyGLTF gltfContext;
 	std::string error, warning;
@@ -276,10 +280,16 @@ bool loadGLTFModel(std::string filename, std::vector<Node*>& nodes, std::vector<
 	glTFModel.loadTextures(glTFInput);*/
 
 	const tinygltf::Scene& scene = glTFInput.scenes[0];
+	printf("\nLoading nodes\n");
 	for (size_t i = 0; i < scene.nodes.size(); i++) {
+		printf("\rLoad process...[%d]", (int)(i / (float)scene.nodes.size() * 100));
+		fflush(stdout);
 		const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
 		loadNode(node, glTFInput, nullptr, nodes);
 	}
+
+	printf("\rLoad process...[%d]",100);
+	fflush(stdout);
 
 	return fileLoaded;
 }
@@ -300,7 +310,7 @@ struct ModelVertex {
 bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<ModelVertex>& vertices, std::vector<uint32_t>& indices, std::vector<SgrImage*>& textures)
 {
 	std::string objPath = modelPath+"/"+modelName+".obj";
-	printf("\n\nLoad model: %s\n",modelName.c_str());
+	printf("\n\nLoading model: %s\n",modelName.c_str());
 
 	tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -392,9 +402,8 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 		vertex.vert -= (centroid / (float)vertices.size());
 	}
 
-	printf("\nLoad process ...[%d]",100);
-	printf("\nLoaded");
-
+	printf("\rLoad process...[%d]",100);
+	fflush(stdout);
 	printf("\nLoaded %d vertices | draw %d indices",(int)vertices.size(), (int)indices.size());
 
 	return true;
@@ -620,11 +629,21 @@ std::vector<VkVertexInputAttributeDescription> createAttrDescrGLTF()
 	return vertexAttributeDescriptions; 
 }
 
-void changeGLTFModel()
+void changeGLTFModel(Node* mainNode)
 {
-	for (const auto& prim : gltfPrimitives) {
-		ModelInstanceData* data = (ModelInstanceData*)((uint64_t)prim.second.data);
-		data->model = glm::rotate(data->model, glm::radians(2.f), glm::vec3(0,1,0));
+	mainNode->matrix = glm::rotate(mainNode->matrix, glm::radians(0.5f), glm::vec3(0, 1, 0));
+	for (auto& child : mainNode->children) {
+		Node* currentParrent = child->parent;
+		glm::mat4 model(1.f);
+		while (currentParrent) {
+			model = currentParrent->matrix * child->matrix;
+			currentParrent = currentParrent->parent;
+		}
+
+		for (auto& prim : child->mesh.primitives) {
+			ModelInstanceData* data = (ModelInstanceData*)((uint64_t)gltfPrimitives[prim.name].data);
+			data->model = model;
+		}
 	}
 }
 
@@ -654,8 +673,6 @@ bool registerGLTFModel(std::vector<Node*> nodes, std::vector<SgrImage*> images, 
 					data->model = currentParrent->matrix * node->matrix;
 					currentParrent = currentParrent->parent;
 				}
-
-				node->matrix = glm::rotate(node->matrix, glm::radians(180.f), glm::vec3(1, 0, 0));
 
 				std::vector<void*> objData;
 				objData.push_back((void*)(ubo));
@@ -694,8 +711,6 @@ void updateData() {
 
 		iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
 		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,1,0 });
-
-		changeGLTFModel();
 
 		lastDraw = SgrTime::now();
 	}
@@ -1119,6 +1134,8 @@ int main()
 			objectData.push_back((void*)(rectangles.ubo));
 			sgr_object1.writeDescriptorSets("road", objectData);
 		}
+
+		changeGLTFModel(helmetNodes[0]);
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

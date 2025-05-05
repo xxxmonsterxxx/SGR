@@ -17,12 +17,7 @@
 
 std::string resourcePath;
 
-
-
 SGR sgr_object1;
-
-SgrTime_t frame_dr;
-SgrTime_t lastDraw = SgrTime::now();
 SgrTime_t lastTextureChange = SgrTime::now();
 
 // data structure for instance uses shader presenter as "instance shader"
@@ -650,6 +645,8 @@ void changeGLTFModel(Node* mainNode)
 bool registerGLTFModel(std::vector<Node*> nodes, std::vector<SgrImage*> images, SgrBuffer* ubo)
 {
 	for (const auto& parrent : nodes) {
+		parrent->matrix = glm::scale(parrent->matrix, glm::vec3(0.5, 0.5, 0.5));
+		parrent->matrix = glm::translate(parrent->matrix, glm::vec3(0.65, 0.4, 0));
 		for (const auto& node : parrent->children) {
 			for (auto& prim : node->mesh.primitives) {
 				std::vector<GLTFVertex>& primitiveVerts = prim.verts;
@@ -691,29 +688,29 @@ bool registerGLTFModel(std::vector<Node*> nodes, std::vector<SgrImage*> images, 
 
 
 void updateData() {
-	if (getTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
-		InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
-		glm::vec2* texCoord = &iData->startText;
+	InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0 * rectangles.dynamicAlignment);
+	glm::vec2* texCoord = &iData->startText;
+	if (getTimeDuration(lastTextureChange, SgrTime::now()) > 10*0.01666) {
 		texCoord->x += 0.111f;
 		if (texCoord->x >= 1)
 			texCoord->x = 0;
 
-		iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.09));
-
-		ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{0,1,0});
-
-		iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(-2.f), glm::vec3{ 0,1,0 });
-
-		iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,0,1 });
-
-		iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,1,0 });
-
-		lastDraw = SgrTime::now();
+		lastTextureChange = SgrTime::now();
 	}
+
+	iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.009));
+
+	ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{0,1,0});
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(-0.2f), glm::vec3{ 0,1,0 });
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{ 0,0,1 });
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{ 0,1,0 });
 
 	sgr_object1.updateGlobalUBO(ubo);
 	sgr_object1.updateInstancesUBO(rectangles);
@@ -1058,17 +1055,20 @@ int main()
 	current->deltaText = deltaText;
 
 // 3D Models
+
+	//audi 1
 	ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
 	iMData->model = glm::mat4(1.f);
-	iMData->model = glm::scale(iMData->model,{0.03,0.03,0.03});
+	iMData->model = glm::scale(iMData->model,{0.025,0.025,0.025});
 	iMData->model = glm::rotate(iMData->model,glm::radians(180.f),{0,0,1});
-	iMData->model = glm::translate(iMData->model,{0,8,0});
+	iMData->model = glm::translate(iMData->model,{0,12,0});
 
+	//audi 2
 	iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
 	iMData->model = glm::mat4(1.f);
 	iMData->model = glm::scale(iMData->model, { 0.03,0.03,0.03 });
-	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
-	iMData->model = glm::translate(iMData->model, { 8,-8,0 });
+	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), {0,0,1});
+	iMData->model = glm::translate(iMData->model, { 10,-10,0 });
 
 	//viking room
 	iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
@@ -1077,10 +1077,11 @@ int main()
 	iMData->model = glm::translate(iMData->model, {1.5,1.5,-2});
 	iMData->model = glm::rotate(iMData->model, glm::radians(90.f), { 1,0,0 });
 
+	// bmw
 	iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
 	iMData->model = glm::mat4(1.f);
-	iMData->model = glm::scale(iMData->model, { 0.02,0.02,0.02 });
-	iMData->model = glm::translate(iMData->model, {-10,0,0});
+	iMData->model = glm::scale(iMData->model, { 0.03,0.03,0.03 });
+	iMData->model = glm::translate(iMData->model, {-11,0,0});
 	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
 	
 

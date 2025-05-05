@@ -14,6 +14,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <cstdint>
 #include <string.h>

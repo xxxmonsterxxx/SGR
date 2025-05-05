@@ -63,10 +63,11 @@ endif()
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
 set(TINY_OBJ_LOADER_INC_DIR ../modules/tiny_obj_loader)
+set(TINY_GLTF_LOADER_INC_DIR ../modules/tiny_gltf_loader)
 
 set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME})
 
-include_directories(${GLM_INC_DIR} ${STB_INC_DIR} ${TINY_OBJ_LOADER_INC_DIR} ${SGR_FOLDER}/include/SGR)
+include_directories(${GLM_INC_DIR} ${STB_INC_DIR} ${TINY_OBJ_LOADER_INC_DIR} ${TINY_GLTF_LOADER_INC_DIR} ${SGR_FOLDER}/include/SGR)
 target_link_libraries (${PROJECT_NAME} SGR)
 
 if (WIN32)

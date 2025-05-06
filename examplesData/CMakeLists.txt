@@ -25,6 +25,24 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
                                     HEADER_FILE_ONLY ON)
     endforeach()
 
+    # Creating Resources/Vulkan/icd.d
+    file(MAKE_DIRECTORY ${BUNDLE_PATH}/Contents/Resources/Vulkan/icd.d)
+
+    # JSON for Vulkan loader
+    set(MOLTENVK_ICD_JSON_CONTENT 
+    "{
+        \"file_format_version\" : \"1.0.0\",
+        \"ICD\": {
+            \"library_path\": \"../../../Frameworks/libMoltenVK.dylib\",
+            \"api_version\" : \"1.2.0\",
+            \"is_portability_driver\" : true
+        }
+    }")
+
+    # Creating MoltenVK_icd.json
+    file(WRITE ${BUNDLE_PATH}/Contents/Resources/Vulkan/icd.d/MoltenVK_icd.json 
+         "${MOLTENVK_ICD_JSON_CONTENT}")
+
     set(MACOSX_BUNDLE_ICON_FILE "logo/Logo.icns")
 
     # install rpath for distributing
@@ -49,7 +67,6 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
     file(COPY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY ${BUILD_DEST}/lib/libSGR.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY ${GLFW3_INCLUDE_DIRS}/../lib/libglfw.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
-    
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD                    
                     COMMAND codesign --deep --force --verbose --sign - ${BUNDLE_PATH}

@@ -30,12 +30,14 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
     # install rpath for distributing
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
     set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
+    set(INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Resources/macosx/Info.plist)
 
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES}
                                                  ${RESOURCE_FILES})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
                                           MACOSX_BUNDLE TRUE
+                                          MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST}
                                           MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
                                           MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
                                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VMAJOR}.${VMINOR}

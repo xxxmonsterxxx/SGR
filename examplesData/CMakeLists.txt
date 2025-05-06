@@ -25,24 +25,6 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
                                     HEADER_FILE_ONLY ON)
     endforeach()
 
-    # Creating Resources/Vulkan/icd.d
-    file(MAKE_DIRECTORY ${BUNDLE_PATH}/Contents/Resources/Vulkan/icd.d)
-
-    # JSON for Vulkan loader
-    set(MOLTENVK_ICD_JSON_CONTENT 
-    "{
-        \"file_format_version\" : \"1.0.0\",
-        \"ICD\": {
-            \"library_path\": \"../../../Frameworks/libMoltenVK.dylib\",
-            \"api_version\" : \"1.2.0\",
-            \"is_portability_driver\" : true
-        }
-    }")
-
-    # Creating MoltenVK_icd.json
-    file(WRITE ${BUNDLE_PATH}/Contents/Resources/Vulkan/icd.d/MoltenVK_icd.json 
-         "${MOLTENVK_ICD_JSON_CONTENT}")
-
     set(MACOSX_BUNDLE_ICON_FILE "logo/Logo.icns")
 
     # install rpath for distributing
@@ -62,6 +44,24 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
 
     set(BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app)
     set(FRAMEWORKS_PATH ${BUNDLE_PATH}/Contents/Frameworks)
+
+    # Creating Resources/Vulkan/icd.d
+    file(MAKE_DIRECTORY ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d)
+
+    # JSON for Vulkan loader
+    set(MOLTENVK_ICD_JSON_CONTENT 
+    "{
+        \"file_format_version\" : \"1.0.0\",
+        \"ICD\": {
+            \"library_path\": \"../../../Frameworks/libMoltenVK.dylib\",
+            \"api_version\" : \"1.2.0\",
+            \"is_portability_driver\" : true
+        }
+    }")
+
+    # Creating MoltenVK_icd.json
+    file(WRITE ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json 
+            "${MOLTENVK_ICD_JSON_CONTENT}")
 
     file(COPY ${Vulkan_LIBRARIES} DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)

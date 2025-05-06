@@ -245,7 +245,6 @@ bool loadImages(tinygltf::Model input, std::vector<SgrImage*>& images)
 			bufferSize = glTFImage.image.size();
 		}
 		// Load texture from image buffer
-		//images[i] = nullptr;
 		if (TextureManager::createTextureImage((void*)buffer, glTFImage.width, glTFImage.height, images[i]) != sgrOK)
 			return false;
 
@@ -335,7 +334,7 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 			vertex.vert.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.vert.z = attrib.vertices[3 * index.vertex_index + 2];
 
-#if NDBUG == FALSE
+#if NDBUG == TRUE
 			auto it = std::find(vertices.begin(), vertices.end(), vertex);
 			if (it != vertices.end()) {
 				indices.push_back(std::distance(vertices.begin(), it));
@@ -760,7 +759,7 @@ int main()
 	if (executablePath.length() == 0)
 		return 11;
 
-#if __APPLE__ && !NDBUG
+#if __APPLE__ && NDBUG
 	resourcePath = executablePath + "/../Resources";
 #else
 	resourcePath = executablePath + "/Resources";

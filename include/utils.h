@@ -2,7 +2,7 @@
 
 
 #ifndef NDBUG
-#define NDBUG true
+#define NDBUG false
 #endif
 
 #if _WIN64

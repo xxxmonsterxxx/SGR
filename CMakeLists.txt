@@ -26,9 +26,9 @@ set(BUILD_DEST ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERS
 
 # Debug #NDBUG for sources install
 if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
-	add_definitions(-DNDBUG=false)
-else ()
 	add_definitions(-DNDBUG=true)
+else ()
+	add_definitions(-DNDBUG=false)
 endif ()
 
 #######################################

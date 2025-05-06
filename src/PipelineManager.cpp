@@ -131,9 +131,8 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    // ????? do wee need specify all similar layouts or only one
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = descriptorInfo.setLayouts.data();
+    pipelineLayoutInfo.pSetLayouts = &descriptorInfo.setLayout;
 
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
 

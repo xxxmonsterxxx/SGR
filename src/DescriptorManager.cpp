@@ -29,7 +29,7 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
     if (descrInfo.setLayoutBinding.back().descriptorCount > 1) {
         setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
         setLayoutBindingFlags.bindingCount = descrInfo.setLayoutBinding.size();
-        for (auto binding : descrInfo.setLayoutBinding) {
+        for (auto& binding : descrInfo.setLayoutBinding) {
             VkDescriptorBindingFlagsEXT flag = 0;
             if (binding.descriptorCount > 1)
                 flag = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT;
@@ -45,8 +45,7 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
     if (vkCreateDescriptorSetLayout(LogicalDeviceManager::instance->logicalDevice, &layoutInfo, nullptr, &newLayout) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorSetLayoutError;
 
-    std::vector<VkDescriptorSetLayout> newSetLayouts(SwapChainManager::instance->imageCount, newLayout);
-    descrInfo.setLayouts = newSetLayouts;
+    descrInfo.setLayout = newLayout;
 
     return sgrOK;
 }
@@ -97,7 +96,9 @@ SgrErrCode DescriptorManager::createDescriptorSets(std::string name, SgrDescript
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = newSets->descriptorPool;
     allocInfo.descriptorSetCount = swapChainImageCount;
-    allocInfo.pSetLayouts = descrInfo.setLayouts.data();
+
+    std::vector<VkDescriptorSetLayout> setLayouts(swapChainImageCount, descrInfo.setLayout); // we need so much setlayouts how much we need descriptorSets
+    allocInfo.pSetLayouts = setLayouts.data();
 
     VkDescriptorSetVariableDescriptorCountAllocateInfoEXT variableDescriptorCountAllocInfo{};
     std::vector<uint32_t> variableDesciptorCounts;
@@ -290,7 +291,7 @@ SgrErrCode DescriptorManager::destroyDescriptorsData()
     }
 
     for (auto& descrInfo : descriptorInfos)
-        vkDestroyDescriptorSetLayout(device, descrInfo.setLayouts[0], nullptr);
+        vkDestroyDescriptorSetLayout(device, descrInfo.setLayout, nullptr);
 
     vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
 

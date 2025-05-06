@@ -56,9 +56,8 @@ class MemoryManager {
 
 public:
 	static MemoryManager* get();
-	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
 	static SgrErrCode createDynamicUniformMemory(SgrInstancesUBO& dynamicUBO);
-	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange);
+	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange = 0);
 
 	SgrErrCode destroyAllocatedBuffers();
 };

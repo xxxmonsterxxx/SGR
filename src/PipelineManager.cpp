@@ -22,7 +22,7 @@ SgrErrCode PipelineManager::createAndAddPipeline(std::string name, ShaderManager
 	newPipeline->filled = filled;
     SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, *newPipeline);
     if (resultCreatePipeline != sgrOK) {
-        //delete newPipeline;
+        delete newPipeline;
         return resultCreatePipeline;
     }
 	pipelines.push_back(newPipeline);

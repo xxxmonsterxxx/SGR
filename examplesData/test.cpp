@@ -715,6 +715,8 @@ void updateData() {
 	sgr_object1.updateGlobalUBO(ubo);
 	sgr_object1.updateInstancesUBO(rectangles);
 	sgr_object1.updateInstancesUBO(models);
+	for (auto& instUBO : gltfPrimitives)
+		sgr_object1.updateInstancesUBO(instUBO.second);
 };
 
 bool exitFlag = false;
@@ -806,19 +808,17 @@ int main()
 
 	rectangles.instnaceCount = 4;
 	rectangles.instanceSize = sizeof(InstanceData);
-	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
-		return 0;
+	SGR_CHECK_RES(MemoryManager::createDynamicUniformMemory(rectangles));
 	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment));
 
 
 	models.instnaceCount = 4;
 	models.instanceSize = sizeof(ModelInstanceData);
-	if (MemoryManager::createDynamicUniformMemory(models) != sgrOK)
-		return 10;
+	SGR_CHECK_RES(MemoryManager::createDynamicUniformMemory(models));
 	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment));
 
 	SgrBuffer* uboBuffer = nullptr;
-	SGR_CHECK_RES(MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUBO)));
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(uboBuffer, sizeof(SgrGlobalUBO)));
 
 	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 
@@ -867,11 +867,7 @@ int main()
 	uint32_t pixelsWidth, pixelsHeight;
 	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
 	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
-	SgrErrCode resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
-	if (resultCreateTextureImage != sgrOK) {
-		free(fontData);
-		return resultCreateTextureImage;
-	}
+	SGR_CHECK_RES(TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage));
 
 	glm::vec4 meshLetter;
 	glm::vec4 textLetter;
@@ -988,29 +984,14 @@ int main()
 
 	// now register all objects
 
-	if (sgr_object1.drawObject("man") != sgrOK)
-		return 100;
-
-	if (sgr_object1.drawObject("tree") != sgrOK)
-		return 200;
-
-	if (sgr_object1.drawObject("road") != sgrOK)
-		return 300;
-
-	if (sgr_object1.drawObject("letter") != sgrOK)
-		return 400;
-
-	if (sgr_object1.drawObject("audi1") != sgrOK)
-		return 500;
-
-	if (sgr_object1.drawObject("audi2") != sgrOK)
-	 	return 600;
-
-	if (sgr_object1.drawObject("viking_room") != sgrOK)
-		return 700;
-
-	if (sgr_object1.drawObject("bmwm3") != sgrOK)
-		return 800;
+	SGR_CHECK_RES(sgr_object1.drawObject("man"));
+	SGR_CHECK_RES(sgr_object1.drawObject("tree"));
+	SGR_CHECK_RES(sgr_object1.drawObject("road"));
+	SGR_CHECK_RES(sgr_object1.drawObject("letter"));
+	SGR_CHECK_RES(sgr_object1.drawObject("audi1"));
+	SGR_CHECK_RES(sgr_object1.drawObject("audi2"));
+	SGR_CHECK_RES(sgr_object1.drawObject("viking_room"));
+	SGR_CHECK_RES(sgr_object1.drawObject("bmwm3"));
 
 	if (!registerGLTFModel(helmetNodes, helmetImages, uboBuffer))
 		return 900;
@@ -1083,17 +1064,9 @@ int main()
 	iMData->model = glm::scale(iMData->model, { 0.03,0.03,0.03 });
 	iMData->model = glm::translate(iMData->model, {-11,0,0});
 	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
-	
-
-	sgr_object1.updateInstancesUBO(rectangles);
-	sgr_object1.updateInstancesUBO(models);
-
-	for (auto& instUBO : gltfPrimitives)
-		sgr_object1.updateInstancesUBO(instUBO.second);
 
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
-	sgr_object1.updateGlobalUBO(ubo);
 
 	// add UI
 	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");

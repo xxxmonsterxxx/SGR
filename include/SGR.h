@@ -24,7 +24,7 @@
 class SGR {
 public:
 	struct SgrObject {
-		std::string name;
+		std::string name = "empty";
 		SgrBuffer* vertices = nullptr;
 		SgrBuffer* indices = nullptr;
 		uint32_t indicesCount = 0;
@@ -32,8 +32,8 @@ public:
 	};
 
 	struct SgrObjectInstance {
-		std::string name;
-		std::string geometry;
+		std::string name = "empty";
+		std::string geometry = "empty";
 		uint32_t 	uboDataAlignment = 0;
 		bool		needToDraw = false;
 	};
@@ -97,8 +97,8 @@ public:
 	
 	void unbindAllMeshesAndPiplines();
 
-	SgrObjectInstance& findInstanceByName(std::string name);
-	SgrObject& findObjectByName(std::string name);
+	SgrObjectInstance* findInstanceByName(std::string name);
+	SgrObject* findObjectByName(std::string name);
 
 	bool setFPSDesired(uint8_t fps);
 

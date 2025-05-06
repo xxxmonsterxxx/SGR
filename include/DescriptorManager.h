@@ -30,7 +30,7 @@ private:
 	std::vector<SgrDescriptorInfo> descriptorInfos;
 
 	struct SgrDescriptorSets {
-		std::string name;
+		std::string name = "empty";
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
 	};

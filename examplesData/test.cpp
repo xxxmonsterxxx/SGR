@@ -823,7 +823,7 @@ int main()
 	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 
 	// add instance man
-	sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment)));
 
 	SgrImage* texture1 = nullptr;
 	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1));
@@ -832,23 +832,23 @@ int main()
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture1));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("man", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("man", objectData));
 
 
 	// new geometry
 	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("triangle", obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding));
 
 
-	sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment)));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture1));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("tree", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("tree", objectData));
 
 	// add instance road
-	sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment)));
 
 	SgrImage* texture2 = nullptr;
 	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2));
@@ -857,7 +857,7 @@ int main()
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture2));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("road", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("road", objectData));
 
 
 	// add geometry and texture for letter
@@ -889,13 +889,13 @@ int main()
 	deltaText.x = (textLetter.z - textLetter.x) / (meshLetter.z - meshLetter.x);
 	deltaText.t = (textLetter.w - textLetter.y) / (meshLetter.w - meshLetter.y);
 	
-	sgr_object1.addObjectInstance("letter", "letterMesh", static_cast<uint32_t>(3*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("letter", "letterMesh", static_cast<uint32_t>(3*rectangles.dynamicAlignment)));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&textImage));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("letter", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("letter", objectData));
 
 
 	// load models
@@ -918,20 +918,20 @@ int main()
 
 
 	// add model instance 1
-	sgr_object1.addObjectInstance("audi1", "car", static_cast<uint32_t>(0*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("audi1", "car", static_cast<uint32_t>(0*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(audiTextures.data()));
-	sgr_object1.writeDescriptorSets("audi1", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("audi1", objectData));
 
 	// add model instance 2
-	sgr_object1.addObjectInstance("audi2", "car", static_cast<uint32_t>(1*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("audi2", "car", static_cast<uint32_t>(1*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(audiTextures.data()));
-	sgr_object1.writeDescriptorSets("audi2", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("audi2", objectData));
 
 
 	// load room model
@@ -951,12 +951,12 @@ int main()
 
 
 	// add room instance
-	sgr_object1.addObjectInstance("viking_room", "room", static_cast<uint32_t>(2*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("viking_room", "room", static_cast<uint32_t>(2*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(roomTextures.data()));
-	sgr_object1.writeDescriptorSets("viking_room", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("viking_room", objectData));
 
 
 	std::vector<ModelVertex> bmwVerts;
@@ -973,12 +973,12 @@ int main()
 																							createAttrDescrModel(),
 																							createDescriptorSetLayoutBindingModel((uint8_t)bmwTextures.size())));
 
-	sgr_object1.addObjectInstance("bmwm3", "bmw", static_cast<uint32_t>(3*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("bmwm3", "bmw", static_cast<uint32_t>(3*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(bmwTextures.data()));
-	sgr_object1.writeDescriptorSets("bmwm3", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("bmwm3", objectData));
 
 
 	std::vector<Node*> helmetNodes;

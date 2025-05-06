@@ -22,7 +22,7 @@ private:
 	};
 
 	struct SgrShader {
-		std::string name;
+		std::string name = "empty";
 		SgrShaderPack vkShaders;
 	};
 

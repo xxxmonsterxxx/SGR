@@ -158,7 +158,7 @@ void CommandManager::bindPipeline(VkPipeline* sgrPipeline, int16_t cmdBufferInde
     addCmdToBuffer(cmdBufferIndex, (Command*)newBindPipelineCmd);
 }
 
-SgrErrCode CommandManager::endInitCommandBuffers()
+SgrErrCode CommandManager::endCommandBuffers()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         vkCmdEndRenderPass(commandBuffers[i]);

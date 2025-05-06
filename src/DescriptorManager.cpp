@@ -276,7 +276,6 @@ const DescriptorManager::SgrDescriptorSets DescriptorManager::getDescriptorSetsB
     }
 
     SgrDescriptorSets emptyDescriptorSets;
-    emptyDescriptorSets.name = "empty";
     return emptyDescriptorSets;
 }
 

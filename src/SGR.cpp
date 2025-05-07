@@ -449,7 +449,7 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceS
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
 {
-	if (!findObjectByName(name))
+	if (findObjectByName(name))
 		return sgrInstanceDuplicate;
 
 	SgrObject newObject;

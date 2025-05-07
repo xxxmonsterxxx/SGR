@@ -238,15 +238,18 @@ SgrErrCode SGR::drawFrame()
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
 	float drawFrameTime = static_cast<float>(getTimeDuration(drawTime,SgrTime::now()));
-	drawTime = SgrTime::now();
 
 	if (drawFrameTime < 1.f/fpsDesired) {
-		float needWaitTime = 1.f/fpsDesired - drawFrameTime;
-		while(true) {
-			if (getTimeDuration(drawTime,SgrTime::now()) > needWaitTime)
-				break;
-		}
+		int needWaitTime = (1.f/fpsDesired - drawFrameTime)*1000;
+		std::this_thread::sleep_for(std::chrono::milliseconds(needWaitTime));
 	}
+
+#if !NDBUG
+	uint8_t actualFPS = 1 / getTimeDuration(drawTime, SgrTime::now());
+	if (actualFPS > fpsMax) fpsMax = actualFPS;
+	if (actualFPS < fpsMin) fpsMin = actualFPS;
+	printf("\rFPS: %d [min %d : max %d : des %d]", actualFPS, fpsMin, fpsMax, fpsDesired);
+#endif
 
 	return sgrOK;
 }

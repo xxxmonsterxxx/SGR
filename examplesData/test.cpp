@@ -1083,6 +1083,8 @@ int main()
 
 	sgr_object1.setUpdateFunction(updateData);
 	sgr_object1.setupUICallback();
+
+	printf("\nAll data prepared.\n");
 	while (!exitFlag) {
 		if (!sgr_object1.isSGRRunning())
 			break;

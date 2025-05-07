@@ -118,6 +118,11 @@ private:
 	bool sgrRunning;
 	uint8_t fpsDesired = 60;
 
+#if !NDBUG
+	uint8_t fpsMin = 200;
+	uint8_t fpsMax = 0;
+#endif
+
 	std::string applicationName;
 	uint8_t appVersionMajor;
 	uint8_t appVersionMinor;

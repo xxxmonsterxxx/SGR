@@ -31,6 +31,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
+#include <thread>
 
 using SgrTime = std::chrono::steady_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;

@@ -9,6 +9,8 @@
 	#include <unistd.h>
 #endif
 
+void sgrEmptyDataUpdateFunc() { ; }
+
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
 	manualWindow = false;
@@ -43,6 +45,7 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	uiManager = UIManager::get();
 
 	currentFrame = 0;
+	setUpdateFunction(sgrEmptyDataUpdateFunc);
 }
 
 SGR::~SGR()
@@ -446,6 +449,9 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceS
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
 {
+	if (!findObjectByName(name))
+		return sgrInstanceDuplicate;
+
 	SgrObject newObject;
 	newObject.name = name;
 

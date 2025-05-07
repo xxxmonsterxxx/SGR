@@ -20,6 +20,8 @@
 
 #define ON_SCREEN_RENDER true
 
+void sgrEmptyDataUpdateFunc();
+
 #pragma pack(push, 1) // Disable padding
 class SGR {
 public:
@@ -46,7 +48,6 @@ public:
 
 	bool isSGRRunning();
 
-	void (*drawDataUpdate)() = nullptr;
 	void setUpdateFunction(void (*dataUpdateFunc)()) { drawDataUpdate = dataUpdateFunc; }
 
 	SgrErrCode drawFrame();
@@ -183,5 +184,7 @@ private:
 														const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
 	SgrErrCode destroyDebugMessenger();
+
+	void (*drawDataUpdate)() = nullptr;
 };
 #pragma pack(pop) // Enable padding

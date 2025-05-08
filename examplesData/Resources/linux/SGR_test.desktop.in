@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=@VERSION
+Name=SGR_test
+Exec=@RUN_SCRIPT
+Type=Application
+Icon=@LOGO_PATH
+Categories=Graphics;
+Comment=Example of SGR engine
+Terminal=false

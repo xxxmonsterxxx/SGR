@@ -73,6 +73,22 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD                    
                     COMMAND codesign --deep --force --verbose --sign - ${BUNDLE_PATH}
                     COMMENT "Signing the application bundle...")
+
+elseif (LINUX AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exampleApplication/${PROJECT_NAME}App)
+
+    add_executable(${PROJECT_NAME} ${SOURCES})
+
+    set(LIB_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory      ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${BUILD_DEST}/lib/libSGR.so               ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${GLFW3_INCLUDE_DIRS}/../lib/libglfw.so   ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${CMAKE_CURRENT_SOURCE_DIR}/Resources/linux/run.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory      ${CMAKE_CURRENT_SOURCE_DIR}/Resources     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Resources
+    )
+    
 else ()
     add_executable(${PROJECT_NAME} ${SOURCES})
     file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

@@ -67,10 +67,10 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
 
     file(COPY ${Vulkan_LIBRARIES} DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
-    file(COPY ${BUILD_DEST}/lib/libSGR.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY ${GLFW3_INCLUDE_DIRS}/../lib/libglfw.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD                    
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD   
+                    COMMAND cp -a -R ${BUILD_DEST}/lib/ ${FRAMEWORKS_PATH}
                     COMMAND codesign --deep --force --verbose --sign - ${BUNDLE_PATH}
                     COMMENT "Signing the application bundle...")
 

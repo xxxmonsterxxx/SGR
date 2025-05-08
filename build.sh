@@ -90,7 +90,6 @@ do
 			INSTALL=true
 			;;
 		e)	# Example project
-			BUILD=true
 			EXAMPLE_BUILD=true
 			;;
 		z)	# Remove library
@@ -146,8 +145,8 @@ cd build
 
 # Choose build type
 case $BUILD_TYPE in
-	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLE=FALSE --install-prefix $SCRIPT_DIR/build/ ;;
-	release)	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLE=FALSE --install-prefix $INSTALL_PATH ;;
+	debug)		cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_EXAMPLE=$EXAMPLE_BUILD --install-prefix $SCRIPT_DIR/build/ ;;
+	release)	cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLE=$EXAMPLE_BUILD --install-prefix $INSTALL_PATH ;;
 esac
 
 # Need to clean?
@@ -161,12 +160,6 @@ else
 	then
 		sudo mkdir $INSTALL_PATH/include/SGR
 		sudo make install
-	fi
-
-	if [ $EXAMPLE_BUILD == true ]
-	then
-		cmake .. -DBUILD_EXAMPLE=TRUE
-		cmake --build . -- -j
 	fi
 fi
 

@@ -334,7 +334,7 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 			vertex.vert.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.vert.z = attrib.vertices[3 * index.vertex_index + 2];
 
-#if NDBUG == TRUE
+#if NDBUG == true
 			auto it = std::find(vertices.begin(), vertices.end(), vertex);
 			if (it != vertices.end()) {
 				indices.push_back(std::distance(vertices.begin(), it));

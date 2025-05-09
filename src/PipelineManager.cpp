@@ -5,15 +5,6 @@
 
 PipelineManager* PipelineManager::instance = nullptr;
 
-PipelineManager::PipelineManager() 
-{
-    SgrPipeline* emptyPipeline = new SgrPipeline;
-    emptyPipeline->name = "empty";
-    pipelines.push_back(emptyPipeline);
-}
-
-PipelineManager::~PipelineManager() { ; }
-
 PipelineManager* PipelineManager::get()
 {
 	if (instance == nullptr) {
@@ -30,8 +21,10 @@ SgrErrCode PipelineManager::createAndAddPipeline(std::string name, ShaderManager
 	newPipeline->name = name;
 	newPipeline->filled = filled;
     SgrErrCode resultCreatePipeline = createPipeline(objectShaders, descriptorInfo, *newPipeline);
-    if (resultCreatePipeline != sgrOK)
+    if (resultCreatePipeline != sgrOK) {
+        delete newPipeline;
         return resultCreatePipeline;
+    }
 	pipelines.push_back(newPipeline);
 
     return sgrOK;
@@ -138,9 +131,8 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-    // ????? do wee need specify all similar layouts or only one
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = descriptorInfo.setLayouts.data();
+    pipelineLayoutInfo.pSetLayouts = &descriptorInfo.setLayout;
 
     VkDevice logicalDevice = LogicalDeviceManager::instance->logicalDevice;
 
@@ -171,7 +163,7 @@ SgrErrCode PipelineManager::createPipeline(ShaderManager::SgrShader objectShader
 
 SgrErrCode PipelineManager::destroyAllPipelines()
 {
-    for (size_t i = 1; i < pipelines.size(); i++) { // start with first because 0-th element is always empty (e.g. architecture)
+    for (size_t i = 0; i < pipelines.size(); i++) {
         vkDestroyPipeline(LogicalDeviceManager::instance->logicalDevice, pipelines[i]->pipeline, nullptr);
         vkDestroyPipelineLayout(LogicalDeviceManager::instance->logicalDevice, pipelines[i]->pipelineLayout, nullptr);
     }
@@ -201,6 +193,6 @@ PipelineManager::SgrPipeline* PipelineManager::getPipelineByName(std::string nam
             return pipelines[i];
     }
 
-    return pipelines[0];
+    return nullptr;
 }
 

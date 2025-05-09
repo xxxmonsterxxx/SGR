@@ -13,12 +13,12 @@ struct SgrBuffer {
 	VkDeviceSize blockRange; // for dynamic uniform buffer
 };
 
-struct SgrGlobalUniformBufferObject {
+struct SgrGlobalUBO {
 	glm::mat4 view = glm::mat4(1.f);
 	glm::mat4 proj = glm::mat4(1.f);
 };
 
-struct SgrInstancesUniformBufferObject {
+struct SgrInstancesUBO {
 	SgrBuffer* ubo = nullptr;
 	void* data = nullptr;
 	size_t instanceSize = 0;
@@ -56,9 +56,8 @@ class MemoryManager {
 
 public:
 	static MemoryManager* get();
-	SgrErrCode createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size);
-	static SgrErrCode createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO);
-	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange);
+	static SgrErrCode createDynamicUniformMemory(SgrInstancesUBO& dynamicUBO);
+	SgrErrCode createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange = 0);
 
 	SgrErrCode destroyAllocatedBuffers();
 };

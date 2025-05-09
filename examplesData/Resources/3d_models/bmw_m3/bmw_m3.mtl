@@ -1,0 +1,2002 @@
+newmtl Meshesbwmlights0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0091_diff.png
+map_Kd Meshesbwmlights0091_diff.png
+map_d Meshesbwmlights0091_diff.png
+
+newmtl Meshesbwmdoorrr0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0101_diff.png
+map_Kd Meshesbwmdoorrr0101_diff.png
+map_d Meshesbwmdoorrr0101_diff.png
+
+newmtl Meshesbwmglass0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmglass0021_diff.png
+map_Kd Meshesbwmglass0021_diff.png
+map_d Meshesbwmglass0021_diff.png
+
+newmtl Meshesbwmint0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0061_diff.png
+map_Kd Meshesbwmint0061_diff.png
+map_d Meshesbwmint0061_diff.png
+
+newmtl Meshesbwmlights0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0031_diff.png
+map_Kd Meshesbwmlights0031_diff.png
+map_d Meshesbwmlights0031_diff.png
+
+newmtl Meshesbwmdoorrf0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0021_diff.png
+map_Kd Meshesbwmdoorrf0021_diff.png
+map_d Meshesbwmdoorrf0021_diff.png
+
+newmtl Meshesbwmglass0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmglass0011_diff.png
+map_Kd Meshesbwmglass0011_diff.png
+map_d Meshesbwmglass0011_diff.png
+
+newmtl Meshesbwmdoorrf1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf1_diff.png
+map_Kd Meshesbwmdoorrf1_diff.png
+map_d Meshesbwmdoorrf1_diff.png
+
+newmtl Meshesbwmwind0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmwind0041_diff.png
+map_Kd Meshesbwmwind0041_diff.png
+map_d Meshesbwmwind0041_diff.png
+
+newmtl Meshesbwmdoorrr0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0031_diff.png
+map_Kd Meshesbwmdoorrr0031_diff.png
+map_d Meshesbwmdoorrr0031_diff.png
+
+newmtl Meshesbwmint0321Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0321_diff.png
+map_Kd Meshesbwmint0321_diff.png
+map_d Meshesbwmint0321_diff.png
+
+newmtl Meshesbwmboot0171Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0171_diff.png
+map_Kd Meshesbwmboot0171_diff.png
+map_d Meshesbwmboot0171_diff.png
+
+newmtl Meshesbwmboot0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0111_diff.png
+map_Kd Meshesbwmboot0111_diff.png
+map_d Meshesbwmboot0111_diff.png
+
+newmtl Meshesbwmdoorrr0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0061_diff.png
+map_Kd Meshesbwmdoorrr0061_diff.png
+map_d Meshesbwmdoorrr0061_diff.png
+
+newmtl Meshesbwmboot0151Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0151_diff.png
+map_Kd Meshesbwmboot0151_diff.png
+map_d Meshesbwmboot0151_diff.png
+
+newmtl Meshesbwmint0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmint0031_diff.png
+map_Kd Meshesbwmint0031_diff.png
+map_d Meshesbwmint0031_diff.png
+
+newmtl Meshesbwmdoorrf0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0091_diff.png
+map_Kd Meshesbwmdoorrf0091_diff.png
+map_d Meshesbwmdoorrf0091_diff.png
+
+newmtl Meshesbwmint0171Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0171_diff.png
+map_Kd Meshesbwmint0171_diff.png
+map_d Meshesbwmint0171_diff.png
+
+newmtl Meshesbwmdoorrr0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0041_diff.png
+map_Kd Meshesbwmdoorrr0041_diff.png
+map_d Meshesbwmdoorrr0041_diff.png
+
+newmtl Meshesbwmdoorrr0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0111_diff.png
+map_Kd Meshesbwmdoorrr0111_diff.png
+map_d Meshesbwmdoorrr0111_diff.png
+
+newmtl Meshesbwmint0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0021_diff.png
+map_Kd Meshesbwmint0021_diff.png
+map_d Meshesbwmint0021_diff.png
+
+newmtl Meshesbwmwind0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmwind0011_diff.png
+map_Kd Meshesbwmwind0011_diff.png
+map_d Meshesbwmwind0011_diff.png
+
+newmtl Meshesbwmboot0121Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0121_diff.png
+map_Kd Meshesbwmboot0121_diff.png
+map_d Meshesbwmboot0121_diff.png
+
+newmtl Meshesbwmint1931Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint1931_diff.png
+map_Kd Meshesbwmint1931_diff.png
+map_d Meshesbwmint1931_diff.png
+
+newmtl Meshesbwmbody0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbody0141_diff.png
+map_Kd Meshesbwmbody0141_diff.png
+map_d Meshesbwmbody0141_diff.png
+
+newmtl Meshesbwmdoorrf0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0141_diff.png
+map_Kd Meshesbwmdoorrf0141_diff.png
+map_d Meshesbwmdoorrf0141_diff.png
+
+newmtl Meshesbwmint0181Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0181_diff.png
+map_Kd Meshesbwmint0181_diff.png
+map_d Meshesbwmint0181_diff.png
+
+newmtl Meshesbwmboot1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot1_diff.png
+map_Kd Meshesbwmboot1_diff.png
+map_d Meshesbwmboot1_diff.png
+
+newmtl Meshesbwmwind0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmwind0021_diff.png
+map_Kd Meshesbwmwind0021_diff.png
+map_d Meshesbwmwind0021_diff.png
+
+newmtl Meshesbwmint0121Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0121_diff.png
+map_Kd Meshesbwmint0121_diff.png
+map_d Meshesbwmint0121_diff.png
+
+newmtl Meshesbwmint0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0011_diff.png
+map_Kd Meshesbwmint0011_diff.png
+map_d Meshesbwmint0011_diff.png
+
+newmtl Meshesbwmdoorrr0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0021_diff.png
+map_Kd Meshesbwmdoorrr0021_diff.png
+map_d Meshesbwmdoorrr0021_diff.png
+
+newmtl Meshesbwmintspec0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmintspec0021_diff.png
+map_Kd Meshesbwmintspec0021_diff.png
+map_d Meshesbwmintspec0021_diff.png
+
+newmtl Meshesbwmboot0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0051_diff.png
+map_Kd Meshesbwmboot0051_diff.png
+map_d Meshesbwmboot0051_diff.png
+
+newmtl Meshesbwmwheel0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmwheel0011_diff.png
+map_Kd Meshesbwmwheel0011_diff.png
+map_d Meshesbwmwheel0011_diff.png
+
+newmtl Meshesbwmdoorlr0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0111_diff.png
+map_Kd Meshesbwmdoorlr0111_diff.png
+map_d Meshesbwmdoorlr0111_diff.png
+
+newmtl Meshesbwmbody0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbody0011_diff.png
+map_Kd Meshesbwmbody0011_diff.png
+map_d Meshesbwmbody0011_diff.png
+
+newmtl Meshesbwmdoorlf0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0111_diff.png
+map_Kd Meshesbwmdoorlf0111_diff.png
+map_d Meshesbwmdoorlf0111_diff.png
+
+newmtl Meshesbwmint1091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint1091_diff.png
+map_Kd Meshesbwmint1091_diff.png
+map_d Meshesbwmint1091_diff.png
+
+newmtl Meshesbwmbody0241Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbody0241_diff.png
+map_Kd Meshesbwmbody0241_diff.png
+map_d Meshesbwmbody0241_diff.png
+
+newmtl Meshesbwmsteeringwheel0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0021_diff.png
+map_Kd Meshesbwmsteeringwheel0021_diff.png
+map_d Meshesbwmsteeringwheel0021_diff.png
+
+newmtl Meshesbwmdoorrf0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0041_diff.png
+map_Kd Meshesbwmdoorrf0041_diff.png
+map_d Meshesbwmdoorrf0041_diff.png
+
+newmtl Meshesbwmsteeringwheel0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0061_diff.png
+map_Kd Meshesbwmsteeringwheel0061_diff.png
+map_d Meshesbwmsteeringwheel0061_diff.png
+
+newmtl Meshesbwmwind0031Mtl
+Material Color
+Ka 0.373615 0.368591 0.383775
+Kd 0.373615 0.368591 0.383775
+Ks 0.224169 0.221155 0.230265 
+
+d 0.501961
+
+Ns 0
+
+newmtl Meshesbwmdoorlr0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0081_diff.png
+map_Kd Meshesbwmdoorlr0081_diff.png
+map_d Meshesbwmdoorlr0081_diff.png
+
+newmtl Meshesbwmdoorrf0131Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0131_diff.png
+map_Kd Meshesbwmdoorrf0131_diff.png
+map_d Meshesbwmdoorrf0131_diff.png
+
+newmtl Meshesbwmdoorrr0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0091_diff.png
+map_Kd Meshesbwmdoorrr0091_diff.png
+map_d Meshesbwmdoorrr0091_diff.png
+
+newmtl Meshesbwmint0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0041_diff.png
+map_Kd Meshesbwmint0041_diff.png
+map_d Meshesbwmint0041_diff.png
+
+newmtl Meshesbwmbody1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbody1_diff.png
+map_Kd Meshesbwmbody1_diff.png
+map_d Meshesbwmbody1_diff.png
+
+newmtl Meshesbwmint0221Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0221_diff.png
+map_Kd Meshesbwmint0221_diff.png
+map_d Meshesbwmint0221_diff.png
+
+newmtl Meshesbwmboot0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0081_diff.png
+map_Kd Meshesbwmboot0081_diff.png
+map_d Meshesbwmboot0081_diff.png
+
+newmtl Meshesbwmdoorlf0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0071_diff.png
+map_Kd Meshesbwmdoorlf0071_diff.png
+map_d Meshesbwmdoorlf0071_diff.png
+
+newmtl Meshesbwmdiffuser00011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdiffuser00011_diff.png
+map_Kd Meshesbwmdiffuser00011_diff.png
+map_d Meshesbwmdiffuser00011_diff.png
+
+newmtl Meshesbwmbumperf00051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbumperf00051_diff.png
+map_Kd Meshesbwmbumperf00051_diff.png
+map_d Meshesbwmbumperf00051_diff.png
+
+newmtl Meshesbwmint0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0141_diff.png
+map_Kd Meshesbwmint0141_diff.png
+map_d Meshesbwmint0141_diff.png
+
+newmtl Meshesbwmskirts01Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmskirts01_diff.png
+map_Kd Meshesbwmskirts01_diff.png
+map_d Meshesbwmskirts01_diff.png
+
+newmtl Meshesbwmboot0161Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0161_diff.png
+map_Kd Meshesbwmboot0161_diff.png
+map_d Meshesbwmboot0161_diff.png
+
+newmtl Meshesbwmdoorrf0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0051_diff.png
+map_Kd Meshesbwmdoorrf0051_diff.png
+map_d Meshesbwmdoorrf0051_diff.png
+
+newmtl Meshesbwmdoorlr1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr1_diff.png
+map_Kd Meshesbwmdoorlr1_diff.png
+map_d Meshesbwmdoorlr1_diff.png
+
+newmtl Meshesbwmint0131Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmint0131_diff.png
+map_Kd Meshesbwmint0131_diff.png
+map_d Meshesbwmint0131_diff.png
+
+newmtl Meshesbwmint0151Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0151_diff.png
+map_Kd Meshesbwmint0151_diff.png
+map_d Meshesbwmint0151_diff.png
+
+newmtl Meshesbwmboot0032Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0032_diff.png
+map_Kd Meshesbwmboot0032_diff.png
+map_d Meshesbwmboot0032_diff.png
+
+newmtl Meshesbwmdoorlr0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0091_diff.png
+map_Kd Meshesbwmdoorlr0091_diff.png
+map_d Meshesbwmdoorlr0091_diff.png
+
+newmtl Meshesbwmlights0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0081_diff.png
+map_Kd Meshesbwmlights0081_diff.png
+map_d Meshesbwmlights0081_diff.png
+
+newmtl Meshesbwmint0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0081_diff.png
+map_Kd Meshesbwmint0081_diff.png
+map_d Meshesbwmint0081_diff.png
+
+newmtl Meshesbwmint0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0051_diff.png
+map_Kd Meshesbwmint0051_diff.png
+map_d Meshesbwmint0051_diff.png
+
+newmtl Meshescoloured0151Mtl
+Material Color
+Ka 0.0915184 0.0134734 0.0134734
+Kd 0.0915184 0.0134734 0.0134734
+Ks 0.054911 0.00808404 0.00808404 
+
+d 1
+
+Ns 0
+
+newmtl Meshesbwmint0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0091_diff.png
+map_Kd Meshesbwmint0091_diff.png
+map_d Meshesbwmint0091_diff.png
+
+newmtl Meshesbwmint1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint1_diff.png
+map_Kd Meshesbwmint1_diff.png
+map_d Meshesbwmint1_diff.png
+
+newmtl Meshesbwmboot0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmboot0091_diff.png
+map_Kd Meshesbwmboot0091_diff.png
+map_d Meshesbwmboot0091_diff.png
+
+newmtl Meshesbwmdoorlr0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0101_diff.png
+map_Kd Meshesbwmdoorlr0101_diff.png
+map_d Meshesbwmdoorlr0101_diff.png
+
+newmtl Meshesbwmbumperf00021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbumperf00021_diff.png
+map_Kd Meshesbwmbumperf00021_diff.png
+map_d Meshesbwmbumperf00021_diff.png
+
+newmtl Meshesbwmsteeringwheel1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel1_diff.png
+map_Kd Meshesbwmsteeringwheel1_diff.png
+map_d Meshesbwmsteeringwheel1_diff.png
+
+newmtl Meshesbwmlights0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0061_diff.png
+map_Kd Meshesbwmlights0061_diff.png
+map_d Meshesbwmlights0061_diff.png
+
+newmtl Meshesbwmint0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0111_diff.png
+map_Kd Meshesbwmint0111_diff.png
+map_d Meshesbwmint0111_diff.png
+
+newmtl Meshesbwmbumperf00071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbumperf00071_diff.png
+map_Kd Meshesbwmbumperf00071_diff.png
+map_d Meshesbwmbumperf00071_diff.png
+
+newmtl Meshesbwmdoorlr0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0021_diff.png
+map_Kd Meshesbwmdoorlr0021_diff.png
+map_d Meshesbwmdoorlr0021_diff.png
+
+newmtl Meshesbwmdiffuser01Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdiffuser01_diff.png
+map_Kd Meshesbwmdiffuser01_diff.png
+map_d Meshesbwmdiffuser01_diff.png
+
+newmtl Meshesbwmdoorlr0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0011_diff.png
+map_Kd Meshesbwmdoorlr0011_diff.png
+map_d Meshesbwmdoorlr0011_diff.png
+
+newmtl Meshesbwmlights0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0011_diff.png
+map_Kd Meshesbwmlights0011_diff.png
+map_d Meshesbwmlights0011_diff.png
+
+newmtl Meshesbwmsteeringwheel0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0081_diff.png
+map_Kd Meshesbwmsteeringwheel0081_diff.png
+map_d Meshesbwmsteeringwheel0081_diff.png
+
+newmtl Meshesbwmlights0561Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0561_diff.png
+map_Kd Meshesbwmlights0561_diff.png
+map_d Meshesbwmlights0561_diff.png
+
+newmtl Meshesbwmeng0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmeng0021_diff.png
+map_Kd Meshesbwmeng0021_diff.png
+map_d Meshesbwmeng0021_diff.png
+
+newmtl Meshesbwmdoorlf0011Mtl
+Material Color
+Ka 0.00258583 0.00258583 0.00258583
+Kd 0.00258583 0.00258583 0.00258583
+Ks 0.0015515 0.0015515 0.0015515 
+
+d 0.501961
+
+Ns 0
+
+newmtl Meshesbwmbonnetok1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbonnetok1_diff.png
+map_Kd Meshesbwmbonnetok1_diff.png
+map_d Meshesbwmbonnetok1_diff.png
+
+newmtl Meshesbwmintspec1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmintspec1_diff.png
+map_Kd Meshesbwmintspec1_diff.png
+map_d Meshesbwmintspec1_diff.png
+
+newmtl Meshesbwmboot0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0101_diff.png
+map_Kd Meshesbwmboot0101_diff.png
+map_d Meshesbwmboot0101_diff.png
+
+newmtl Meshesbwmdoorlr0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0031_diff.png
+map_Kd Meshesbwmdoorlr0031_diff.png
+map_d Meshesbwmdoorlr0031_diff.png
+
+newmtl Meshesbwmlights0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0021_diff.png
+map_Kd Meshesbwmlights0021_diff.png
+map_d Meshesbwmlights0021_diff.png
+
+newmtl Meshesbwmdoorrr0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0071_diff.png
+map_Kd Meshesbwmdoorrr0071_diff.png
+map_d Meshesbwmdoorrr0071_diff.png
+
+newmtl Meshesbwmwheel0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmwheel0021_diff.png
+map_Kd Meshesbwmwheel0021_diff.png
+map_d Meshesbwmwheel0021_diff.png
+
+newmtl Meshesbwmdoorlf0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0021_diff.png
+map_Kd Meshesbwmdoorlf0021_diff.png
+map_d Meshesbwmdoorlf0021_diff.png
+
+newmtl Meshesbwmdoorlf0091Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0091_diff.png
+map_Kd Meshesbwmdoorlf0091_diff.png
+map_d Meshesbwmdoorlf0091_diff.png
+
+newmtl Meshesbwmdoorlf0131Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0131_diff.png
+map_Kd Meshesbwmdoorlf0131_diff.png
+map_d Meshesbwmdoorlf0131_diff.png
+
+newmtl Meshesbwmbumperf01Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbumperf01_diff.png
+map_Kd Meshesbwmbumperf01_diff.png
+map_d Meshesbwmbumperf01_diff.png
+
+newmtl Meshesbwmdoorrf0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0071_diff.png
+map_Kd Meshesbwmdoorrf0071_diff.png
+map_d Meshesbwmdoorrf0071_diff.png
+
+newmtl Meshesbwmdoorrf0151Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0151_diff.png
+map_Kd Meshesbwmdoorrf0151_diff.png
+map_d Meshesbwmdoorrf0151_diff.png
+
+newmtl Meshesbwmboot0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0071_diff.png
+map_Kd Meshesbwmboot0071_diff.png
+map_d Meshesbwmboot0071_diff.png
+
+newmtl Meshesbwmsteeringwheel0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0031_diff.png
+map_Kd Meshesbwmsteeringwheel0031_diff.png
+map_d Meshesbwmsteeringwheel0031_diff.png
+
+newmtl Meshesbwmwheel1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmwheel1_diff.png
+map_Kd Meshesbwmwheel1_diff.png
+map_d Meshesbwmwheel1_diff.png
+
+newmtl Meshesbwmboot0031Mtl
+Material Color
+Ka 0.940601 0.940601 0.940601
+Kd 0.940601 0.940601 0.940601
+Ks 0.56436 0.56436 0.56436 
+
+d 1
+
+Ns 0
+
+newmtl Meshesbwmwind1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmwind1_diff.png
+map_Kd Meshesbwmwind1_diff.png
+map_d Meshesbwmwind1_diff.png
+
+newmtl Meshesbwmintspec0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmintspec0011_diff.png
+map_Kd Meshesbwmintspec0011_diff.png
+map_d Meshesbwmintspec0011_diff.png
+
+newmtl Meshesbwmdoorrf0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0101_diff.png
+map_Kd Meshesbwmdoorrf0101_diff.png
+map_d Meshesbwmdoorrf0101_diff.png
+
+newmtl Meshesbwmdoorrf0121Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0121_diff.png
+map_Kd Meshesbwmdoorrf0121_diff.png
+map_d Meshesbwmdoorrf0121_diff.png
+
+newmtl Meshesbwmsteeringwheel0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0011_diff.png
+map_Kd Meshesbwmsteeringwheel0011_diff.png
+map_d Meshesbwmsteeringwheel0011_diff.png
+
+newmtl Meshesbwmlights0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0051_diff.png
+map_Kd Meshesbwmlights0051_diff.png
+map_d Meshesbwmlights0051_diff.png
+
+newmtl Meshesbwmdoorrf0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0081_diff.png
+map_Kd Meshesbwmdoorrf0081_diff.png
+map_d Meshesbwmdoorrf0081_diff.png
+
+newmtl Meshesbwmint0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0101_diff.png
+map_Kd Meshesbwmint0101_diff.png
+map_d Meshesbwmint0101_diff.png
+
+newmtl Meshesbwmdoorlf0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0051_diff.png
+map_Kd Meshesbwmdoorlf0051_diff.png
+map_d Meshesbwmdoorlf0051_diff.png
+
+newmtl Meshesbwmeng0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmeng0061_diff.png
+map_Kd Meshesbwmeng0061_diff.png
+map_d Meshesbwmeng0061_diff.png
+
+newmtl Meshesbwmdoorlf0121Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0121_diff.png
+map_Kd Meshesbwmdoorlf0121_diff.png
+map_d Meshesbwmdoorlf0121_diff.png
+
+newmtl Meshesbwmeng0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmeng0011_diff.png
+map_Kd Meshesbwmeng0011_diff.png
+map_d Meshesbwmeng0011_diff.png
+
+newmtl Meshesbwmeng0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmeng0051_diff.png
+map_Kd Meshesbwmeng0051_diff.png
+map_d Meshesbwmeng0051_diff.png
+
+newmtl Meshesbwmdoorrf0111Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0111_diff.png
+map_Kd Meshesbwmdoorrf0111_diff.png
+map_d Meshesbwmdoorrf0111_diff.png
+
+newmtl Meshesbwmdoorlr0051Mtl
+Material Color
+Ka 0.000638183 0.254916 0.632043
+Kd 0.000638183 0.254916 0.632043
+Ks 0.00038291 0.15295 0.379226 
+
+d 1
+
+Ns 0
+
+newmtl Meshesbwmdoorlf0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0141_diff.png
+map_Kd Meshesbwmdoorlf0141_diff.png
+map_d Meshesbwmdoorlf0141_diff.png
+
+newmtl Meshesbwmdoorrr1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr1_diff.png
+map_Kd Meshesbwmdoorrr1_diff.png
+map_d Meshesbwmdoorrr1_diff.png
+
+newmtl Meshesbwmsteeringwheel0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0041_diff.png
+map_Kd Meshesbwmsteeringwheel0041_diff.png
+map_d Meshesbwmsteeringwheel0041_diff.png
+
+newmtl Meshesbwmdoorrr0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0081_diff.png
+map_Kd Meshesbwmdoorrr0081_diff.png
+map_d Meshesbwmdoorrr0081_diff.png
+
+newmtl Meshesbwmsplitter01Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsplitter01_diff.png
+map_Kd Meshesbwmsplitter01_diff.png
+map_d Meshesbwmsplitter01_diff.png
+
+newmtl Meshesbwmint0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmint0071_diff.png
+map_Kd Meshesbwmint0071_diff.png
+map_d Meshesbwmint0071_diff.png
+
+newmtl Meshesbwmdoorlf0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0041_diff.png
+map_Kd Meshesbwmdoorlf0041_diff.png
+map_d Meshesbwmdoorlf0041_diff.png
+
+newmtl Meshesbwmdoorlr0061Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0061_diff.png
+map_Kd Meshesbwmdoorlr0061_diff.png
+map_d Meshesbwmdoorlr0061_diff.png
+
+newmtl Meshesbwmboot0021Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0021_diff.png
+map_Kd Meshesbwmboot0021_diff.png
+map_d Meshesbwmboot0021_diff.png
+
+newmtl Meshesbwmsteeringwheel0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0071_diff.png
+map_Kd Meshesbwmsteeringwheel0071_diff.png
+map_d Meshesbwmsteeringwheel0071_diff.png
+
+newmtl Meshesbwmbumperf00011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbumperf00011_diff.png
+map_Kd Meshesbwmbumperf00011_diff.png
+map_d Meshesbwmbumperf00011_diff.png
+
+newmtl Meshesbwmdoorlf1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.501961
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf1_diff.png
+map_Kd Meshesbwmdoorlf1_diff.png
+map_d Meshesbwmdoorlf1_diff.png
+
+newmtl Meshesbwmboot0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmboot0141_diff.png
+map_Kd Meshesbwmboot0141_diff.png
+map_d Meshesbwmboot0141_diff.png
+
+newmtl Meshesbwmlights0141Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmlights0141_diff.png
+map_Kd Meshesbwmlights0141_diff.png
+map_d Meshesbwmlights0141_diff.png
+
+newmtl Meshesbwmdoorlf0151Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0151_diff.png
+map_Kd Meshesbwmdoorlf0151_diff.png
+map_d Meshesbwmdoorlf0151_diff.png
+
+newmtl Meshesbwmdoorlf0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0031_diff.png
+map_Kd Meshesbwmdoorlf0031_diff.png
+map_d Meshesbwmdoorlf0031_diff.png
+
+newmtl Meshesbwmboot0131Mtl
+Material Color
+Ka 0.560499 0.0169881 0.00775103
+Kd 0.560499 0.0169881 0.00775103
+Ks 0.3363 0.0101928 0.00465062 
+
+d 1
+
+Ns 0
+
+newmtl Meshesbwmbonnetok0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmbonnetok0011_diff.png
+map_Kd Meshesbwmbonnetok0011_diff.png
+map_d Meshesbwmbonnetok0011_diff.png
+
+newmtl Meshesbwmturnlghs1Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmturnlghs1_diff.png
+map_Kd Meshesbwmturnlghs1_diff.png
+map_d Meshesbwmturnlghs1_diff.png
+
+newmtl Meshesbwmsteeringwheel0051Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmsteeringwheel0051_diff.png
+map_Kd Meshesbwmsteeringwheel0051_diff.png
+map_d Meshesbwmsteeringwheel0051_diff.png
+
+newmtl Meshesbwmdoorlf0101Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0101_diff.png
+map_Kd Meshesbwmdoorlf0101_diff.png
+map_d Meshesbwmdoorlf0101_diff.png
+
+newmtl Meshesbwmturnlghs0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmturnlghs0011_diff.png
+map_Kd Meshesbwmturnlghs0011_diff.png
+map_d Meshesbwmturnlghs0011_diff.png
+
+newmtl Meshesbwmdoorrf0031Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrf0031_diff.png
+map_Kd Meshesbwmdoorrf0031_diff.png
+map_d Meshesbwmdoorrf0031_diff.png
+
+newmtl Meshesbwmdoorrr0011Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorrr0011_diff.png
+map_Kd Meshesbwmdoorrr0011_diff.png
+map_d Meshesbwmdoorrr0011_diff.png
+
+newmtl Meshesbwmbumperf00081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 0.952941
+
+Ns 0
+
+map_Ka Meshesbwmbumperf00081_diff.png
+map_Kd Meshesbwmbumperf00081_diff.png
+map_d Meshesbwmbumperf00081_diff.png
+
+newmtl Meshesbwmlights1Mtl
+Material Color
+Ka 0.373615 0.368591 0.383775
+Kd 0.373615 0.368591 0.383775
+Ks 0.224169 0.221155 0.230265 
+
+d 1
+
+Ns 0
+
+newmtl Meshesbwmdoorlr0071Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0071_diff.png
+map_Kd Meshesbwmdoorlr0071_diff.png
+map_d Meshesbwmdoorlr0071_diff.png
+
+newmtl Meshesbwmdoorlr0041Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlr0041_diff.png
+map_Kd Meshesbwmdoorlr0041_diff.png
+map_d Meshesbwmdoorlr0041_diff.png
+
+newmtl Meshesbwmdoorlf0081Mtl
+Material Color
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.6 0.6 0.6 
+
+d 1
+
+Ns 0
+
+map_Ka Meshesbwmdoorlf0081_diff.png
+map_Kd Meshesbwmdoorlf0081_diff.png
+map_d Meshesbwmdoorlf0081_diff.png
+

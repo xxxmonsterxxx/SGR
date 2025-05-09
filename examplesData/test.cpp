@@ -9,6 +9,284 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 	#include "tiny_obj_loader.h"
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+	#include "tiny_gltf.h"
+
+
+std::string resourcePath;
+
+SGR sgr_object1;
+SgrTime_t lastTextureChange = SgrTime::now();
+
+// data structure for instance uses shader presenter as "instance shader"
+struct InstanceData {
+	glm::mat4 model;
+	glm::vec4 color;
+	glm::vec2 deltaText;
+	glm::vec2 startMesh;
+	glm::vec2 startText;
+};
+
+struct ModelInstanceData {
+	glm::mat4 model{1.f};
+};
+
+SgrInstancesUBO rectangles;
+SgrInstancesUBO models;
+SgrGlobalUBO ubo;
+std::map<std::string, SgrInstancesUBO> gltfPrimitives;
+std::map<std::string, uint32_t> gltfPrimitivesCounter;
+
+struct GLTFVertex {
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec2 uv;
+	glm::vec3 color;
+};
+
+struct Primitive {
+	std::string name;
+	std::vector<GLTFVertex> verts;
+	std::vector<uint32_t> inds;
+	int textureInd;
+};
+
+struct Mesh {
+	std::vector<Primitive> primitives;
+};
+
+struct Node {
+	std::string name;
+	Node* parent;
+	std::vector<Node*> children;
+	Mesh mesh;
+	glm::mat4 matrix;
+	~Node() {
+		for (auto& child : children) {
+			delete child;
+		}
+	}
+};
+
+struct Material {
+	glm::vec4 baseColorFactor = glm::vec4(1.0f);
+	uint32_t baseColorTextureIndex;
+};
+
+void loadNode(const tinygltf::Node& inputNode, const tinygltf::Model& input, Node* parent, std::vector<Node*>& nodes)
+{
+	Node* node = new Node{};
+	node->name = inputNode.name;
+	node->matrix = glm::mat4(1.0f);
+	node->parent = parent;
+
+	// Get the local node matrix
+	// It's either made up from translation, rotation, scale or a 4x4 matrix
+	if (inputNode.translation.size() == 3) {
+		node->matrix = glm::translate(node->matrix, glm::vec3(glm::make_vec3(inputNode.translation.data())));
+	}
+	if (inputNode.rotation.size() == 4) {
+		glm::quat q = glm::make_quat(inputNode.rotation.data());
+		node->matrix *= glm::mat4(q);
+	}
+	if (inputNode.scale.size() == 3) {
+		node->matrix = glm::scale(node->matrix, glm::vec3(glm::make_vec3(inputNode.scale.data())));
+	}
+	if (inputNode.matrix.size() == 16) {
+		node->matrix = glm::make_mat4x4(inputNode.matrix.data());
+	};
+
+	// Load node's children
+	if (inputNode.children.size() > 0) {
+		for (size_t i = 0; i < inputNode.children.size(); i++) {
+			loadNode(input.nodes[inputNode.children[i]], input , node, nodes);
+		}
+	}
+
+	// If the node contains mesh data, we load vertices and indices from the buffers
+	// In glTF this is done via accessors and buffer views
+	if (inputNode.mesh > -1) {
+		const tinygltf::Mesh mesh = input.meshes[inputNode.mesh];
+		// Iterate through all primitives of this node's mesh
+		for (size_t i = 0; i < mesh.primitives.size(); i++) {
+			const tinygltf::Primitive& glTFPrimitive = mesh.primitives[i];
+			Primitive* primitive = new Primitive{};
+			primitive->name = mesh.name + "_" + std::to_string(i);
+			uint32_t indexCount = 0;
+			// Vertices
+			{
+				const float* positionBuffer = nullptr;
+				const float* normalsBuffer = nullptr;
+				const float* texCoordsBuffer = nullptr;
+				size_t vertexCount = 0;
+
+				// Get buffer data for vertex positions
+				if (glTFPrimitive.attributes.find("POSITION") != glTFPrimitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("POSITION")->second];
+					const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+					positionBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+					vertexCount = accessor.count;
+				}
+				// Get buffer data for vertex normals
+				if (glTFPrimitive.attributes.find("NORMAL") != glTFPrimitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("NORMAL")->second];
+					const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+					normalsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+				}
+				// Get buffer data for vertex texture coordinates
+				// glTF supports multiple sets, we only load the first one
+				if (glTFPrimitive.attributes.find("TEXCOORD_0") != glTFPrimitive.attributes.end()) {
+					const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.attributes.find("TEXCOORD_0")->second];
+					const tinygltf::BufferView& view = input.bufferViews[accessor.bufferView];
+					texCoordsBuffer = reinterpret_cast<const float*>(&(input.buffers[view.buffer].data[accessor.byteOffset + view.byteOffset]));
+				}
+
+				// Append data to model's vertex buffer
+				for (size_t v = 0; v < vertexCount; v++) {
+					GLTFVertex vert{};
+					vert.pos = glm::vec4(glm::make_vec3(&positionBuffer[v * 3]), 1.0f);
+					vert.normal = glm::normalize(glm::vec3(normalsBuffer ? glm::make_vec3(&normalsBuffer[v * 3]) : glm::vec3(0.0f)));
+					vert.uv = texCoordsBuffer ? glm::make_vec2(&texCoordsBuffer[v * 2]) : glm::vec3(0.0f);
+					vert.color = glm::vec3(1.0f);
+					primitive->verts.push_back(vert);
+				}
+
+				primitive->textureInd = input.materials[glTFPrimitive.material].values.find("baseColorTexture")->second.TextureIndex();
+			}
+			// Indices
+			{
+				const tinygltf::Accessor& accessor = input.accessors[glTFPrimitive.indices];
+				const tinygltf::BufferView& bufferView = input.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer& buffer = input.buffers[bufferView.buffer];
+
+				indexCount += static_cast<uint32_t>(accessor.count);
+
+				// glTF supports different component types of indices
+				switch (accessor.componentType) {
+				case TINYGLTF_PARAMETER_TYPE_UNSIGNED_INT: {
+					const uint32_t* buf = reinterpret_cast<const uint32_t*>(&buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+					for (size_t index = 0; index < accessor.count; index++) {
+						primitive->inds.push_back(buf[index]);
+					}
+					break;
+				}
+				case TINYGLTF_PARAMETER_TYPE_UNSIGNED_SHORT: {
+					const uint16_t* buf = reinterpret_cast<const uint16_t*>(&buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+					for (size_t index = 0; index < accessor.count; index++) {
+						primitive->inds.push_back(buf[index]);
+					}
+					break;
+				}
+				case TINYGLTF_PARAMETER_TYPE_UNSIGNED_BYTE: {
+					const uint8_t* buf = reinterpret_cast<const uint8_t*>(&buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+					for (size_t index = 0; index < accessor.count; index++) {
+						primitive->inds.push_back(buf[index]);
+					}
+					break;
+				}
+				default:
+					std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
+					return;
+				}
+			}
+			//primitive.materialIndex = glTFPrimitive.material;
+			node->mesh.primitives.push_back(*primitive);
+
+			gltfPrimitives[primitive->name] = *new SgrInstancesUBO{};
+			gltfPrimitives[primitive->name].instnaceCount = 1;
+			gltfPrimitives[primitive->name].instanceSize = sizeof(ModelInstanceData);
+			if (MemoryManager::createDynamicUniformMemory(gltfPrimitives[primitive->name]) != sgrOK)
+				return;
+
+			if (MemoryManager::get()->createDynamicUniformBuffer(gltfPrimitives[primitive->name].ubo, gltfPrimitives[primitive->name].dataSize, gltfPrimitives[primitive->name].dynamicAlignment) != sgrOK)
+				return;
+		}
+	}
+
+	if (parent) {
+		parent->children.push_back(node);
+	}
+	else {
+		nodes.push_back(node);
+	}
+}
+
+bool loadImages(tinygltf::Model input, std::vector<SgrImage*>& images)
+{
+	printf("\nLoading images\n");
+	// Images can be stored inside the glTF (which is the case for the sample model), so instead of directly
+	// loading them from disk, we fetch them from the glTF loader and upload the buffers
+	images.resize(input.images.size());
+	for (size_t i = 0; i < input.images.size(); i++) {
+		printf("\rLoad process...[%d]", (int)(i / (float)input.images.size() * 100));
+		fflush(stdout);
+		tinygltf::Image& glTFImage = input.images[i];
+		// Get the image data from the glTF loader
+		unsigned char* buffer = nullptr;
+		VkDeviceSize bufferSize = 0;
+		bool deleteBuffer = false;
+		// We convert RGB-only images to RGBA, as most devices don't support RGB-formats in Vulkan
+		if (glTFImage.component == 3) {
+			bufferSize = glTFImage.width * glTFImage.height * 4;
+			buffer = new unsigned char[bufferSize];
+			unsigned char* rgba = buffer;
+			unsigned char* rgb = &glTFImage.image[0];
+			for (size_t i = 0; i < glTFImage.width * glTFImage.height; ++i) {
+				memcpy(rgba, rgb, sizeof(unsigned char) * 3);
+				rgba += 4;
+				rgb += 3;
+			}
+			deleteBuffer = true;
+		}
+		else {
+			buffer = &glTFImage.image[0];
+			bufferSize = glTFImage.image.size();
+		}
+		// Load texture from image buffer
+		if (TextureManager::createTextureImage((void*)buffer, glTFImage.width, glTFImage.height, images[i]) != sgrOK)
+			return false;
+
+		if (deleteBuffer) {
+			delete[] buffer;
+		}
+	}
+
+	printf("\rLoad process...[%d]", 100);
+	fflush(stdout);
+
+	return true;
+}
+
+bool loadGLTFModel(std::string filename, std::vector<Node*>& nodes, std::vector<SgrImage*>& images)
+{
+	printf("\nLoading GLTF model %s", filename.c_str());
+	tinygltf::Model glTFInput;
+	tinygltf::TinyGLTF gltfContext;
+	std::string error, warning;
+
+	bool fileLoaded = gltfContext.LoadASCIIFromFile(&glTFInput, &error, &warning, filename);
+
+	if (!loadImages(glTFInput, images))
+		return false;
+	/*glTFModel.loadMaterials(glTFInput);
+	glTFModel.loadTextures(glTFInput);*/
+
+	const tinygltf::Scene& scene = glTFInput.scenes[0];
+	printf("\nLoading nodes\n");
+	for (size_t i = 0; i < scene.nodes.size(); i++) {
+		printf("\rLoad process...[%d]", (int)(i / (float)scene.nodes.size() * 100));
+		fflush(stdout);
+		const tinygltf::Node node = glTFInput.nodes[scene.nodes[i]];
+		loadNode(node, glTFInput, nullptr, nodes);
+	}
+
+	printf("\rLoad process...[%d]",100);
+	fflush(stdout);
+
+	return fileLoaded;
+}
 
 struct ModelVertex {
 	SgrVertex vert;
@@ -26,7 +304,7 @@ struct ModelVertex {
 bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<ModelVertex>& vertices, std::vector<uint32_t>& indices, std::vector<SgrImage*>& textures)
 {
 	std::string objPath = modelPath+"/"+modelName+".obj";
-	printf("\n\nLoad model: %s\n",modelName.c_str());
+	printf("\n\nLoading model: %s\n",modelName.c_str());
 
 	tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -56,7 +334,7 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 			vertex.vert.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.vert.z = attrib.vertices[3 * index.vertex_index + 2];
 
-#if NDBUG == FALSE
+#if NDBUG == true
 			auto it = std::find(vertices.begin(), vertices.end(), vertex);
 			if (it != vertices.end()) {
 				indices.push_back(std::distance(vertices.begin(), it));
@@ -118,9 +396,8 @@ bool loadObjectModel(std::string modelPath, std::string modelName, std::vector<M
 		vertex.vert -= (centroid / (float)vertices.size());
 	}
 
-	printf("\nLoad process ...[%d]",100);
-	printf("\nLoaded");
-
+	printf("\rLoad process...[%d]",100);
+	fflush(stdout);
 	printf("\nLoaded %d vertices | draw %d indices",(int)vertices.size(), (int)indices.size());
 
 	return true;
@@ -301,56 +578,144 @@ std::vector<VkDescriptorSetLayoutBinding> createDescriptorSetLayoutBindingModel(
 	return layoutBindings;
 }
 
+std::vector<VkVertexInputBindingDescription> createBindingDescrGLTF()
+{
+	VkVertexInputBindingDescription vertexBindingDescription;
+	vertexBindingDescription.binding = 0;
+	vertexBindingDescription.stride = sizeof(GLTFVertex);
+	vertexBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
+	std::vector<VkVertexInputBindingDescription> vertexBindingDescriptions{ vertexBindingDescription };
+	return vertexBindingDescriptions;
+}
 
-SGR sgr_object1;
+std::vector<VkVertexInputAttributeDescription> createAttrDescrGLTF()
+{
+	VkVertexInputAttributeDescription positionDescr;
+	positionDescr.binding = 0;
+	positionDescr.location = 0;
+	positionDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+	positionDescr.offset = offsetof(GLTFVertex, pos);
 
-SgrTime_t frame_dr;
-SgrTime_t lastDraw = SgrTime::now();
-SgrTime_t lastTextureChange = SgrTime::now();
+	VkVertexInputAttributeDescription normalDescr;
+	normalDescr.binding = 0;
+	normalDescr.location = 1;
+	normalDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+	normalDescr.offset = offsetof(GLTFVertex, normal);
 
-// data structure for instance uses shader presenter as "instance shader"
-struct InstanceData {
-	glm::mat4 model;
-	glm::vec4 color;
-	glm::vec2 deltaText;
-	glm::vec2 startMesh;
-	glm::vec2 startText;
-};
+	VkVertexInputAttributeDescription uvDescr;
+	uvDescr.binding = 0;
+	uvDescr.location = 2;
+	uvDescr.format = VK_FORMAT_R32G32_SFLOAT;
+	uvDescr.offset = offsetof(GLTFVertex, uv);
 
-struct ModelInstanceData {
-	glm::mat4 model;
-};
+	VkVertexInputAttributeDescription colorDescr;
+	colorDescr.binding = 0;
+	colorDescr.location = 3;
+	colorDescr.format = VK_FORMAT_R32G32B32_SFLOAT;
+	colorDescr.offset = offsetof(GLTFVertex, color);
 
-SgrInstancesUniformBufferObject rectangles;
-SgrInstancesUniformBufferObject models;
-SgrGlobalUniformBufferObject ubo;
+	std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
+	vertexAttributeDescriptions.push_back(positionDescr);
+	vertexAttributeDescriptions.push_back(normalDescr);
+	vertexAttributeDescriptions.push_back(uvDescr);
+	vertexAttributeDescriptions.push_back(colorDescr);
+	return vertexAttributeDescriptions; 
+}
+
+void changeGLTFModel(Node* mainNode)
+{
+	mainNode->matrix = glm::rotate(mainNode->matrix, glm::radians(0.5f), glm::vec3(0, 1, 0));
+	for (auto& child : mainNode->children) {
+		Node* currentParrent = child->parent;
+		glm::mat4 model(1.f);
+		while (currentParrent) {
+			model = currentParrent->matrix * child->matrix;
+			currentParrent = currentParrent->parent;
+		}
+
+		for (auto& prim : child->mesh.primitives) {
+			ModelInstanceData* data = (ModelInstanceData*)((uint64_t)gltfPrimitives[prim.name].data);
+			data->model = model;
+		}
+	}
+}
+
+bool registerGLTFModel(std::vector<Node*> nodes, std::vector<SgrImage*> images, SgrBuffer* ubo)
+{
+	for (const auto& parrent : nodes) {
+		parrent->matrix = glm::scale(parrent->matrix, glm::vec3(0.5, 0.5, 0.5));
+		parrent->matrix = glm::translate(parrent->matrix, glm::vec3(0.65, 0.4, 0));
+		for (const auto& node : parrent->children) {
+			for (auto& prim : node->mesh.primitives) {
+				std::vector<GLTFVertex>& primitiveVerts = prim.verts;
+				std::vector<uint32_t>& primitiveInds = prim.inds;
+				SGR_CHECK_RES(sgr_object1.addNewObjectGeometry(prim.name, primitiveVerts.data(), primitiveVerts.size() * sizeof(GLTFVertex), primitiveInds,
+					resourcePath + "/shaders/vertGLTF.spv",
+					resourcePath + "/shaders/fragGLTF.spv",
+					true,
+					createBindingDescrGLTF(),
+					createAttrDescrGLTF(),
+					createDescriptorSetLayoutBinding()));
+
+				uint32_t dynAlign = gltfPrimitivesCounter[prim.name]++ * gltfPrimitives[prim.name].dynamicAlignment;
+				if (sgr_object1.addObjectInstance(node->name + "_" + prim.name, prim.name, dynAlign) != sgrOK)
+					return false;
+
+				ModelInstanceData* data = (ModelInstanceData*)((uint64_t)gltfPrimitives[prim.name].data + dynAlign);
+
+				Node* currentParrent = node->parent;
+				while (currentParrent) {
+					data->model = currentParrent->matrix * node->matrix;
+					currentParrent = currentParrent->parent;
+				}
+
+				std::vector<void*> objData;
+				objData.push_back((void*)(ubo));
+				objData.push_back((void*)(&images[prim.textureInd]));
+				objData.push_back((void*)(gltfPrimitives[prim.name].ubo));
+				if (sgr_object1.writeDescriptorSets(node->name + "_" + prim.name, objData) != sgrOK)
+					return false;
+				if (sgr_object1.drawObject(node->name + "_" + prim.name) != sgrOK)
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 
 void updateData() {
-	if (getTimeDuration(lastDraw, SgrTime::now()) > 0.1) {
-		InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0*rectangles.dynamicAlignment);
-		glm::vec2* texCoord = &iData->startText;
+	InstanceData* iData = (InstanceData*)((uint64_t)rectangles.data + 0 * rectangles.dynamicAlignment);
+	glm::vec2* texCoord = &iData->startText;
+	if (getTimeDuration(lastTextureChange, SgrTime::now()) > 10*0.01666) {
 		texCoord->x += 0.111f;
 		if (texCoord->x >= 1)
 			texCoord->x = 0;
 
-		iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.09));
-
-		ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{0,1,0});
-
-		iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(-2.f), glm::vec3{ 0,1,0 });
-
-		iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
-		iMData->model = glm::rotate(iMData->model, glm::radians(2.f), glm::vec3{ 0,0,1 });
-
-		lastDraw = SgrTime::now();
+		lastTextureChange = SgrTime::now();
 	}
 
-	sgr_object1.updateGlobalUniformBufferObject(ubo);
-	sgr_object1.updateInstancesUniformBufferObject(rectangles);
-	sgr_object1.updateInstancesUniformBufferObject(models);
+	iData->model = glm::translate(iData->model, glm::vec3(0, 0, -0.009));
+
+	ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{0,1,0});
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(-0.2f), glm::vec3{ 0,1,0 });
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{ 0,0,1 });
+
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
+	iMData->model = glm::rotate(iMData->model, glm::radians(0.2f), glm::vec3{ 0,1,0 });
+
+	sgr_object1.updateGlobalUBO(ubo);
+	sgr_object1.updateInstancesUBO(rectangles);
+	sgr_object1.updateInstancesUBO(models);
+	for (auto& instUBO : gltfPrimitives)
+		sgr_object1.updateInstancesUBO(instUBO.second);
 };
 
 bool exitFlag = false;
@@ -388,20 +753,16 @@ int main()
 {
 	// This source code is example for using SGR library
 	
-	SgrErrCode resultSGRInit = sgr_object1.init();
-	if (resultSGRInit != sgrOK) {
-		return resultSGRInit;
-	}
-
+	SGR_CHECK_RES(sgr_object1.init());
 
 	std::string executablePath = getExecutablePath();
 	if (executablePath.length() == 0)
 		return 11;
 
-#if __APPLE__ && !NDBUG
-	std::string resourcePath = executablePath + "/../Resources";
+#if __APPLE__ && NDBUG
+	resourcePath = executablePath + "/../Resources";
 #else
-	std::string resourcePath = executablePath + "/Resources";
+	resourcePath = executablePath + "/Resources";
 #endif
 
 
@@ -444,74 +805,58 @@ int main()
 	std::vector<VkVertexInputBindingDescription> bindInpDescr = createBindingDescr();
 	std::vector<VkVertexInputAttributeDescription> attDescr = createAttrDescr();
 
-	rectangles.instnaceCount = 5;
+	rectangles.instnaceCount = 4;
 	rectangles.instanceSize = sizeof(InstanceData);
-	if (MemoryManager::createDynamicUniformMemory(rectangles) != sgrOK)
-		return 0;
-	SgrErrCode resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment);
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::createDynamicUniformMemory(rectangles));
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(rectangles.ubo, rectangles.dataSize, rectangles.dynamicAlignment));
 
 
-	models.instnaceCount = 3;
+	models.instnaceCount = 4;
 	models.instanceSize = sizeof(ModelInstanceData);
-	if (MemoryManager::createDynamicUniformMemory(models) != sgrOK)
-		return 10;
-	resultCreateBuffer = MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment);
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::createDynamicUniformMemory(models));
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(models.ubo, models.dataSize, models.dynamicAlignment));
 
 	SgrBuffer* uboBuffer = nullptr;
-	resultCreateBuffer = MemoryManager::get()->createUniformBuffer(uboBuffer, sizeof(SgrGlobalUniformBufferObject));
-	if (resultCreateBuffer != sgrOK)
-		return resultCreateBuffer;
+	SGR_CHECK_RES(MemoryManager::get()->createDynamicUniformBuffer(uboBuffer, sizeof(SgrGlobalUBO)));
 
-	SgrErrCode resultAddNewObject = sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("rectangle", obMeshVertices.data(), obMeshVertices.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 
 	// add instance man
-	sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("man","rectangle",static_cast<uint32_t>(0*rectangles.dynamicAlignment)));
 
 	SgrImage* texture1 = nullptr;
-	SgrErrCode resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1);
-	if (resultCreateTextureImage != sgrOK)
-		return resultCreateTextureImage;
+	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/man.png", texture1));
 
 	std::vector<void*> objectData;
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture1));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("man", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("man", objectData));
 
 
 	// new geometry
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("triangle", obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("triangle", obMeshVertices1.data(), obMeshVertices1.size() * sizeof(SgrVertex), obMeshIndices1, obShaderVert, obShaderFragColor, false, bindInpDescr, attDescr, setLayoutBinding));
 
 
-	sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("tree","triangle",static_cast<uint32_t>(1*rectangles.dynamicAlignment)));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture1));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("tree", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("tree", objectData));
 
 	// add instance road
-	sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("road","rectangle",static_cast<uint32_t>(2*rectangles.dynamicAlignment)));
 
 	SgrImage* texture2 = nullptr;
-	resultCreateTextureImage = TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2);
-	if (resultCreateTextureImage != sgrOK)
-		return resultCreateTextureImage;
+	SGR_CHECK_RES(TextureManager::createTextureImage(resourcePath + "/textures/road.png", texture2));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&texture2));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("road", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("road", objectData));
 
 
 	// add geometry and texture for letter
@@ -521,11 +866,7 @@ int main()
 	uint32_t pixelsWidth, pixelsHeight;
 	std::string font_path = resourcePath + "/fonts/times new roman.ttf";
 	getFontData(font_path, fontPixels, fontData, pixelsWidth, pixelsHeight);
-	resultCreateTextureImage = TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage);
-	if (resultCreateTextureImage != sgrOK) {
-		free(fontData);
-		return resultCreateTextureImage;
-	}
+	SGR_CHECK_RES(TextureManager::createFontTextureImage(fontPixels, pixelsWidth, pixelsHeight, textImage));
 
 	glm::vec4 meshLetter;
 	glm::vec4 textLetter;
@@ -536,22 +877,20 @@ int main()
 										 {meshLetter.x, meshLetter.w, 0}};
 	free(fontData);
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("letterMesh", letterMesh.data(), letterMesh.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding);
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("letterMesh", letterMesh.data(), letterMesh.size() * sizeof(SgrVertex), obMeshIndices, obShaderVert, obShaderFrag, true, bindInpDescr, attDescr, setLayoutBinding));
 	glm::vec2 letStartMesh(meshLetter.x, meshLetter.y);
 	glm::vec2 letStartText(textLetter.x, textLetter.y);
 	glm::vec2 deltaText;
 	deltaText.x = (textLetter.z - textLetter.x) / (meshLetter.z - meshLetter.x);
 	deltaText.t = (textLetter.w - textLetter.y) / (meshLetter.w - meshLetter.y);
 	
-	sgr_object1.addObjectInstance("letter", "letterMesh", static_cast<uint32_t>(3*rectangles.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("letter", "letterMesh", static_cast<uint32_t>(3*rectangles.dynamicAlignment)));
 
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(&textImage));
 	objectData.push_back((void*)(rectangles.ubo));
-	sgr_object1.writeDescriptorSets("letter", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("letter", objectData));
 
 
 	// load models
@@ -564,32 +903,30 @@ int main()
 		return 666;
 
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("car", audiVerts.data(), audiVerts.size() * sizeof(ModelVertex), audiInds,
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("car", audiVerts.data(), audiVerts.size() * sizeof(ModelVertex), audiInds,
 																						obModelShaderVert,
 																						obModelShaderFrag,
 																						true,
 																						createBindingDescrModel(),
 																						createAttrDescrModel(),
-																						createDescriptorSetLayoutBindingModel((uint8_t)audiTextures.size()));
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+																						createDescriptorSetLayoutBindingModel((uint8_t)audiTextures.size())));
 
 
 	// add model instance 1
-	sgr_object1.addObjectInstance("audi1", "car", static_cast<uint32_t>(0*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("audi1", "car", static_cast<uint32_t>(0*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(audiTextures.data()));
-	sgr_object1.writeDescriptorSets("audi1", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("audi1", objectData));
 
 	// add model instance 2
-	sgr_object1.addObjectInstance("audi2", "car", static_cast<uint32_t>(1*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("audi2", "car", static_cast<uint32_t>(1*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(audiTextures.data()));
-	sgr_object1.writeDescriptorSets("audi2", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("audi2", objectData));
 
 
 	// load room model
@@ -599,52 +936,67 @@ int main()
 	if (!loadObjectModel(resourcePath + "/3d_models/viking_room", "viking_room", roomVerts, roomInds, roomTextures))
 		return 777;
 
-	resultAddNewObject = sgr_object1.addNewObjectGeometry("room", roomVerts.data(), roomVerts.size() * sizeof(ModelVertex), roomInds,
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("room", roomVerts.data(), roomVerts.size() * sizeof(ModelVertex), roomInds,
 																							obModelShaderVert,
 																							obModelShaderFrag,
 																							true,
 																							createBindingDescrModel(),
 																							createAttrDescrModel(),
-																							createDescriptorSetLayoutBindingModel((uint8_t)roomTextures.size()));
-
-	if (resultAddNewObject != sgrOK)
-		return resultAddNewObject;
+																							createDescriptorSetLayoutBindingModel((uint8_t)roomTextures.size())));
 
 
 	// add room instance
-	sgr_object1.addObjectInstance("viking_room", "room", static_cast<uint32_t>(2*models.dynamicAlignment));
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("viking_room", "room", static_cast<uint32_t>(2*models.dynamicAlignment)));
 	objectData.clear();
 	objectData.push_back((void*)(uboBuffer));
 	objectData.push_back((void*)(models.ubo));
 	objectData.push_back((void*)(roomTextures.data()));
-	sgr_object1.writeDescriptorSets("viking_room", objectData);
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("viking_room", objectData));
 
+
+	std::vector<ModelVertex> bmwVerts;
+	std::vector<uint32_t> bmwInds;
+	std::vector<SgrImage*> bmwTextures;
+	if (!loadObjectModel(resourcePath + "/3d_models/bmw_m3", "bmw_m3", bmwVerts, bmwInds, bmwTextures))
+		return 888;
+
+	SGR_CHECK_RES(sgr_object1.addNewObjectGeometry("bmw", bmwVerts.data(), bmwVerts.size() * sizeof(ModelVertex), bmwInds,
+																							obModelShaderVert,
+																							obModelShaderFrag,
+																							true,
+																							createBindingDescrModel(),
+																							createAttrDescrModel(),
+																							createDescriptorSetLayoutBindingModel((uint8_t)bmwTextures.size())));
+
+	SGR_CHECK_RES(sgr_object1.addObjectInstance("bmwm3", "bmw", static_cast<uint32_t>(3*models.dynamicAlignment)));
+	objectData.clear();
+	objectData.push_back((void*)(uboBuffer));
+	objectData.push_back((void*)(models.ubo));
+	objectData.push_back((void*)(bmwTextures.data()));
+	SGR_CHECK_RES(sgr_object1.writeDescriptorSets("bmwm3", objectData));
+
+
+	std::vector<Node*> helmetNodes;
+	std::vector<SgrImage*> helmetImages;
+	if (!loadGLTFModel(resourcePath + "/3d_models/FlightHelmet/FlightHelmet.gltf", helmetNodes, helmetImages))
+		return 999;
 
 	// now register all objects
 
-	if (sgr_object1.drawObject("man") != sgrOK)
-		return 100;
+	SGR_CHECK_RES(sgr_object1.drawObject("man"));
+	SGR_CHECK_RES(sgr_object1.drawObject("tree"));
+	SGR_CHECK_RES(sgr_object1.drawObject("road"));
+	SGR_CHECK_RES(sgr_object1.drawObject("letter"));
+	SGR_CHECK_RES(sgr_object1.drawObject("audi1"));
+	SGR_CHECK_RES(sgr_object1.drawObject("audi2"));
+	SGR_CHECK_RES(sgr_object1.drawObject("viking_room"));
+	SGR_CHECK_RES(sgr_object1.drawObject("bmwm3"));
 
-	if (sgr_object1.drawObject("tree") != sgrOK)
-		return 200;
-
-	if (sgr_object1.drawObject("road") != sgrOK)
-		return 300;
-
-	if (sgr_object1.drawObject("letter") != sgrOK)
-		return 400;
-
-	if (sgr_object1.drawObject("audi1") != sgrOK)
-		return 500;
-
-	if (sgr_object1.drawObject("audi2") != sgrOK)
-	 	return 600;
-
-	if (sgr_object1.drawObject("viking_room") != sgrOK)
-		return 700;
+	if (!registerGLTFModel(helmetNodes, helmetImages, uboBuffer))
+		return 900;
 
 
-	sgr_object1.setupGlobalUniformBufferObject(uboBuffer);
+	sgr_object1.setupGlobalUBO(uboBuffer);
 
 
 // MAN
@@ -683,17 +1035,20 @@ int main()
 	current->deltaText = deltaText;
 
 // 3D Models
+
+	//audi 1
 	ModelInstanceData* iMData = (ModelInstanceData*)((uint64_t)models.data + 0*models.dynamicAlignment);
 	iMData->model = glm::mat4(1.f);
-	iMData->model = glm::scale(iMData->model,{0.03,0.03,0.03});
+	iMData->model = glm::scale(iMData->model,{0.025,0.025,0.025});
 	iMData->model = glm::rotate(iMData->model,glm::radians(180.f),{0,0,1});
-	iMData->model = glm::translate(iMData->model,{0,8,0});
+	iMData->model = glm::translate(iMData->model,{0,12,0});
 
+	//audi 2
 	iMData = (ModelInstanceData*)((uint64_t)models.data + 1*models.dynamicAlignment);
 	iMData->model = glm::mat4(1.f);
 	iMData->model = glm::scale(iMData->model, { 0.03,0.03,0.03 });
-	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
-	iMData->model = glm::translate(iMData->model, { 8,-8,0 });
+	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), {0,0,1});
+	iMData->model = glm::translate(iMData->model, { 10,-10,0 });
 
 	//viking room
 	iMData = (ModelInstanceData*)((uint64_t)models.data + 2*models.dynamicAlignment);
@@ -701,13 +1056,16 @@ int main()
 	iMData->model = glm::scale(iMData->model, { 0.3,0.3,0.3 });
 	iMData->model = glm::translate(iMData->model, {1.5,1.5,-2});
 	iMData->model = glm::rotate(iMData->model, glm::radians(90.f), { 1,0,0 });
-	
 
-	sgr_object1.updateInstancesUniformBufferObject(rectangles);
-	sgr_object1.updateInstancesUniformBufferObject(models);
+	// bmw
+	iMData = (ModelInstanceData*)((uint64_t)models.data + 3*models.dynamicAlignment);
+	iMData->model = glm::mat4(1.f);
+	iMData->model = glm::scale(iMData->model, { 0.03,0.03,0.03 });
+	iMData->model = glm::translate(iMData->model, {-11,0,0});
+	iMData->model = glm::rotate(iMData->model, glm::radians(180.f), { 0,0,1 });
+
 	ubo.view = glm::translate(ubo.view, glm::vec3(0, 0, -1));
 	ubo.proj = glm::perspective(45.f, 1.f/1.f, 0.1f, 100.f);
-	sgr_object1.updateGlobalUniformBufferObject(ubo);
 
 	// add UI
 	SgrUIButton exitButton("Button1", {0.9, 0.9}, exitFunction, "Exit");
@@ -725,14 +1083,13 @@ int main()
 
 	sgr_object1.setUpdateFunction(updateData);
 	sgr_object1.setupUICallback();
+
+	printf("\nAll data prepared.\n");
 	while (!exitFlag) {
 		if (!sgr_object1.isSGRRunning())
 			break;
 
-		SgrErrCode resultDrawFrame = sgr_object1.drawFrame();
-
-		if (resultDrawFrame != sgrOK)
-			return resultDrawFrame;
+		SGR_CHECK_RES(sgr_object1.drawFrame());
 
 		if (toggleTextFlag) {
 			t1._visible= !textHided;
@@ -752,6 +1109,8 @@ int main()
 			objectData.push_back((void*)(rectangles.ubo));
 			sgr_object1.writeDescriptorSets("road", objectData);
 		}
+
+		changeGLTFModel(helmetNodes[0]);
 	}
 
 	SgrErrCode resultSGRDestroy = sgr_object1.destroy();

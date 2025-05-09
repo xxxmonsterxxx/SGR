@@ -9,6 +9,8 @@
 	#include <unistd.h>
 #endif
 
+void sgrEmptyDataUpdateFunc() { ; }
+
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
 	manualWindow = false;
@@ -42,15 +44,8 @@ SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 	shaderManager = ShaderManager::get();
 	uiManager = UIManager::get();
 
-	SgrObject emptyObject;
-	emptyObject.name = "empty";
-	objects.push_back(emptyObject);
-
-	SgrObjectInstance emptyInstance;
-	emptyInstance.name = "empty";
-	instances.push_back(emptyInstance);
-
 	currentFrame = 0;
+	setUpdateFunction(sgrEmptyDataUpdateFunc);
 }
 
 SGR::~SGR()
@@ -72,56 +67,22 @@ SgrErrCode SGR::init(uint32_t windowWidth, uint32_t windowHeight, const char *wi
 	if (window == nullptr)
 		return sgrInitWindowError;
 
-	SgrErrCode resultInit = sgrOK;
-
-	resultInit = initVulkanInstance();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = physicalDeviceManager->init(vulkanInstance);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initSurface(vulkanInstance, window);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, deviceRequiredExtensions, SwapChainManager::get()->surface);
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = logicalDeviceManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initSwapChain();
-	if (resultInit != sgrOK)
-		return resultInit;
+	SGR_CHECK_RES(initVulkanInstance());
+	SGR_CHECK_RES(physicalDeviceManager->init(vulkanInstance));
+	SGR_CHECK_RES(swapChainManager->initSurface(vulkanInstance, window));
+	SGR_CHECK_RES(physicalDeviceManager->findPhysicalDeviceRequired(requiredQueueFamilies, deviceRequiredExtensions, SwapChainManager::get()->surface));
+	SGR_CHECK_RES(logicalDeviceManager->init());
+	SGR_CHECK_RES(swapChainManager->initSwapChain());
 
 	maxFrameInFlight = swapChainManager->imageCount;
 
-	resultInit = renderPassManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = swapChainManager->initFrameBuffers();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = commandManager->init();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = initSyncObjects();
-	if (resultInit != sgrOK)
-		return resultInit;
-
-	resultInit = uiManager->init(window, vulkanInstance, swapChainManager->imageCount);
-	if (resultInit != sgrOK)
-		return resultInit;
+	SGR_CHECK_RES(renderPassManager->init());
+	SGR_CHECK_RES(swapChainManager->initFrameBuffers());
+	SGR_CHECK_RES(commandManager->init());
+	SGR_CHECK_RES(initSyncObjects());
+	SGR_CHECK_RES(uiManager->init(window, vulkanInstance, swapChainManager->imageCount));
 
 	sgrRunning = true;
-	startRunningTime = SgrTime::now();
 	windowManager->setSgrPtr(this);
 
 	return sgrOK;
@@ -181,7 +142,7 @@ void SGR::setAspectRatio(uint8_t x, uint8_t y)
 
 SgrErrCode SGR::drawFrame()
 {
-	SgrTime_t startDrawFrameTime = SgrTime::now();
+	SgrTime_t drawTime = SgrTime::now();
 
 	drawDataUpdate();
 
@@ -189,26 +150,22 @@ SgrErrCode SGR::drawFrame()
 
 
 	// start commands recording
-	SgrErrCode res = commandManager->beginCommandBuffers();
-	if (res != sgrOK)
-		return res;
+	SGR_CHECK_RES(commandManager->beginCommandBuffers());
 	
-	res = descriptorManager->updateDescriptorSets();
+	SgrErrCode res = descriptorManager->updateDescriptorSets();
 
 	if (res != sgrOK && res != sgrDescriptorsSetsUpdated)
 		return res;
 
 	if (!commandsBuilded || res == sgrDescriptorsSetsUpdated) {
-		res = buildDrawingCommands(res == sgrDescriptorsSetsUpdated);
-		if (res != sgrOK)
-			return res;
+		SGR_CHECK_RES(buildDrawingCommands(res == sgrDescriptorsSetsUpdated));
 	}
 
 	commandManager->executeCommands();
 	uiManager->uiRender();
 
 	// end commands recording
-	commandManager->endInitCommandBuffers();
+	commandManager->endCommandBuffers();
 
 	if (windowManager->minimized)
 		glfwWaitEvents();
@@ -283,17 +240,19 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = static_cast<float>(getTimeDuration(startDrawFrameTime,SgrTime::now()));
+	float drawFrameTime = static_cast<float>(getTimeDuration(drawTime,SgrTime::now()));
 
 	if (drawFrameTime < 1.f/fpsDesired) {
-		#if __linux__ || __APPLE__
-			usleep((1.f/fpsDesired - drawFrameTime)*1000000);
-		#endif
-
-		#if _WIN64
-			Sleep(DWORD((1.f / fpsDesired - drawFrameTime) * 1000));
-		#endif
+		int needWaitTime = (1.f/fpsDesired - drawFrameTime)*1000;
+		std::this_thread::sleep_for(std::chrono::milliseconds(needWaitTime));
 	}
+
+#if !NDBUG
+	uint8_t actualFPS = 1 / getTimeDuration(drawTime, SgrTime::now());
+	if (actualFPS > fpsMax) fpsMax = actualFPS;
+	if (actualFPS < fpsMin) fpsMin = actualFPS;
+	printf("\rFPS: %d [min %d : max %d : des %d]", actualFPS, fpsMin, fpsMax, fpsDesired);
+#endif
 
 	return sgrOK;
 }
@@ -490,27 +449,23 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceS
 									 std::vector<VkVertexInputAttributeDescription> attributDescrtions,
 									 std::vector<VkDescriptorSetLayoutBinding> setDescriptorSetsLayoutBinding)
 {
+	if (findObjectByName(name))
+		return sgrInstanceDuplicate;
+
 	SgrObject newObject;
 	newObject.name = name;
 
 	// create vertex buffer
 	newObject.vertices = nullptr;
-	SgrErrCode resultAllocateMemoryBuffer = memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices);
-	if (resultAllocateMemoryBuffer != sgrOK)
-		return resultAllocateMemoryBuffer;
+	SGR_CHECK_RES(memoryManager->createVertexBuffer(newObject.vertices, verticesSize, vertices));
 
 	// create index buffer
 	newObject.indicesCount = (uint32_t)indices.size();
 	VkDeviceSize size = sizeof(indices[0]) * indices.size();
 	newObject.indices = nullptr;
-	resultAllocateMemoryBuffer = memoryManager->createIndexBuffer(newObject.indices, size, indices.data());
-	if (resultAllocateMemoryBuffer != sgrOK)
-		return resultAllocateMemoryBuffer;
+	SGR_CHECK_RES(memoryManager->createIndexBuffer(newObject.indices, size, indices.data()));
 
-
-	SgrErrCode initShaderResult = shaderManager->createShaders(name, shaderVert, shaderFrag);
-	if (initShaderResult != sgrOK)
-		return initShaderResult;
+	SGR_CHECK_RES(shaderManager->createShaders(name, shaderVert, shaderFrag));
 
 	ShaderManager::SgrShader objectShaders = shaderManager->getShadersByName(name);
 	if (objectShaders.name == "empty")
@@ -532,10 +487,10 @@ SgrErrCode SGR::addNewObjectGeometry(std::string name, void* vertices, VkDeviceS
 
 SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment)
 {
-	if (findObjectByName(geometry).name == "empty")
+	if (!findObjectByName(geometry))
 		return sgrUnknownGeometry;
 
-	if (findInstanceByName(name).name != "empty")
+	if (findInstanceByName(name))
 		return sgrInstanceDuplicate;
 
 	SgrObjectInstance newInstance;
@@ -543,11 +498,13 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 	newInstance.geometry = geometry;
 	newInstance.uboDataAlignment = dynamicUBOalignment;
 
-	if (instances.back().geometry == geometry) {
+	// i dont remember why i did instances list groupped by geometry, yet disable it, later will see if it is necessary
+	// answer : to bind geometry only once we need to reorder instances by geometry
+	if (instances.empty() || instances.back().geometry == geometry) {
 		instances.push_back(newInstance);
 		return sgrOK;
 	} else {
-		for (size_t i = instances.size() - 1; i > 0; --i) {
+		for (size_t i = 0; i < instances.size() - 1; i++) {
 			if (instances[i].geometry == geometry) {
 				instances.emplace(instances.begin() + i + 1, newInstance);
 				return sgrOK;
@@ -559,27 +516,27 @@ SgrErrCode SGR::addObjectInstance(std::string name, std::string geometry, uint32
 	return sgrOK;
 }
 
-SGR::SgrObject& SGR::findObjectByName(std::string name)
+SGR::SgrObject* SGR::findObjectByName(std::string name)
 {
 	for (size_t i = 0; i < objects.size(); i++) {
 		if (objects[i].name == name)
-			return objects[i];
+			return &objects[i];
 	}
 
-	return objects[0];
+	return nullptr;
 }
 
-SGR::SgrObjectInstance& SGR::findInstanceByName(std::string name)
+SGR::SgrObjectInstance* SGR::findInstanceByName(std::string name)
 {
 	for (size_t i = 0; i < instances.size(); i++) {
 		if (instances[i].name == name)
-			return instances[i];
+			return &instances[i];
 	}
 
-	return instances[0];
+	return nullptr;
 }
 
-SgrErrCode SGR::setupGlobalUniformBufferObject(SgrBuffer* uboBuffer)
+SgrErrCode SGR::setupGlobalUBO(SgrBuffer* uboBuffer)
 {
 	UBO = uboBuffer;
 	return sgrOK;
@@ -593,28 +550,28 @@ void SGR::unbindAllMeshesAndPiplines()
 
 SgrErrCode SGR::drawObject(std::string instanceName)
 {
-	SgrObjectInstance& instance = findInstanceByName(instanceName);
-	if (instance.name == "empty") 
+	SgrObjectInstance* instance = findInstanceByName(instanceName);
+	if (!instance)
 		return sgrMissingInstance;
 
-	SgrObject& objectToDraw = findObjectByName(instance.geometry);
-	if (objectToDraw.name == "empty")
+	SgrObject* objectToDraw = findObjectByName(instance->geometry);
+	if (!objectToDraw)
 		return sgrMissingObject;
 
-	PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(instance.geometry);
-	if (objectPipeline->name == "empty")
+	PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(instance->geometry);
+	if (!objectPipeline)
 		return sgrMissingPipeline;
 
 	DescriptorManager::SgrDescriptorSets descrSets = descriptorManager->getDescriptorSetsByName(instanceName);
 	if (descrSets.name == "empty")
 		return sgrMissingDescriptorSets;
 
-	instance.needToDraw = true;
+	instance->needToDraw = true;
 
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO)
+SgrErrCode SGR::updateInstancesUBO(SgrInstancesUBO& dynUBO)
 { 
 	VkDevice device = logicalDeviceManager->instance->logicalDevice;
 
@@ -632,7 +589,7 @@ SgrErrCode SGR::updateInstancesUniformBufferObject(SgrInstancesUniformBufferObje
 	return sgrOK;
 }
 
-SgrErrCode SGR::updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj)
+SgrErrCode SGR::updateGlobalUBO(SgrGlobalUBO obj)
 {
 	MemoryManager::copyDataToBuffer(UBO, &obj);
 	return sgrOK;
@@ -640,8 +597,11 @@ SgrErrCode SGR::updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj
 
 SgrErrCode SGR::writeDescriptorSets(std::string name, std::vector<void*> data)
 {
-	std::string geometry = findInstanceByName(name).geometry;
-	return descriptorManager->updateDescriptorSets(name, descriptorManager->getDescriptorInfoByName(geometry).name, data);
+	SgrObjectInstance* instance = findInstanceByName(name);
+	if (!instance || instance->geometry == "empty")
+		return sgrUnknownGeometry;
+	
+	return descriptorManager->updateDescriptorSets(name, descriptorManager->getDescriptorInfoByName(instance->geometry).name, data);
 }
 
 bool SGR::setFPSDesired(uint8_t fps)
@@ -661,23 +621,21 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 		if (CommandManager::instance->init() != sgrOK)
         	return sgrReinitCommandBuffersError;
 
-		SgrErrCode res = commandManager->beginCommandBuffers();
-		if (res != sgrOK)
-			return res;
+		SGR_CHECK_RES(commandManager->beginCommandBuffers());
 
 		for (size_t i = 0; i < instances.size(); i++) {
-			const SgrObjectInstance& instance = instances[i];
+			const SgrObjectInstance instance = instances[i];
 			if (instance.name == "empty") 
 				continue;
 
 			if (!instance.needToDraw)
 				continue;
 
-			SgrObject& objectToDraw = findObjectByName(instance.geometry);
-			if (objectToDraw.name == "empty")
+			SgrObject* objectToDraw = findObjectByName(instance.geometry);
+			if (!objectToDraw)
 				return sgrMissingObject;
 
-			objectToDraw.meshDataAndPiplineBinded = false;
+			objectToDraw->meshDataAndPiplineBinded = false;
 		}
 	}
 
@@ -689,20 +647,20 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 		if (!instance.needToDraw)
 			continue;
 
-		SgrObject& objectToDraw = findObjectByName(instance.geometry);
-		if (objectToDraw.name == "empty")
+		SgrObject* objectToDraw = findObjectByName(instance.geometry);
+		if (!objectToDraw)
 			return sgrMissingObject;
 
 		PipelineManager::SgrPipeline* objectPipeline = pipelineManager->instance->getPipelineByName(instance.geometry);
-		if (objectPipeline->name == "empty")
+		if (!objectPipeline)
 			return sgrMissingPipeline;
 
-		if (!objectToDraw.meshDataAndPiplineBinded) {
+		if (!objectToDraw->meshDataAndPiplineBinded) {
 			commandManager->bindPipeline(&objectPipeline->pipeline);
-			std::vector<VkBuffer> vertices{ objectToDraw.vertices->vkBuffer };
+			std::vector<VkBuffer> vertices{ objectToDraw->vertices->vkBuffer };
 			commandManager->bindVertexBuffer(vertices);
-			commandManager->bindIndexBuffer(objectToDraw.indices->vkBuffer);
-			objectToDraw.meshDataAndPiplineBinded = true;
+			commandManager->bindIndexBuffer(objectToDraw->indices->vkBuffer);
+			objectToDraw->meshDataAndPiplineBinded = true;
 		}
 
 		DescriptorManager::SgrDescriptorSets descrSets = descriptorManager->getDescriptorSetsByName(instance.name);
@@ -714,7 +672,7 @@ SgrErrCode SGR::buildDrawingCommands(bool rebuild)
 		for (size_t i = 0; i < commandManager->commandBuffers.size(); i++)
 			commandManager->bindDescriptorSet(&objectPipeline->pipelineLayout, static_cast<uint8_t>(i), descrSets.descriptorSets[i], 0, 1, dynamicOffset);
 
-		commandManager->drawIndexed(objectToDraw.indicesCount, 1, 0, 0, 0);
+		commandManager->drawIndexed(objectToDraw->indicesCount, 1, 0, 0, 0);
 	}
 
 	commandsBuilded = true;

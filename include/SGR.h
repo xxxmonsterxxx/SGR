@@ -20,11 +20,13 @@
 
 #define ON_SCREEN_RENDER true
 
+void sgrEmptyDataUpdateFunc();
+
 #pragma pack(push, 1) // Disable padding
 class SGR {
 public:
 	struct SgrObject {
-		std::string name;
+		std::string name = "empty";
 		SgrBuffer* vertices = nullptr;
 		SgrBuffer* indices = nullptr;
 		uint32_t indicesCount = 0;
@@ -32,8 +34,8 @@ public:
 	};
 
 	struct SgrObjectInstance {
-		std::string name;
-		std::string geometry;
+		std::string name = "empty";
+		std::string geometry = "empty";
 		uint32_t 	uboDataAlignment = 0;
 		bool		needToDraw = false;
 	};
@@ -46,7 +48,6 @@ public:
 
 	bool isSGRRunning();
 
-	void (*drawDataUpdate)() = nullptr;
 	void setUpdateFunction(void (*dataUpdateFunc)()) { drawDataUpdate = dataUpdateFunc; }
 
 	SgrErrCode drawFrame();
@@ -88,17 +89,17 @@ public:
 	SgrErrCode addObjectInstance(std::string name, std::string geometry, uint32_t dynamicUBOalignment);
 	SgrErrCode writeDescriptorSets(std::string name, std::vector<void*> data);
 
-	SgrErrCode setupGlobalUniformBufferObject(SgrBuffer* uboBuffer);
-	SgrErrCode updateGlobalUniformBufferObject(SgrGlobalUniformBufferObject obj);
+	SgrErrCode setupGlobalUBO(SgrBuffer* uboBuffer);
+	SgrErrCode updateGlobalUBO(SgrGlobalUBO obj);
 
-	SgrErrCode updateInstancesUniformBufferObject(SgrInstancesUniformBufferObject& dynUBO);
+	SgrErrCode updateInstancesUBO(SgrInstancesUBO& dynUBO);
 
 	SgrErrCode drawObject(std::string instanceName);
 	
 	void unbindAllMeshesAndPiplines();
 
-	SgrObjectInstance& findInstanceByName(std::string name);
-	SgrObject& findObjectByName(std::string name);
+	SgrObjectInstance* findInstanceByName(std::string name);
+	SgrObject* findObjectByName(std::string name);
 
 	bool setFPSDesired(uint8_t fps);
 
@@ -116,9 +117,12 @@ private:
 	const uint8_t enginePatch 		 = SGR_VERSION_PATCH;
 
 	bool sgrRunning;
-	SgrTime_t startRunningTime;
-	SgrTime_t lastFrameUpdateTime;
 	uint8_t fpsDesired = 60;
+
+#if !NDBUG
+	uint8_t fpsMin = 200;
+	uint8_t fpsMax = 0;
+#endif
 
 	std::string applicationName;
 	uint8_t appVersionMajor;
@@ -168,7 +172,7 @@ private:
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-	bool validationLayersEnabled = NDBUG;
+	bool validationLayersEnabled = !NDBUG;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	SgrErrCode checkValidationLayerSupport();
@@ -180,5 +184,7 @@ private:
 														const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
 	SgrErrCode destroyDebugMessenger();
+
+	void (*drawDataUpdate)() = nullptr;
 };
 #pragma pack(pop) // Enable padding

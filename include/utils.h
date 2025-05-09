@@ -2,7 +2,7 @@
 
 
 #ifndef NDBUG
-#define NDBUG true
+#define NDBUG false
 #endif
 
 #if _WIN64
@@ -14,6 +14,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <cstdint>
 #include <string.h>
@@ -30,6 +31,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
+#include <thread>
 
 using SgrTime = std::chrono::steady_clock;
 using SgrTime_t = std::chrono::steady_clock::time_point;
@@ -114,3 +116,5 @@ enum SgrErrCode
 std::string getExecutablePath();
 
 double getTimeDuration(SgrTime_t start, SgrTime_t end);
+
+#define SGR_CHECK_RES(x) if (x != sgrOK) return x;

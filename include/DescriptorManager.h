@@ -24,13 +24,13 @@ private:
 		std::vector<VkVertexInputBindingDescription> vertexBindingDescr;
 		std::vector<VkVertexInputAttributeDescription> vertexAttributeDescr;
 		std::vector<VkDescriptorSetLayoutBinding> setLayoutBinding;
-		std::vector<VkDescriptorSetLayout> setLayouts;
+		VkDescriptorSetLayout setLayout;
 	};
 
 	std::vector<SgrDescriptorInfo> descriptorInfos;
 
 	struct SgrDescriptorSets {
-		std::string name;
+		std::string name = "empty";
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
 	};

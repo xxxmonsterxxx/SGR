@@ -30,12 +30,14 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
     # install rpath for distributing
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
     set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
+    set(INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Resources/macosx/Info.plist)
 
     add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES}
                                                  ${RESOURCE_FILES})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
                                           MACOSX_BUNDLE TRUE
+                                          MACOSX_BUNDLE_INFO_PLIST ${INFO_PLIST}
                                           MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
                                           MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION}
                                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${VMAJOR}.${VMINOR}
@@ -44,17 +46,49 @@ elseif (APPLE AND CMAKE_BUILD_TYPE STREQUAL "Release")
 
     set(BUNDLE_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}.app)
     set(FRAMEWORKS_PATH ${BUNDLE_PATH}/Contents/Frameworks)
-    set(ICD_PATH ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d)
+
+    # Creating Resources/Vulkan/icd.d
+    file(MAKE_DIRECTORY ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d)
+
+    # JSON for Vulkan loader
+    set(MOLTENVK_ICD_JSON_CONTENT 
+    "{
+        \"file_format_version\" : \"1.0.0\",
+        \"ICD\": {
+            \"library_path\": \"../../../Frameworks/libMoltenVK.dylib\",
+            \"api_version\" : \"1.2.0\",
+            \"is_portability_driver\" : true
+        }
+    }")
+
+    # Creating MoltenVK_icd.json
+    file(WRITE ${BUNDLE_PATH}/Contents/Resources/vulkan/icd.d/MoltenVK_icd.json 
+            "${MOLTENVK_ICD_JSON_CONTENT}")
 
     file(COPY ${Vulkan_LIBRARIES} DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
-    file(COPY ${BUILD_DEST}/lib/libSGR.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
     file(COPY ${GLFW3_INCLUDE_DIRS}/../lib/libglfw.dylib DESTINATION ${FRAMEWORKS_PATH} FOLLOW_SYMLINK_CHAIN)
-    
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD                    
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD   
+                    COMMAND cp -a -R ${BUILD_DEST}/lib/ ${FRAMEWORKS_PATH}
                     COMMAND codesign --deep --force --verbose --sign - ${BUNDLE_PATH}
                     COMMENT "Signing the application bundle...")
+
+elseif (LINUX AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exampleApplication/${PROJECT_NAME}App)
+
+    add_executable(${PROJECT_NAME} ${SOURCES})
+
+    set(LIB_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory      ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${BUILD_DEST}/lib/libSGR.so               ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${GLFW3_INCLUDE_DIRS}/../lib/libglfw.so   ${LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different   ${CMAKE_CURRENT_SOURCE_DIR}/Resources/linux/run.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory      ${CMAKE_CURRENT_SOURCE_DIR}/Resources     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Resources
+    )
+    
 else ()
     add_executable(${PROJECT_NAME} ${SOURCES})
     file(COPY Resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -63,10 +97,11 @@ endif()
 set(GLM_INC_DIR ../modules/glm)
 set(STB_INC_DIR ../modules/stb)
 set(TINY_OBJ_LOADER_INC_DIR ../modules/tiny_obj_loader)
+set(TINY_GLTF_LOADER_INC_DIR ../modules/tiny_gltf_loader)
 
 set(SGR_FOLDER ${CMAKE_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE}/SGR-v${VERSION}-${CMAKE_SYSTEM_NAME})
 
-include_directories(${GLM_INC_DIR} ${STB_INC_DIR} ${TINY_OBJ_LOADER_INC_DIR} ${SGR_FOLDER}/include/SGR)
+include_directories(${GLM_INC_DIR} ${STB_INC_DIR} ${TINY_OBJ_LOADER_INC_DIR} ${TINY_GLTF_LOADER_INC_DIR} ${SGR_FOLDER}/include/SGR)
 target_link_libraries (${PROJECT_NAME} SGR)
 
 if (WIN32)

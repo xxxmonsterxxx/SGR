@@ -22,13 +22,14 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(descrInfo.setLayoutBinding.size());
     layoutInfo.pBindings = descrInfo.setLayoutBinding.data();
+    layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
     VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags{};
     std::vector<VkDescriptorBindingFlagsEXT> descriptorBindingFlags;
     if (descrInfo.setLayoutBinding.back().descriptorCount > 1) {
         setLayoutBindingFlags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
         setLayoutBindingFlags.bindingCount = descrInfo.setLayoutBinding.size();
-        for (auto binding : descrInfo.setLayoutBinding) {
+        for (auto& binding : descrInfo.setLayoutBinding) {
             VkDescriptorBindingFlagsEXT flag = 0;
             if (binding.descriptorCount > 1)
                 flag = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT;
@@ -44,8 +45,7 @@ SgrErrCode DescriptorManager::createDescriptorSetLayout(SgrDescriptorInfo& descr
     if (vkCreateDescriptorSetLayout(LogicalDeviceManager::instance->logicalDevice, &layoutInfo, nullptr, &newLayout) != VK_SUCCESS)
         return sgrInitDefaultUBODescriptorSetLayoutError;
 
-    std::vector<VkDescriptorSetLayout> newSetLayouts(SwapChainManager::instance->imageCount, newLayout);
-    descrInfo.setLayouts = newSetLayouts;
+    descrInfo.setLayout = newLayout;
 
     return sgrOK;
 }
@@ -67,7 +67,8 @@ SgrErrCode DescriptorManager::createDescriptorPool(SgrDescriptorInfo& descrInfo,
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapChainImageCount;
-    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    poolInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+    // poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
  
     if (vkCreateDescriptorPool(LogicalDeviceManager::instance->logicalDevice, &poolInfo, nullptr, &descrPool) != VK_SUCCESS) {
         return sgrInitDefaultUBODescriptorPoolError;
@@ -95,7 +96,9 @@ SgrErrCode DescriptorManager::createDescriptorSets(std::string name, SgrDescript
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = newSets->descriptorPool;
     allocInfo.descriptorSetCount = swapChainImageCount;
-    allocInfo.pSetLayouts = descrInfo.setLayouts.data();
+
+    std::vector<VkDescriptorSetLayout> setLayouts(swapChainImageCount, descrInfo.setLayout); // we need so much setlayouts how much we need descriptorSets
+    allocInfo.pSetLayouts = setLayouts.data();
 
     VkDescriptorSetVariableDescriptorCountAllocateInfoEXT variableDescriptorCountAllocInfo{};
     std::vector<uint32_t> variableDesciptorCounts;
@@ -132,7 +135,8 @@ SgrErrCode DescriptorManager::updateDescriptorSets()
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
     int i = 0;
     for (auto& descr : pendedDescriptorsUpdate) {
-        vkFreeDescriptorSets(device, allDescriptorSets[descr.idx].descriptorPool, static_cast<uint32_t>(allDescriptorSets[descr.idx].descriptorSets.size()), allDescriptorSets[descr.idx].descriptorSets.data());
+        // dont need because descriptors was created with update after bind pool bit
+        // vkFreeDescriptorSets(device, allDescriptorSets[descr.idx].descriptorPool, static_cast<uint32_t>(allDescriptorSets[descr.idx].descriptorSets.size()), allDescriptorSets[descr.idx].descriptorSets.data());
         vkDestroyDescriptorPool(device, allDescriptorSets[descr.idx].descriptorPool, nullptr);
 
         if (updateDescriptorSets(descr.name, descr.infoName, descr.data, true) == sgrOK)
@@ -273,7 +277,6 @@ const DescriptorManager::SgrDescriptorSets DescriptorManager::getDescriptorSetsB
     }
 
     SgrDescriptorSets emptyDescriptorSets;
-    emptyDescriptorSets.name = "empty";
     return emptyDescriptorSets;
 }
 
@@ -281,14 +284,14 @@ SgrErrCode DescriptorManager::destroyDescriptorsData()
 {
     VkDevice device = LogicalDeviceManager::instance->logicalDevice;
 
-    for (auto& descrSets : allDescriptorSets)
-        vkFreeDescriptorSets(device, descrSets.descriptorPool, static_cast<uint32_t>(descrSets.descriptorSets.size()), descrSets.descriptorSets.data());
-
-    for (auto& descrSets : allDescriptorSets)
+    for (auto& descrSets : allDescriptorSets) {
+        // dont need because descriptors was created by update after bind pool bit
+        // vkFreeDescriptorSets(device, descrSets.descriptorPool, static_cast<uint32_t>(descrSets.descriptorSets.size()), descrSets.descriptorSets.data());
         vkDestroyDescriptorPool(device, descrSets.descriptorPool, nullptr);
+    }
 
     for (auto& descrInfo : descriptorInfos)
-        vkDestroyDescriptorSetLayout(device, descrInfo.setLayouts[0], nullptr);
+        vkDestroyDescriptorSetLayout(device, descrInfo.setLayout, nullptr);
 
     vkDestroyDescriptorPool(device, uiDescriptorPool, nullptr);
 

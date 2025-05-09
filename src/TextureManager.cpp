@@ -92,6 +92,11 @@ SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*&
 	return result;
 }
 
+SgrErrCode TextureManager::createTextureImage(void* pixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image)
+{
+    return createImage(pixels, fontWidth, fontHeight, VK_FORMAT_R8G8B8A8_SRGB, image);
+}
+
 SgrErrCode TextureManager::createFontTextureImage(void* fontPixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image)
 {
 	return createImage(fontPixels, fontWidth, fontHeight, VK_FORMAT_R8_UNORM, image);

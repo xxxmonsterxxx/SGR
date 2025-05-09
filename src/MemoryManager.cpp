@@ -155,17 +155,6 @@ SgrErrCode MemoryManager::createIndexBuffer(SgrBuffer*& buffer, VkDeviceSize siz
     return sgrOK;
 }
 
-SgrErrCode MemoryManager::createUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size)
-{
-    if (buffer != nullptr)
-        return sgrIncorrectPointer;
-    SgrErrCode resultCreateBuffer = createBuffer(buffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    if (resultCreateBuffer != sgrOK)
-        return resultCreateBuffer;
-    allocatedBuffers.push_back(buffer);
-    return sgrOK;
-}
-
 SgrErrCode MemoryManager::createDynamicUniformBuffer(SgrBuffer*& buffer, VkDeviceSize size, VkDeviceSize blockRange)
 {
     if (buffer != nullptr)
@@ -201,7 +190,7 @@ void MemoryManager::copyBufferToImage(SgrBuffer* buffer, SgrImage* image) {
     CommandManager::instance->endSingleTimeCommands(commandBuffer);
 }
 
-SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUniformBufferObject& dynamicUBO)
+SgrErrCode MemoryManager::createDynamicUniformMemory(SgrInstancesUBO& dynamicUBO)
 {
     if (dynamicUBO.data != nullptr)
         return sgrIncorrectPointer;

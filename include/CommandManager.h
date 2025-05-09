@@ -36,7 +36,7 @@ private:
 	SgrErrCode init();
 	SgrErrCode beginCommandBuffers();
 	SgrErrCode freeCommandBuffers(bool cleanOldCommands = false);
-	SgrErrCode endInitCommandBuffers();
+	SgrErrCode endCommandBuffers();
 	bool buffersEnded = false;
 
 	std::vector<std::vector<Command*>> commands; // for each command buffer we have commands set

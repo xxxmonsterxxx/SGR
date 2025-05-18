@@ -118,10 +118,14 @@ private:
 
 	bool sgrRunning;
 	uint8_t fpsDesired = 60;
+	SgrTime_t lastDrawTime;
 
 #if !NDBUG
 	uint8_t fpsMin = 200;
 	uint8_t fpsMax = 0;
+	uint8_t fpsCounter = 0;
+	SgrTime_t lastFPSCheckTime;
+	SgrTime_t lastFPSStatReset;
 #endif
 
 	std::string applicationName;

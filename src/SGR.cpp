@@ -240,18 +240,30 @@ SgrErrCode SGR::drawFrame()
 
 	currentFrame = (currentFrame + 1) % maxFrameInFlight;
 
-	float drawFrameTime = static_cast<float>(getTimeDuration(drawTime,SgrTime::now()));
+	double drawFrameTime = getTimeDuration(lastDrawTime,SgrTime::now());
 
 	if (drawFrameTime < 1.f/fpsDesired) {
-		int needWaitTime = (1.f/fpsDesired - drawFrameTime)*1000;
+		int64_t needWaitTime = (1.0/fpsDesired - drawFrameTime)*1000;
 		std::this_thread::sleep_for(std::chrono::milliseconds(needWaitTime));
 	}
 
+	lastDrawTime = SgrTime::now();
+
 #if !NDBUG
-	uint8_t actualFPS = 1 / getTimeDuration(drawTime, SgrTime::now());
-	if (actualFPS > fpsMax) fpsMax = actualFPS;
-	if (actualFPS < fpsMin) fpsMin = actualFPS;
-	printf("\rFPS: %d [min %d : max %d : des %d]", actualFPS, fpsMin, fpsMax, fpsDesired);
+	fpsCounter++;
+	if (getTimeDuration(lastFPSCheckTime, SgrTime::now()) > 1) {
+		lastFPSCheckTime = SgrTime::now();
+		if (fpsCounter > fpsMax) fpsMax = fpsCounter;
+		if (fpsCounter < fpsMin) fpsMin = fpsCounter;
+		printf("\nFPS: %d [min %d : max %d : des %d]", fpsCounter, fpsMin, fpsMax, fpsDesired);
+		fpsCounter = 0;
+	}
+
+	if (getTimeDuration(lastFPSStatReset, SgrTime::now()) > 5) {
+		fpsMin = 200;
+		fpsMax = 0;
+		lastFPSStatReset = SgrTime::now();
+	}
 #endif
 
 	return sgrOK;

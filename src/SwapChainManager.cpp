@@ -497,3 +497,16 @@ SgrErrCode SwapChainManager::createDepthResources()
 
 	return sgrOK;
 }
+
+void SwapChainManager::destroyImageView(VkImageView imageView)
+{
+    createdImageViews.erase(std::find_if(createdImageViews.begin(), createdImageViews.end(), [&imageView](const VkImageView* iv){ return *iv == imageView; }));
+    vkDestroyImageView(LogicalDeviceManager::instance->logicalDevice, imageView, nullptr);
+}
+
+void SwapChainManager::destroyImage(VkImage image, VkDeviceMemory mem)
+{
+    createdImages.erase(std::find_if(createdImages.begin(), createdImages.end(), [&image, &mem](const AllocatedImageData id){ return *id.imgP == image && *id.memP == mem; }));
+    vkDestroyImage(LogicalDeviceManager::instance->logicalDevice, image, nullptr);
+    vkFreeMemory(LogicalDeviceManager::instance->logicalDevice, mem, nullptr);
+}

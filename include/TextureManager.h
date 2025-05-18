@@ -14,6 +14,7 @@ public:
 	static SgrErrCode createTextureImage(std::string image_path, SgrImage*& image);
 	static SgrErrCode createTextureImage(void* pixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image);
 	static SgrErrCode createFontTextureImage(void* fontPixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image);
+	static void destroyImage(SgrImage* image);
 
 	static SgrErrCode destroyAllSamplers();
 

@@ -134,3 +134,16 @@ SgrErrCode TextureManager::destroyAllSamplers()
 
     return sgrOK;
 }
+
+void TextureManager::destroyImage(SgrImage* image)
+{
+    VkDevice& device = LogicalDeviceManager::instance->logicalDevice;
+
+    createdSamplers.erase(std::find_if(createdSamplers.begin(), createdSamplers.end(), [&image](const VkSampler* s){ return *s == image->sampler; }));
+    vkDestroySampler(device, image->sampler, nullptr);
+
+    SwapChainManager::destroyImageView(image->view);
+    SwapChainManager::destroyImage(image->vkImage, image->memory);
+
+    delete image;
+}

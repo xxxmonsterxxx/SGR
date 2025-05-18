@@ -81,6 +81,8 @@ private:
 	void setupSwapChainProperties();
 
 	static SgrErrCode createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
+	static void destroyImageView(VkImageView imageView);
+	static void destroyImage(VkImage image, VkDeviceMemory mem);
 	static SgrErrCode createImage(SgrImage*& image);
 	static SgrErrCode transitionImageLayout(SgrImage* image, VkImageLayout oldLayout, VkImageLayout newLayout);
 

@@ -249,7 +249,7 @@ SgrErrCode SGR::drawFrame()
 
 	lastDrawTime = SgrTime::now();
 
-#if !NDBUG
+#if SGR_DEBUG
 	fpsCounter++;
 	if (getTimeDuration(lastFPSCheckTime, SgrTime::now()) > 1) {
 		lastFPSCheckTime = SgrTime::now();

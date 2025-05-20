@@ -1,8 +1,8 @@
 #pragma once
 
 
-#ifndef NDBUG
-#define NDBUG false
+#ifndef SGR_DEBUG
+#define SGR_DEBUG true
 #endif
 
 #if _WIN64

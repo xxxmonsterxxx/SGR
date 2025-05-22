@@ -13,6 +13,10 @@ void sgrEmptyDataUpdateFunc() { ; }
 
 SGR::SGR(std::string appName, uint8_t appVersionMajor, uint8_t appVersionMinor)
 {
+#if SGR_DEBUG == true
+	enableDebugMode();
+#endif
+
 	manualWindow = false;
 	sgrRunning = false;
 	window = nullptr;

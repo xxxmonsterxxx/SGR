@@ -92,9 +92,9 @@ SgrErrCode TextureManager::createTextureImage(std::string image_path, SgrImage*&
 	return result;
 }
 
-SgrErrCode TextureManager::createTextureImage(void* pixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image)
+SgrErrCode TextureManager::createTextureImage(void* pixels, const uint32_t width, const uint32_t height, SgrImage*& image)
 {
-    return createImage(pixels, fontWidth, fontHeight, VK_FORMAT_R8G8B8A8_SRGB, image);
+    return createImage(pixels, width, height, VK_FORMAT_R8G8B8A8_SRGB, image);
 }
 
 SgrErrCode TextureManager::createFontTextureImage(void* fontPixels, const uint32_t fontWidth, const uint32_t fontHeight, SgrImage*& image)
@@ -133,4 +133,17 @@ SgrErrCode TextureManager::destroyAllSamplers()
         vkDestroySampler(LogicalDeviceManager::instance->logicalDevice, *sampler, nullptr);
 
     return sgrOK;
+}
+
+void TextureManager::destroyImage(SgrImage* image)
+{
+    VkDevice& device = LogicalDeviceManager::instance->logicalDevice;
+
+    createdSamplers.erase(std::find_if(createdSamplers.begin(), createdSamplers.end(), [&image](const VkSampler* s){ return *s == image->sampler; }));
+    vkDestroySampler(device, image->sampler, nullptr);
+
+    SwapChainManager::destroyImageView(image->view);
+    SwapChainManager::destroyImage(image->vkImage, image->memory);
+
+    delete image;
 }

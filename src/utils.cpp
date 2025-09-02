@@ -5,7 +5,7 @@ std::string getExecutablePath()
 	char ep[PATH_MAX];
 
 	#if __APPLE__
-		if (NDBUG) {
+		if (!SGR_DEBUG) {
 			// MacOS release executable path
 			CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
 			CFURLGetFileSystemRepresentation(resourceURL, true,

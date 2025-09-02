@@ -140,7 +140,7 @@ then
 	exit
 fi
 
-mkdir build
+mkdir -p build
 cd build
 
 # Choose build type
@@ -158,7 +158,7 @@ else
 
 	if [ $BUILD_TYPE == release ] && [ $INSTALL == true ]
 	then
-		sudo mkdir $INSTALL_PATH/include/SGR
+		sudo mkdir -p $INSTALL_PATH/include/SGR
 		sudo make install
 	fi
 fi

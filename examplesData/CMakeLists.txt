@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(SGR_test)
 
+# Debug for sources install
+if(CMAKE_BUILD_TYPE STREQUAL "Release")  # set release or not status for source code
+	add_definitions(-DNDBUG=true)
+else ()
+	add_definitions(-DNDBUG=false)
+endif ()
+
 # compiler options
 set(CMAKE_CXX_STANDARD 17) #standard version is 17 - minimum for "optional" use
 

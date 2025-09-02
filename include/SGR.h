@@ -118,11 +118,13 @@ private:
 
 	bool sgrRunning;
 	uint8_t fpsDesired = 60;
+	SgrTime_t lastDrawTime;
 
-#if !NDBUG
 	uint8_t fpsMin = 200;
 	uint8_t fpsMax = 0;
-#endif
+	uint8_t fpsCounter = 0;
+	SgrTime_t lastFPSCheckTime;
+	SgrTime_t lastFPSStatReset;
 
 	std::string applicationName;
 	uint8_t appVersionMajor;
@@ -172,7 +174,7 @@ private:
 
 	// validation layer block
 	const std::vector<const char*> requiredValidationLayers = {"VK_LAYER_KHRONOS_validation"};
-	bool validationLayersEnabled = !NDBUG;
+	bool validationLayersEnabled = false;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	SgrErrCode checkValidationLayerSupport();
